@@ -83,11 +83,11 @@ details summary{cursor:pointer;padding:4px 0}
 /* ==================== CONFIGURATION ====================
    Public values only: the project URL and the ANON public key from
    Supabase > Project Settings > API. Never place the service_role key here. */
-var SUPABASE_URL = 'https://YOUR-PROJECT-REF.supabase.co';
-var SUPABASE_ANON_KEY = 'YOUR-ANON-PUBLIC-KEY';
+var SUPABASE_URL = 'https://qufxjfntdqhympultbx.supabase.co';
+var SUPABASE_ANON_KEY = 'sb_publishable_639f9uEApKsGgOtQW_J9Jg_M-nnwtnB';
 
 var CONFIGURED = /^https:\/\/[a-z0-9-]+\.supabase\.co$/.test(SUPABASE_URL) &&
-  SUPABASE_ANON_KEY.length > 40 && SUPABASE_ANON_KEY.indexOf('YOUR-') !== 0;
+  SUPABASE_ANON_KEY.length > 20 && SUPABASE_ANON_KEY.indexOf('YOUR-') !== 0;
 var LIB_OK = !!(window.supabase && window.supabase.createClient);
 var sb = (CONFIGURED && LIB_OK) ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
   auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
@@ -202,10 +202,6 @@ var errorBox = function (e) {
 var stat = function (label, value, cls) {
   return '<div class="' + cls + '"><small>' + esc(label) + '</small><b>' + money(value) + '</b></div>';
 };
-var off = function (title, text) {
-  return '<div class="card"><div class="row"><h2>' + esc(title) + '</h2><span class="pill p-off">Verification Required</span></div>' +
-    '<p class="muted">' + esc(text) + '</p></div>';
-};
 var isAdmin = function () {
   return !!(S.profile && (S.profile.role === 'admin' || S.profile.role === 'super_admin'));
 };
@@ -217,14 +213,15 @@ var firstError = function (results) {
   return null;
 };
 
-/* Safe optional table loaders (so existing DB works even before new migrations run) */
 async function loadPlans() {
+  if (!sb) return DEFAULT_PLANS;
   var r = await sb.from('investment_plans').select('*').order('min_amount', { ascending: true });
   if (!r.error && r.data && r.data.length) return r.data;
   return DEFAULT_PLANS;
 }
 
 async function loadProgramSettings() {
+  if (!sb) return Object.assign({}, DEFAULT_SETTINGS);
   var r = await sb.from('program_settings').select('*').eq('id', 1).maybeSingle();
   if (!r.error && r.data) return Object.assign({}, DEFAULT_SETTINGS, r.data);
   return Object.assign({}, DEFAULT_SETTINGS);
@@ -239,7 +236,6 @@ function matchPlan(plans, validBalance) {
   return null;
 }
 
-/* ==================== AUTH VIEWS ==================== */
 function authHTML(view) {
   var dialOpts = DIALS.map(function (c) {
     return '<option value="' + c[0] + '|' + c[2] + '">' + flag(c[0]) + ' ' + esc(c[1]) + ' (' + c[2] + ')</option>';
@@ -271,310 +267,4 @@ function authHTML(view) {
     '<form data-form="forgot"><label>Email<input type="email" name="email" required autocomplete="email"></label>' +
     '<button type="submit" style="width:100%">Send reset link</button></form>' +
     '<p class="muted"><a href="#login">Back to sign in</a></p>');
-  if (view === 'reset') return box('Choose a new password', 'Use at least 8 characters.',
-    '<form data-form="reset"><label>New password<input type="password" name="password" minlength="8" required autocomplete="new-password"></label>' +
-    '<label>Confirm new password<input type="password" name="confirm" minlength="8" required autocomplete="new-password"></label>' +
-    '<button type="submit" style="width:100%">Update password</button></form>');
-  return box('Welcome back', 'Sign in to your PrimeCore account.',
-    '<form data-form="login"><label>Email<input type="email" name="email" required autocomplete="email"></label>' +
-    '<label>Password<input type="password" name="password" required autocomplete="current-password"></label>' +
-    '<button type="submit" style="width:100%">Sign in</button></form>' +
-    '<p class="muted" style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-top:12px">' +
-    '<a href="#forgot">Forgot password?</a><a href="#signup">Create account</a></p>');
-}
-
-/* ==================== NAVIGATION ==================== */
-function renderNav() {
-  var links = S.user ? NAV.slice() : [];
-  if (S.user && isAdmin()) links.push(['admin', 'Admin']);
-  $('#nav').innerHTML = links.map(function (l) {
-    return '<a href="#' + l[0] + '" class="' + (S.view === l[0] ? 'on' : '') + '">' + esc(l[1]) + '</a>';
-  }).join('');
-  $('#logout').style.display = S.user ? '' : 'none';
-}
-
-/* ==================== PAGES (signed in) ==================== */
-var PAGES = {};
-var UID = function () { return S.user.id; };
-
-PAGES.dashboard = async function () {
-  var uid = UID();
-  var q = await Promise.all([
-    sb.from('wallet_balances').select('available_balance,pending_hold').eq('user_id', uid).maybeSingle(),
-    sb.from('deposits').select('amount').eq('user_id', uid).eq('status', 'successful'),
-    sb.from('investments').select('amount').eq('user_id', uid).eq('status', 'active'),
-    sb.from('wallet_ledger').select('amount,kind').eq('user_id', uid).eq('status', 'posted').in('kind', ['task_credit', 'reward_credit', 'referral_credit', 'claim_credit']),
-    sb.from('withdrawals').select('amount').eq('user_id', uid).eq('status', 'pending'),
-    sb.from('wallet_ledger').select('kind,amount,status,created_at').eq('user_id', uid).order('created_at', { ascending: false }).limit(8),
-    sb.rpc('team_tree'),
-    sb.from('claim_requests').select('id,category,reward_amount,status,created_at').eq('user_id', uid).order('created_at', { ascending: false }).limit(25),
-    loadPlans(),
-    loadProgramSettings()
-  ]);
-  if (q[0].error) return msgHTML() + errorBox(q[0].error);
-
-  var bal = q[0].data || { available_balance: 0, pending_hold: 0 };
-  var totalDeposits = sum(q[1].data);
-  var activeInv = sum(q[2].data);
-  var verifiedEarnings = sum(q[3].data);
-  var pendingWd = sum(q[4].data);
-  var validBalance = Number(bal.available_balance || 0);
-  var plans = q[8];
-  var cfg = q[9];
-  var currentPlan = matchPlan(plans, validBalance);
-
-  var teamRows = (!q[6].error && q[6].data) ? q[6].data : [];
-  var directRefs = teamRows.filter(function (x) { return x.level === 1; });
-  var qualifiedDirect = directRefs.filter(function (x) { return Number(x.deposits || 0) >= Number(cfg.min_qualifying_deposit || 30); });
-
-  var claims = (!q[7].error && q[7].data) ? q[7].data : [];
-  var pendingClaims = claims.filter(function (c) { return c.status === 'PENDING'; });
-  var successClaims = claims.filter(function (c) { return c.status === 'SUCCESS'; });
-
-  var recent = (q[5].data || []).map(function (t) {
-    var neg = t.amount < 0;
-    return '<tr><td>' + when(t.created_at) + '</td><td>' + esc(KIND[t.kind] || t.kind) + '</td><td style="color:' +
-      (neg ? '#dc2626' : '#059669') + ';font-weight:600">' + (neg ? '−' : '+') + money(Math.abs(t.amount)) +
-      '</td><td>' + pill(t.status) + '</td></tr>';
-  }).join('');
-
-  var l1Ok = qualifiedDirect.length >= Number(cfg.level_1_target);
-  var l2Ok = qualifiedDirect.length >= Number(cfg.level_2_target);
-  var l3Ok = qualifiedDirect.length >= Number(cfg.level_3_target);
-
-  return msgHTML() + '<h1>Dashboard</h1>' +
-    '<div class="cols4">' +
-      stat('Total Deposits', totalDeposits, 'stat') +
-      stat('Valid Balance', validBalance, 'stat green') +
-      stat('Verified Earnings', verifiedEarnings, 'stat dark') +
-      stat('Pending Withdrawals', pendingWd, 'stat amber') +
-    '</div>' +
-    '<div class="cols3">' +
-      '<div class="card">' +
-        '<div class="row"><h2>Current Plan</h2>' + (currentPlan ? '<span class="pill p-info">' + esc(currentPlan.name) + '</span>' : '<span class="pill p-off">Below Minimum</span>') + '</div>' +
-        (currentPlan
-          ? '<p style="margin:6px 0"><b>Proposed Daily Rate: ' + esc(currentPlan.proposed_daily_rate) + '%</b> <span class="muted">(Not guaranteed)</span></p>' +
-            '<p class="muted">Tier Range: ' + money(currentPlan.min_amount) + ' – ' + money(currentPlan.max_amount) + ' · Lock: ' + esc(currentPlan.lock_days) + 'd</p>'
-          : '<p class="muted">Deposit at least ' + money(plans[0].min_amount) + ' to qualify for <b>' + esc(plans[0].name) + '</b> (Proposed ' + esc(plans[0].proposed_daily_rate) + '%/day).</p>') +
-        '<a href="#investment">View all 5 plan tiers →</a>' +
-      '</div>' +
-      '<div class="card">' +
-        '<div class="row"><h2>Compounding System</h2><span class="pill ' + (cfg.compounding_enabled ? 'p-ok' : 'p-wait') + '">' + (cfg.compounding_enabled ? 'Server Active' : 'Verified Only') + '</span></div>' +
-        '<div class="kpi"><span class="muted">Eligible Starting Balance</span><b>' + money(validBalance) + '</b></div>' +
-        '<div class="kpi"><span class="muted">Verified Earnings</span><b>' + money(verifiedEarnings) + '</b></div>' +
-        '<p class="muted" style="margin-top:8px">Server-side calculation only. No automatic unverified credits.</p>' +
-        '<a href="#profit">Open Compounding &amp; Profit →</a>' +
-      '</div>' +
-      '<div class="card">' +
-        '<div class="row"><h2>Direct Referrals</h2><span class="pill p-info">' + qualifiedDirect.length + ' Qualified</span></div>' +
-        '<div class="kpi"><span class="muted">Total Direct</span><b>' + directRefs.length + '</b></div>' +
-        '<div class="kpi"><span class="muted">Qualified (≥' + money(cfg.min_qualifying_deposit) + ')</span><b>' + qualifiedDirect.length + '</b></div>' +
-        '<a href="#team" style="display:inline-block;margin-top:8px">Manage Referrals &amp; Team →</a>' +
-      '</div>' +
-      '<div class="card">' +
-        '<div class="row"><h2>Team Performance</h2><span class="pill p-ok">3 Levels</span></div>' +
-        '<div class="kpi"><span>Level 1 (' + cfg.level_1_rate + '% proposed)</span>' + pill(l1Ok ? 'active' : 'pending') + '</div>' +
-        '<div class="kpi"><span>Level 2 (' + cfg.level_2_rate + '% proposed)</span>' + pill(l2Ok ? 'active' : 'pending') + '</div>' +
-        '<div class="kpi"><span>Level 3 (' + cfg.level_3_rate + '% proposed)</span>' + pill(l3Ok ? 'active' : 'pending') + '</div>' +
-        '<a href="#team" style="display:inline-block;margin-top:8px">Team Commission Dashboard →</a>' +
-      '</div>' +
-      '<div class="card">' +
-        '<div class="row"><h2>Daily Referral Challenge</h2><span class="pill p-wait">Milestones</span></div>' +
-        '<p class="muted">5 Qualified = ' + money(cfg.challenge_5_reward) + ' · 10 = ' + money(cfg.challenge_10_reward) + ' · 20 = ' + money(cfg.challenge_20_reward) + ' (proposed).</p>' +
-        '<a href="#team">Open Daily Challenge &amp; Claim →</a>' +
-      '</div>' +
-      '<div class="card">' +
-        '<div class="row"><h2>Claims Overview</h2><span class="pill p-wait">' + pendingClaims.length + ' Pending</span></div>' +
-        '<div class="kpi"><span class="muted">Pending Claims</span><b>' + pendingClaims.length + ' (' + money(sum(pendingClaims.map(function(x){return {amount:x.reward_amount};}))) + ')</b></div>' +
-        '<div class="kpi"><span class="muted">Completed Rewards</span><b>' + successClaims.length + ' (' + money(sum(successClaims.map(function(x){return {amount:x.reward_amount};}))) + ')</b></div>' +
-        '<a href="#daily" style="display:inline-block;margin-top:8px">View Claim Requests →</a>' +
-      '</div>' +
-    '</div>' +
-    '<div class="card"><h2>Recent transactions</h2><div class="wide">' +
-      (recent ? '<table><tr><th>Date</th><th>Type</th><th>Amount</th><th>Status</th></tr>' + recent + '</table>'
-              : '<p class="muted">No transactions yet.</p>') +
-    '</div></div>';
-};
-
-PAGES.wallet = async function () {
-  var uid = UID();
-  var q = await Promise.all([
-    sb.from('wallet_balances').select('available_balance,pending_hold').eq('user_id', uid).maybeSingle(),
-    sb.from('deposits').select('id,amount,method,reference,status,requested_at').eq('user_id', uid).order('requested_at', { ascending: false }).limit(50),
-    sb.from('withdrawals').select('id,amount,method,destination,status,requested_at').eq('user_id', uid).order('requested_at', { ascending: false }).limit(50)
-  ]);
-  var err = firstError(q);
-  if (err) return msgHTML() + errorBox(err);
-  var bal = q[0].data || { available_balance: 0, pending_hold: 0 };
-  var dep = (q[1].data || []).map(function (d) {
-    return '<tr><td>' + when(d.requested_at) + '</td><td>' + money(d.amount) + '</td><td>' + esc(d.method) + '</td><td>' + pill(d.status) + '</td></tr>';
-  }).join('');
-  var wd = (q[2].data || []).map(function (w) {
-    return '<tr><td>' + when(w.requested_at) + '</td><td>' + money(w.amount) + '</td><td>' + esc(w.destination) + '</td><td>' + pill(w.status) + '</td></tr>';
-  }).join('');
-  var methods = '<option value="bank">Bank transfer</option><option value="crypto">Crypto</option><option value="other">Other</option>';
-  return msgHTML() + '<h1>My Wallet</h1>' +
-    '<div class="two">' + stat('Available Balance', bal.available_balance, 'stat green') + stat('Pending holds', bal.pending_hold, 'stat amber') + '</div>' +
-    '<div class="two">' +
-      '<div class="card"><h2>Request a deposit</h2><form data-form="deposit">' +
-        '<label>Amount (USD)<input type="number" name="amount" min="10" step="0.01" required></label>' +
-        '<label>Method<select name="method">' + methods + '</select></label>' +
-        '<label>Payment reference<input name="reference" required minlength="5"></label>' +
-        '<button type="submit">Submit deposit request</button></form>' +
-        '<p class="muted">Your balance changes only after an admin verifies the transfer.</p></div>' +
-      '<div class="card"><h2>Request a withdrawal</h2><form data-form="withdraw">' +
-        '<label>Amount (USD)<input type="number" name="amount" min="10" step="0.01" required></label>' +
-        '<label>Method<select name="method">' + methods + '</select></label>' +
-        '<label>Destination (account or wallet)<input name="destination" required minlength="5"></label>' +
-        '<button type="submit">Submit withdrawal request</button></form>' +
-        '<p class="muted">The amount is held now and released if the request is rejected.</p></div>' +
-    '</div>' +
-    '<div class="card"><h2>Deposits</h2><div class="wide">' +
-      (dep ? '<table><tr><th>Requested</th><th>Amount</th><th>Method</th><th>Status</th></tr>' + dep + '</table>'
-           : '<p class="muted">No deposit requests yet.</p>') +
-    '</div></div>' +
-    '<div class="card"><h2>Withdrawals</h2><div class="wide">' +
-      (wd ? '<table><tr><th>Requested</th><th>Amount</th><th>Destination</th><th>Status</th></tr>' + wd + '</table>'
-          : '<p class="muted">No withdrawal requests yet.</p>') +
-    '</div></div>';
-};
-
-PAGES.tasks = async function () {
-  var uid = UID();
-  var q = await Promise.all([
-    sb.from('tasks').select('id,category,title,description,reward_amount').eq('is_active', true).order('created_at'),
-    sb.from('task_completions').select('id,task_id,status,started_at,submitted_at').eq('user_id', uid).order('started_at', { ascending: false })
-  ]);
-  var err = firstError(q);
-  if (err) return msgHTML() + errorBox(err);
-  var tasks = q[0].data || [], comps = q[1].data || [];
-  var by = {};
-  comps.forEach(function (c) { by[c.task_id] = c; });
-  var cards = tasks.map(function (t) {
-    var c = by[t.id], action = '';
-    if (!c) action = '<button data-act="start" data-id="' + esc(t.id) + '">Start task</button>';
-    else if (c.status === 'started') action = '<button data-act="submit" data-id="' + esc(c.id) + '">Submit for verification</button>';
-    else if (c.status === 'submitted') action = '<span class="muted">Awaiting admin review</span>';
-    else if (c.status === 'paid') action = '<span class="muted">Reward credited</span>';
-    return '<div class="card"><div class="row"><h2>' + esc(t.title) + '</h2><b>' + money(t.reward_amount) + '</b></div>' +
-      '<p class="muted">' + esc(t.description) + '</p><div class="row">' +
-      (c ? pill(c.status) : '<span class="pill p-off">Not started</span>') + action + '</div></div>';
-  }).join('');
-  var reqs = comps.map(function (c) {
-    var t = tasks.filter(function (x) { return x.id === c.task_id; })[0];
-    return '<tr><td style="font-family:monospace">' + esc(c.id.slice(0, 8)) + '</td><td>' + esc(t ? t.title : '—') +
-      '</td><td>' + money(t ? t.reward_amount : 0) + '</td><td>' + when(c.submitted_at) + '</td><td>' +
-      '<span class="pill ' + (PILL[c.status] || 'p-off') + '">' + esc(CLAIM_LABEL[c.status] || c.status) + '</span></td></tr>';
-  }).join('');
-  return msgHTML() + '<h1>Tasks Center</h1><p class="muted">Rewards are credited only after an admin verifies the task.</p>' +
-    (cards || '<div class="card"><p class="muted">No tasks are available right now.</p></div>') +
-    '<div class="card"><h2>Task Claim Requests</h2><div class="wide">' +
-      (reqs ? '<table><tr><th>Request ID</th><th>Task</th><th>Reward</th><th>Submitted</th><th>Status</th></tr>' + reqs + '</table>'
-            : '<p class="muted">No task claim requests yet.</p>') +
-    '</div></div>';
-};
-
-PAGES.daily = async function () {
-  var uid = UID();
-  var q = await Promise.all([
-    sb.from('claim_requests').select('*').eq('user_id', uid).order('created_at', { ascending: false }).limit(50),
-    loadProgramSettings()
-  ]);
-  var claims = (!q[0].error && q[0].data) ? q[0].data : [];
-  var cfg = q[1];
-  var rows = claims.map(function (c) {
-    return '<tr>' +
-      '<td style="font-family:monospace">' + esc(String(c.id).slice(0, 8)) + '</td>' +
-      '<td>' + esc(c.category) + '</td>' +
-      '<td><b>' + money(c.reward_amount) + '</b></td>' +
-      '<td>' + when(c.created_at) + '</td>' +
-      '<td>' + pill(c.status) + '</td>' +
-      '<td class="muted">' + esc(c.admin_note || (c.processed_at ? 'Processed ' + when(c.processed_at) : 'Awaiting admin verification')) + '</td>' +
-    '</tr>';
-  }).join('');
-
-  return msgHTML() + '<h1>Daily Reward &amp; Claim Requests</h1>' +
-    '<div class="notice"><b>Revenue-Backed Policy:</b> Proposed daily rates and milestone rewards are never auto-credited without verified, legally permitted revenue and funded reward budget (' + money(cfg.funded_reward_budget) + ' currently allocated). Duplicate daily processing is blocked server-side.</div>' +
-    '<div class="card">' +
-      '<div class="row"><h2>Claim Request History</h2><span class="pill p-info">PENDING → SUCCESS Workflow</span></div>' +
-      '<p class="muted">Every reward claim creates a tracked server record. Status stays <b>PENDING</b> until an authorized admin verifies eligibility and credits the funded reward (<b>SUCCESS</b>).</p>' +
-      '<div class="wide">' +
-        (rows ? '<table><tr><th>Request ID</th><th>Reward Category</th><th>Reward Amount</th><th>Claim Date</th><th>Current Status</th><th>Processing History</th></tr>' + rows + '</table>'
-              : '<p class="muted">No reward claims submitted yet. Visit <a href="#team">My Team</a> to submit eligible Daily Referral Challenge or Team Level claims.</p>') +
-      '</div>' +
-    '</div>';
-};
-
-PAGES.investment = async function () {
-  var uid = UID();
-  var q = await Promise.all([
-    sb.from('wallet_balances').select('available_balance').eq('user_id', uid).maybeSingle(),
-    sb.from('investments').select('*').eq('user_id', uid).order('created_at', { ascending: false }),
-    loadPlans()
-  ]);
-  var bal = Number((q[0].data && q[0].data.available_balance) || 0);
-  var invs = (!q[1].error && q[1].data) ? q[1].data : [];
-  var plans = q[2];
-  var activeTier = matchPlan(plans, bal);
-
-  var cards = plans.map(function (p) {
-    var isCurrent = activeTier && activeTier.code === p.code;
-    return '<div class="card ' + (isCurrent ? 'plan-active' : '') + '">' +
-      '<div class="row"><h2>' + esc(p.name) + '</h2>' +
-        (isCurrent ? '<span class="pill p-ok">Current Eligible Tier</span>' : '<span class="pill p-info">Proposed Tier</span>') +
-      '</div>' +
-      '<div class="kpi"><span class="muted">Balance Range</span><b>' + money(p.min_amount) + ' – ' + money(p.max_amount) + '</b></div>' +
-      '<div class="kpi"><span class="muted">Proposed Daily Rate</span><b>' + esc(p.proposed_daily_rate) + '% / day</b></div>' +
-      '<div class="kpi"><span class="muted">Lock Period</span><span>' + esc(p.lock_days) + ' days</span></div>' +
-      '<div class="kpi"><span class="muted">Service / Exit Fee</span><span>' + esc(p.fee_pct) + '%</span></div>' +
-      '<p class="muted" style="margin-top:8px">' + esc(p.eligibility_note || '') + '</p>' +
-      '<p class="muted" style="font-size:12px"><i>Proposed rate only — not a guaranteed return. Credited only from verified, legally permitted revenue.</i></p>' +
-    '</div>';
-  }).join('');
-
-  var invRows = invs.map(function (i) {
-    return '<tr><td>' + when(i.created_at) + '</td><td>' + esc(i.plan_code || 'Standard') + '</td><td>' + money(i.amount) + '</td><td>' + pill(i.status) + '</td></tr>';
-  }).join('');
-
-  return msgHTML() + '<h1>Investment Plan Tiers</h1>' +
-    '<div class="notice"><b>Risk &amp; Terms Disclosure:</b> All displayed percentages are <b>proposed daily rates</b>, not guaranteed returns. Capital is subject to lock periods (' + plans.map(function(x){return x.name+': '+x.lock_days+'d';}).join(', ') + '), withdrawal verification, and applicable fees. Earnings are never generated from new member deposits.</div>' +
-    '<div class="two">' +
-      stat('Your Valid Balance', bal, 'stat green') +
-      '<div class="stat dark"><small>Matched Plan Tier</small><b>' + (activeTier ? esc(activeTier.name) + ' (' + esc(activeTier.proposed_daily_rate) + '% proposed)' : 'None ($30 min)') + '</b></div>' +
-    '</div>' +
-    '<div class="cols3">' + cards + '</div>' +
-    '<div class="card"><h2>Active &amp; Historical Allocations</h2><div class="wide">' +
-      (invRows ? '<table><tr><th>Date</th><th>Plan</th><th>Amount</th><th>Status</th></tr>' + invRows + '</table>'
-               : '<p class="muted">No active plan allocations recorded yet.</p>') +
-    '</div></div>';
-};
-
-PAGES.team = async function () {
-  var uid = UID();
-  var q = await Promise.all([
-    sb.rpc('team_tree'),
-    loadProgramSettings(),
-    sb.from('claim_requests').select('*').eq('user_id', uid).order('created_at', { ascending: false }).limit(50)
-  ]);
-  if (q[0].error) return msgHTML() + errorBox(q[0].error);
-  var rows = q[0].data || [];
-  var cfg = q[1];
-  var claims = (!q[2].error && q[2].data) ? q[2].data : [];
-
-  var direct = rows.filter(function (x) { return x.level === 1; });
-  var minDep = Number(cfg.min_qualifying_deposit || 30);
-  var verifiedDirect = direct.filter(function (x) { return Number(x.deposits || 0) > 0; });
-  var activeDirect = direct.filter(function (x) { return Number(x.investments || 0) > 0 || Number(x.deposits || 0) > 0; });
-  var qualifiedDirect = direct.filter(function (x) { return Number(x.deposits || 0) >= minDep; });
-  var qCount = qualifiedDirect.length;
-
-  var totals = {
-    deposits: rows.reduce(function (a, x) { return a + Number(x.deposits || 0); }, 0),
-    investments: rows.reduce(function (a, x) { return a + Number(x.investments || 0); }, 0)
-  };
-
-  /* 3 Team Levels */
-  var levels = [
-    { lvl: 1, rate: cfg.level_1_rate, target: Number(cfg.level_1_target), label: '2 qualified direct referrals' },
-    { lvl: 2, rate: cfg.level_2_rate, target: Number(cfg.level_2_target), label: '5 total qualified direct referrals (+3)' },
-    { lvl: 3
+  if (view
