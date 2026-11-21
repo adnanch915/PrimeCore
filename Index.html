@@ -1,872 +1,1161 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-<meta name="theme-color" content="#1e1b4b" />
-<title>PrimeCore — Member Portal</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Prime Core</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;500;700;800&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script>try{if(localStorage.getItem("pc-theme")==="dark")document.documentElement.setAttribute("data-theme","dark")}catch(e){}</script>
 <style>
-:root{
-  --navy:#1e1b4b;--indigo:#312e81;--violet:#7c3aed;--violet2:#8b5cf6;--lav:#ede9fe;
-  --bg:#f4f6fb;--card:#ffffff;--line:#e6e8f2;--text:#0f172a;--muted:#64748b;
-  --ok:#047857;--okbg:#d1fae5;--warn:#b45309;--warnbg:#fef3c7;--bad:#b91c1c;--badbg:#fee2e2;--neutral:#475569;--neutralbg:#e2e8f0;
-  --shadow:0 1px 2px rgba(15,23,42,.04),0 10px 30px rgba(30,27,75,.07);
-}
-*{box-sizing:border-box;margin:0;padding:0}
-html{-webkit-text-size-adjust:100%}
-body{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;line-height:1.45}
-button,input,select{font-family:inherit}
-.hidden{display:none!important}
-.muted{color:var(--muted);font-size:13px}
-.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:12px}
+:root{--bg:#f3f3f1;--card:#fff;--ink:#0a0a0a;--txt:#161616;--mute:#6f6f6b;--line:#e4e4df;--ac:#d4b46a;--acd:#8f7226;--inv:#0a0a0a;--invt:#fff;--r:22px}
+[data-theme=dark]{--bg:#050505;--card:#111;--ink:#f4f4f1;--txt:#ecece8;--mute:#8d8d88;--line:#232323;--ac:#d9b96a;--acd:#d9b96a;--inv:#f4f4f1;--invt:#0a0a0a}
+*{box-sizing:border-box;margin:0}
+html{scroll-behavior:smooth}
+body{font-family:Manrope,system-ui,sans-serif;background:var(--bg);color:var(--txt);line-height:1.55;transition:background .4s,color .4s}
+h1,h2,h3,.v{font-family:Sora,system-ui,sans-serif;letter-spacing:-.02em;color:var(--ink)}
+button{font:inherit;cursor:pointer;color:inherit}
+:focus-visible{outline:2px solid var(--ac);outline-offset:2px}
+.logo{font-family:Sora,Manrope,system-ui,sans-serif;font-size:16px;letter-spacing:.04em;color:var(--ink)}
+.logo i{font-style:normal;font-weight:800}.logo b{font-weight:300;color:var(--acd)}
+.mu{color:var(--mute)}
+.btn{position:relative;overflow:hidden;background:var(--inv);color:var(--invt);border:0;border-radius:14px;padding:13px 20px;font-weight:700;transition:transform .25s,box-shadow .25s}
+.btn:hover{transform:translateY(-2px);box-shadow:0 10px 24px rgba(0,0,0,.18)}
+.btn.gd{background:var(--ac);color:#0a0a0a}
+.btn.ln{background:transparent;border:1px solid var(--line);color:var(--txt)}
+.btn.sm{padding:8px 14px;font-size:13px;border-radius:10px}
+.btn:disabled{background:var(--line);color:var(--mute);cursor:not-allowed;transform:none;box-shadow:none}
+.rp{position:absolute;width:40px;height:40px;margin:-20px;border-radius:50%;background:currentColor;opacity:.25;transform:scale(0);animation:rp .6s ease-out forwards;pointer-events:none}
+@keyframes rp{to{transform:scale(6);opacity:0}}
+.ic{width:40px;height:40px;border-radius:50%;border:1px solid var(--line);background:var(--card);display:grid;place-items:center;font-size:16px;transition:transform .35s}
+.ic:hover{transform:rotate(20deg)}.ic.off{text-decoration:line-through;opacity:.5}
+/* AUTH */
+.auth{position:fixed;inset:0;z-index:100;display:grid;grid-template-columns:1.1fr 1fr;background:var(--bg);overflow:auto}
+.brand{position:fixed;top:18px;left:26px;z-index:101;color:#fff;mix-blend-mode:normal}
+.tools{position:fixed;top:14px;right:18px;z-index:101;display:flex;gap:8px}
+.aside{position:relative;overflow:hidden;background:#050505;color:#fff;display:grid;place-items:center;padding:60px 40px}
+.aside h2{color:#fff;font-size:clamp(30px,3.6vw,52px);line-height:1.08;font-weight:300;position:relative;z-index:2;max-width:420px}
+.aside h2 b{font-weight:800}
+.aside p{color:#a8a8a2;margin-top:14px;max-width:380px;position:relative;z-index:2}
+.orb{position:absolute;left:50%;top:50%;border:1px solid rgba(255,255,255,.1);border-radius:50%;transform:translate(-50%,-50%);animation:spin 40s linear infinite}
+.orb:after{content:"";position:absolute;top:-4px;left:50%;width:8px;height:8px;border-radius:50%;background:var(--ac);box-shadow:0 0 18px var(--ac)}
+@keyframes spin{to{transform:translate(-50%,-50%) rotate(360deg)}}
+.chip{position:absolute;z-index:3;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.16);backdrop-filter:blur(12px);border-radius:14px;padding:10px 16px;font-size:13px;color:#e6e6e0;animation:bob 6s ease-in-out infinite alternate}
+@keyframes bob{to{transform:translateY(-14px)}}
+.pane{display:grid;place-items:center;padding:84px 26px 40px}
+.box{width:100%;max-width:410px}
+.av{animation:vin .6s cubic-bezier(.2,.8,.2,1)}
+.box h3{font-size:26px;margin-bottom:6px}
+.box>.av>.mu{margin-bottom:18px}
+label{display:block;font-size:12.5px;font-weight:700;color:var(--mute);margin-bottom:2px}
+input,select{width:100%;padding:13px 14px;border:1px solid var(--line);border-radius:14px;font:inherit;margin:6px 0 14px;background:var(--card);color:var(--txt);transition:border-color .25s,box-shadow .25s}
+input:focus,select:focus{outline:0;border-color:var(--ink);box-shadow:0 0 0 4px rgba(212,180,106,.25)}
+#v-code,#r-code{text-align:center;letter-spacing:.6em;font-size:22px;font-family:Sora,Manrope,system-ui,sans-serif}
+.two{display:grid;gap:0 12px;grid-template-columns:1fr 1fr}
+@media(max-width:520px){.two{grid-template-columns:1fr}}
+.ph{display:flex;gap:8px}.ph input:first-child{width:86px;flex:none;text-align:center}
+.lnk{background:none;border:0;color:var(--ink);font-weight:700;padding:6px 0;text-decoration:underline;text-underline-offset:3px}
+.lk{display:flex;justify-content:space-between;flex-wrap:wrap;margin-top:12px;gap:6px}
+.err{color:#c0392b;font-size:13px;min-height:20px;margin-bottom:6px}
+.pm{height:4px;background:var(--line);border-radius:9px;margin:-8px 0 14px;overflow:hidden}.pm i{display:block;height:100%;width:0;background:var(--ink);transition:width .4s,background .4s}
+@media(max-width:900px){.auth{grid-template-columns:1fr}.aside{display:none}.brand{color:var(--ink)}}
+/* APP SHELL */
+body.locked #app{display:none}
+#app{display:grid;grid-template-columns:236px 1fr;min-height:100vh}
+.sb{position:sticky;top:0;height:100vh;padding:22px 14px;display:flex;flex-direction:column;gap:22px;background:var(--card);border-right:1px solid var(--line)}
+.sb .logo{padding:0 10px;font-size:17px}
+#nv{display:flex;flex-direction:column;gap:4px}
+.nv{display:flex;align-items:center;gap:12px;background:none;border:0;border-radius:14px;padding:11px 12px;font-weight:600;font-size:14px;color:var(--mute);transition:background .3s,color .3s,transform .3s;text-align:left}
+.nv svg{width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.nv:hover{color:var(--ink);transform:translateX(3px)}
+.nv.on{background:var(--inv);color:var(--invt)}
+.mn{padding:0 26px 40px;min-width:0}
+.top{position:sticky;top:0;z-index:20;display:flex;justify-content:space-between;align-items:center;padding:14px 0;background:color-mix(in srgb,var(--bg) 80%,transparent);backdrop-filter:blur(14px)}
+.top .logo{display:none}
+.tr{display:flex;gap:8px;align-items:center;margin-left:auto}
+.avt{width:40px;height:40px;border-radius:50%;background:var(--inv);color:var(--invt);display:grid;place-items:center;font-weight:800;font-family:Sora,Manrope,system-ui,sans-serif}
+.view{display:none}
+.view.on{display:block;animation:vin .65s cubic-bezier(.2,.8,.2,1)}
+@keyframes vin{from{opacity:0;clip-path:inset(0 0 100% 0 round 28px);transform:translateY(16px)}to{opacity:1;clip-path:inset(0 0 -40px 0 round 28px);transform:none}}
+.view.on>*,.view.on .stg>*{animation:ci .7s cubic-bezier(.2,.8,.2,1) both;animation-delay:calc(var(--i,0)*70ms)}
+@keyframes ci{from{opacity:0;transform:translateY(22px) scale(.97)}to{opacity:1;transform:none}}
+.hd{display:flex;justify-content:space-between;align-items:flex-end;gap:14px;flex-wrap:wrap;margin:10px 0 20px}
+.hd h1{font-size:clamp(26px,4vw,38px);font-weight:300}.hd h1 b{font-weight:800}
+.bd{display:inline-block;background:var(--ac);color:#0a0a0a;font-size:11px;font-weight:800;padding:2px 9px;border-radius:99px;margin-left:6px}
+.g{display:grid;gap:14px;margin-bottom:14px}
+.g4{grid-template-columns:repeat(4,1fr)}.g3{grid-template-columns:repeat(auto-fit,minmax(250px,1fr))}.gm{grid-template-columns:2fr 1fr}
+@media(max-width:1000px){.g4{grid-template-columns:1fr 1fr}.gm{grid-template-columns:1fr}}
+.c{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:20px;transition:transform .35s,box-shadow .35s,border-color .35s}
+.c.hv:hover{transform:translateY(-4px);box-shadow:0 18px 40px rgba(0,0,0,.09);border-color:var(--ink)}
+.st small{color:var(--mute);font-weight:600;font-size:13px}.st .v{font-size:28px;font-weight:700;margin-top:2px}
+.st svg{width:100%;height:44px;margin-top:8px;overflow:visible}
+.sp{fill:none;stroke:var(--ink);stroke-width:2;stroke-linecap:round;vector-effect:non-scaling-stroke;stroke-dasharray:1;stroke-dashoffset:1;animation:dr 1.5s .3s cubic-bezier(.2,.8,.2,1) forwards}
+@keyframes dr{to{stroke-dashoffset:0}}
+.st.f{background:var(--inv);color:var(--invt)}.st.f small{color:inherit;opacity:.65}.st.f .v{color:var(--invt)}.st.f .sp{stroke:var(--ac)}
+.ar{clip-path:inset(0 100% 0 0);animation:rv 1.6s .2s cubic-bezier(.2,.8,.2,1) forwards}
+@keyframes rv{to{clip-path:inset(0 0 0 0)}}
+.rg{fill:none;stroke-width:8;stroke-linecap:round}.rg.b{stroke:var(--line)}.rg.p{stroke:var(--ink);stroke-dasharray:100;animation:rgd 1.4s .3s cubic-bezier(.2,.8,.2,1) both}
+@keyframes rgd{from{stroke-dashoffset:100}to{stroke-dashoffset:var(--o)}}
+.rw{position:relative;width:96px;height:96px;flex:none}.rw svg{transform:rotate(-90deg);width:100%;height:100%}
+.rw b{position:absolute;inset:0;display:grid;place-items:center;font-family:Sora,Manrope,system-ui,sans-serif;font-size:18px;color:var(--ink)}
+.row{display:flex;gap:16px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.tag{display:inline-block;background:var(--line);color:var(--txt);font-size:12px;font-weight:700;padding:3px 11px;border-radius:99px}
+.tag.ok{background:var(--ink);color:var(--bg)}.tag.pd{background:var(--ac);color:#0a0a0a}
+.pk{cursor:pointer;position:relative;overflow:hidden}
+.pk.sel{border-color:var(--ink)}.pk.u{background:var(--inv);color:var(--invt)}.pk.u h3,.pk.u .pr{color:var(--invt)}
+.pk .pr{font-family:Sora,Manrope,system-ui,sans-serif;font-size:22px;font-weight:700;margin:6px 0 10px;color:var(--ink)}
+.pk ul{padding-left:18px;font-size:14px;color:var(--mute)}.pk.u ul{color:#b9b9b3}
+.pk .more{max-height:0;overflow:hidden;opacity:0;transition:max-height .5s cubic-bezier(.2,.8,.2,1),opacity .4s,margin .4s;font-size:13px}
+.pk.sel .more{max-height:150px;opacity:1;margin-top:12px}
+.pk:before{content:"";position:absolute;inset:0;background:radial-gradient(300px circle at var(--mx,50%) var(--my,0),rgba(212,180,106,.22),transparent 60%);opacity:0;transition:opacity .3s}.pk:hover:before{opacity:1}
+.pk>*{position:relative}
+table{width:100%;border-collapse:collapse;font-size:14px}th,td{text-align:left;padding:11px 8px;border-bottom:1px solid var(--line)}th{color:var(--mute);font-weight:600}.scroll{overflow-x:auto}
+.kb{display:grid;grid-template-columns:1fr 1fr;gap:14px}@media(max-width:700px){.kb{grid-template-columns:1fr}}
+.col{min-height:160px;border:1.5px dashed var(--line);border-radius:var(--r);padding:12px;transition:background .3s,border-color .3s}
+.col.ov{background:rgba(212,180,106,.14);border-color:var(--ac)}
+.col h3{font-size:15px;margin-bottom:10px}
+.kc{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:12px;margin-bottom:10px;cursor:grab;transition:transform .25s,box-shadow .25s;animation:ci .5s both}
+.kc:hover{transform:translateY(-3px);box-shadow:0 10px 24px rgba(0,0,0,.1)}.kc:active{cursor:grabbing}
+.tl{display:flex;gap:14px;padding:14px 0;border-bottom:1px solid var(--line);align-items:flex-start}
+.dot{width:12px;height:12px;border-radius:50%;background:var(--ac);margin-top:6px;flex:none;box-shadow:0 0 0 5px rgba(212,180,106,.25)}.dot.ok{background:var(--ink);box-shadow:0 0 0 5px var(--line)}
+.facts{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}.facts div{border-left:2px solid var(--ac);padding-left:12px}
+.note{border:1px solid var(--ac);background:rgba(212,180,106,.12);border-radius:16px;padding:14px 16px;font-size:14px}
+.toast{position:fixed;left:50%;bottom:92px;transform:translate(-50%,120px);background:var(--inv);color:var(--invt);padding:12px 20px;border-radius:14px;transition:transform .45s cubic-bezier(.2,1.2,.3,1);z-index:300;font-weight:700;max-width:90vw}
+.toast.show{transform:translate(-50%,0)}
+.cf{position:fixed;width:8px;height:8px;border-radius:2px;pointer-events:none;z-index:250;animation:cf .95s ease-out forwards}
+@keyframes cf{to{transform:translate(var(--x),var(--y)) rotate(400deg);opacity:0}}
+input[type=number]{margin:4px 0 0;padding:8px 10px;width:90px}
+@media(max-width:900px){
+ #app{grid-template-columns:1fr}.mn{padding:0 16px 110px}.top .logo{display:block}
+ .sb{position:fixed;top:auto;bottom:0;left:0;right:0;height:auto;flex-direction:row;padding:8px 8px calc(8px + env(safe-area-inset-bottom,0px));z-index:30;border-right:0;border-top:1px solid var(--line);overflow-x:auto;gap:0}
+ .sb .logo{display:none}#nv{flex-direction:row;gap:2px}
+ .nv{flex-direction:column;gap:3px;font-size:10.5px;padding:8px 12px;min-width:66px;align-items:center}.nv:hover{transform:none}
+ .toast{bottom:100px}}
+.mdl{position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.55);backdrop-filter:blur(6px);display:grid;place-items:center;padding:18px;overflow:auto}.mdl[hidden]{display:none}
+.mb{background:var(--card);border-radius:26px;padding:24px;max-width:500px;width:100%;animation:pop .5s cubic-bezier(.2,1.2,.3,1)}
+@keyframes pop{from{opacity:0;transform:scale(.92) translateY(24px)}}
+textarea{width:100%;padding:13px 14px;border:1px solid var(--line);border-radius:14px;font:inherit;margin:6px 0 14px;background:var(--card);color:var(--txt);resize:vertical}
+textarea:focus{outline:0;border-color:var(--ink);box-shadow:0 0 0 4px rgba(212,180,106,.25)}
 
-/* ---------- Boot ---------- */
-.boot{display:grid;place-items:center;min-height:100vh;color:var(--muted);gap:14px;text-align:center}
-.spinner{width:34px;height:34px;border-radius:50%;border:3px solid #ddd6fe;border-top-color:var(--violet);animation:spin .8s linear infinite;margin:0 auto}
-@keyframes spin{to{transform:rotate(360deg)}}
+.logo{display:flex;align-items:center;gap:9px;font-size:13px;letter-spacing:.22em}
+.mk{width:20px;height:20px;border-radius:7px;background:var(--inv);position:relative;flex:none}
+.mk:after{content:"";position:absolute;inset:6px;border-radius:50%;background:var(--ac)}
+.sb .logo{font-size:13px}
+.brand{position:absolute!important;top:20px;left:26px;color:#fff}
+.brand .mk{background:#fff}.brand i,.brand b{color:#fff}.brand b{color:var(--ac)}
+@media(max-width:900px){.brand,.brand i{color:var(--ink)}.brand .mk{background:var(--inv)}.brand b{color:var(--acd)}}
+@keyframes drift{to{transform:translate(50px,30px) scale(1.2)}}
+.lg{width:auto;margin:0;padding:0 14px;height:40px;border-radius:99px;font-size:13px;font-weight:600}
+.dw{position:relative;width:116px;flex:none}
+.dw input{width:100%!important;text-align:left!important;padding-left:42px!important}
+.fl{width:22px;height:16px;object-fit:cover;border-radius:3px;box-shadow:0 0 0 1px rgba(0,0,0,.18);flex:none}
+.dw .fl{position:absolute;left:12px;top:50%;margin-top:-8px}
+.cp{position:relative;margin:6px 0 14px}
+.cb{width:100%;display:flex;align-items:center;gap:10px;padding:13px 14px;border:1px solid var(--line);border-radius:14px;background:var(--card);color:var(--txt);text-align:start;font-size:14px;transition:border-color .25s}
+.cb:hover{border-color:var(--ink)}
+.cl{position:absolute;z-index:40;left:0;right:0;top:calc(100% + 6px);background:var(--card);border:1px solid var(--line);border-radius:16px;box-shadow:0 24px 60px rgba(0,0,0,.25);padding:8px;animation:pop .35s both}
+.cl[hidden]{display:none}.cl input{margin:0 0 6px;padding:9px 12px}
+#cli{max-height:220px;overflow:auto}
+.ci{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:10px;cursor:pointer;font-size:14px}.ci:hover{background:var(--bg)}.ci span{margin-inline-start:auto;color:var(--mute)}
+.ck{display:flex;gap:8px;align-items:flex-start;font-weight:500;font-size:13px;color:var(--txt);margin-bottom:12px}.ck input{width:auto;margin:3px 0 0}
+.steps{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));margin-top:12px}
+.steps div{border-inline-start:2px solid var(--ac);padding-inline-start:12px;font-size:13px;color:var(--mute)}.steps b{display:block;color:var(--ink);font-family:Sora,Manrope,system-ui,sans-serif}
+.hero{position:relative;overflow:hidden;background:#050505;color:#fff;border-radius:var(--r);padding:30px;margin-bottom:14px;border:1px solid var(--line)}
+.hero:before,.hero:after{content:"";position:absolute;border-radius:50%;filter:blur(60px);animation:drift 12s ease-in-out infinite alternate}
+.hero:before{width:260px;height:260px;background:var(--ac);opacity:.4;right:-40px;top:-90px}
+.hero:after{width:220px;height:220px;background:#fff;opacity:.12;left:35%;bottom:-130px;animation-delay:-5s}
+.hero>*{position:relative;z-index:1}.hero h2{color:#fff;font-weight:300;font-size:clamp(22px,3.2vw,34px);max-width:520px;margin-bottom:16px;line-height:1.15}
+[dir=rtl] .brand{left:auto;right:26px}[dir=rtl] .tools{right:auto;left:18px}
+[dir=rtl] .nv:hover{transform:translateX(-3px)}
+[dir=rtl] .dw .fl{left:auto;right:12px}[dir=rtl] .dw input{padding-left:14px!important;padding-right:42px!important;text-align:right!important}
+@media(max-width:900px){.top{position:static;padding:14px 0 6px}.top .logo{margin:6px 0}.tr{position:fixed;top:10px;right:10px;z-index:25;background:var(--card);border:1px solid var(--line);border-radius:99px;padding:4px;gap:4px;margin:0}.tr .ic{width:34px;height:34px}.tr .lg{height:34px;padding:0 8px}.avt{display:none}[dir=rtl] .tr{right:auto;left:10px}}
 
-/* ---------- Auth ---------- */
-.auth-shell{min-height:100vh;display:grid;grid-template-columns:1.05fr .95fr}
-.auth-hero{position:relative;overflow:hidden;color:#fff;padding:48px 52px;display:flex;flex-direction:column;justify-content:space-between;background:linear-gradient(150deg,#1e1b4b 0%,#312e81 55%,#4c1d95 100%)}
-.blob{position:absolute;border-radius:50%;filter:blur(64px);opacity:.5;animation:float 14s ease-in-out infinite;pointer-events:none}
-.blob.b1{width:340px;height:340px;background:#7c3aed;top:-90px;right:-70px}
-.blob.b2{width:300px;height:300px;background:#4f46e5;bottom:-80px;left:-60px;animation-delay:-6s}
-@keyframes float{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(26px,-30px) scale(1.08)}}
-.logo{display:flex;align-items:center;gap:12px;position:relative;z-index:1}
-.logo-mark{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;font-weight:800;font-size:20px;background:linear-gradient(135deg,#8b5cf6,#6d28d9);box-shadow:0 6px 18px rgba(124,58,237,.45)}
-.logo-name{font-size:21px;font-weight:800;letter-spacing:.2px}
-.hero-body{position:relative;z-index:1;max-width:460px}
-.hero-body h1{font-size:34px;line-height:1.15;font-weight:800;letter-spacing:-.4px;margin-bottom:14px}
-.hero-body p{color:#c7d2fe;font-size:15px;margin-bottom:22px}
-.points{list-style:none;display:grid;gap:12px}
-.points li{display:flex;gap:12px;align-items:center;font-size:14px;color:#e0e7ff}
-.points .dot{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;background:rgba(255,255,255,.14);flex:none}
-.hero-foot{position:relative;z-index:1;font-size:12px;color:#a5b4fc}
-.auth-panel{display:grid;place-items:center;padding:32px 20px}
-.auth-card{width:100%;max-width:430px;background:#fff;border:1px solid var(--line);border-radius:20px;padding:30px;box-shadow:var(--shadow);animation:rise .45s ease both}
-.auth-card h2{font-size:25px;font-weight:800;letter-spacing:-.3px;margin-bottom:4px}
-.auth-card .sub{color:var(--muted);font-size:14px;margin-bottom:22px}
-.field{margin-bottom:14px}
-.field label{display:block;font-size:12.5px;font-weight:700;color:#334155;margin-bottom:6px}
-.field input,.field select{width:100%;padding:12px 13px;border:1px solid #cbd5e1;border-radius:11px;background:#f8fafc;font-size:15px;color:var(--text);transition:border-color .15s,box-shadow .15s,background .15s}
-.field input:focus,.field select:focus{outline:none;border-color:var(--violet);background:#fff;box-shadow:0 0 0 4px rgba(124,58,237,.12)}
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:0;border-radius:11px;padding:12px 18px;font-size:15px;font-weight:700;color:#fff;cursor:pointer;background:linear-gradient(90deg,#7c3aed,#8b5cf6);box-shadow:0 6px 16px rgba(124,58,237,.28);transition:transform .15s,box-shadow .15s,opacity .15s}
-.btn:hover{transform:translateY(-1px);box-shadow:0 10px 22px rgba(124,58,237,.34)}
-.btn:active{transform:translateY(0)}
-.btn:disabled{opacity:.6;cursor:not-allowed;transform:none}
-.btn.block{width:100%}
-.btn.ghost{background:#fff;color:var(--violet);border:1px solid #d8c9fb;box-shadow:none}
-.btn.ghost:hover{background:#faf7ff}
-.btn.sm{padding:8px 13px;font-size:13px;border-radius:9px}
-.links{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-top:16px}
-.link{background:none;border:0;color:#6d28d9;font-weight:700;font-size:14px;cursor:pointer}
-.link:hover{text-decoration:underline}
-.alert{padding:11px 13px;border-radius:11px;font-size:13.5px;margin-top:14px;word-break:break-word;animation:rise .25s ease both}
-.alert.err{background:var(--badbg);color:var(--bad);border:1px solid #fecaca}
-.alert.ok{background:#ecfdf5;color:var(--ok);border:1px solid #a7f3d0}
-.alert.info{background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe}
-.status-line{display:flex;align-items:center;gap:8px;margin-top:18px;padding-top:14px;border-top:1px dashed var(--line);font-size:12px;color:var(--muted)}
-.status-dot{width:9px;height:9px;border-radius:50%;background:#cbd5e1;flex:none}
-.status-dot.ok{background:#10b981;box-shadow:0 0 0 4px rgba(16,185,129,.15)}
-.status-dot.bad{background:#ef4444;box-shadow:0 0 0 4px rgba(239,68,68,.15)}
-.status-dot.wait{background:#f59e0b;animation:pulse 1.2s infinite}
-@keyframes pulse{50%{opacity:.35}}
-.build{margin-top:8px;font-size:11px;color:#94a3b8}
-.debug{margin-top:12px;padding:12px;background:#f8fafc;border:1px solid var(--line);border-radius:10px;font-family:ui-monospace,Menlo,monospace;font-size:11.5px;white-space:pre-wrap;word-break:break-all;color:#334155}
+/* ===== NEON-GLASS DASHBOARD THEME ===== */
+:root,[data-theme]{color-scheme:dark;--bg:#030a1c;--card:rgba(16,30,62,.52);--ink:#f2f7ff;--txt:#d6e2fa;--mute:#7e92b8;--line:rgba(120,160,255,.15);--ac:#e2b65c;--acd:#e2b65c;--inv:#2f6bff;--invt:#fff;--cy:#22d3ee;--r:20px}
+body{background:radial-gradient(1200px 700px at 15% -10%,#0b2a6b 0%,transparent 60%),radial-gradient(900px 600px at 100% 100%,#06324a 0%,transparent 55%),#030a1c;background-attachment:fixed;min-height:100vh}
+body:before,body:after{content:"";position:fixed;border-radius:50%;pointer-events:none;z-index:0;filter:blur(2px)}
+body:before{width:300px;height:300px;right:-90px;top:-100px;background:radial-gradient(circle at 35% 30%,#ffd98a,#e08a1e 55%,#7a3f06);opacity:.55;animation:float 14s ease-in-out infinite alternate}
+body:after{width:340px;height:340px;right:-120px;bottom:-130px;background:radial-gradient(circle at 35% 30%,#7df3ff,#14a6c9 55%,#064a66);opacity:.45;animation:float 18s ease-in-out infinite alternate-reverse}
+@keyframes float{to{transform:translate(-26px,22px) scale(1.06)}}
+#app,.auth{position:relative;z-index:1}
+.c,.sb,.mb,.cl,.cb,.top,.tr{backdrop-filter:blur(18px) saturate(140%);-webkit-backdrop-filter:blur(18px) saturate(140%)}
+.sb{background:linear-gradient(180deg,rgba(14,28,60,.72),rgba(6,14,34,.72));border-right:1px solid var(--line)}
+.c{background:linear-gradient(160deg,rgba(24,44,88,.55),rgba(8,18,40,.55));border:1px solid var(--line);box-shadow:inset 0 1px 0 rgba(255,255,255,.06),0 10px 30px rgba(0,0,0,.35)}
+.c.hv:hover{border-color:rgba(47,107,255,.6);box-shadow:0 0 0 1px rgba(47,107,255,.35),0 18px 44px rgba(10,60,200,.28)}
+.nv.on{background:linear-gradient(135deg,#2f6bff,#1f4fd8);color:#fff;box-shadow:0 8px 22px rgba(47,107,255,.45),inset 0 1px 0 rgba(255,255,255,.25)}
+.nv:hover:not(.on){background:rgba(120,160,255,.08)}
+.btn{background:linear-gradient(135deg,#2f6bff,#1f55e0);color:#fff;box-shadow:0 6px 18px rgba(47,107,255,.35),inset 0 1px 0 rgba(255,255,255,.22)}
+.btn:hover{box-shadow:0 10px 28px rgba(47,107,255,.55)}
+.btn.gd{background:linear-gradient(135deg,#f0cb7c,#d9a94a);color:#1a1204;box-shadow:0 6px 18px rgba(226,182,92,.25)}
+.btn.ln{background:rgba(120,160,255,.06);border:1px solid var(--line);color:var(--txt);box-shadow:none}
+.btn:disabled{background:rgba(120,160,255,.1);color:var(--mute);box-shadow:none}
+.avt{background:linear-gradient(135deg,#2f6bff,#22d3ee);color:#fff}
+.ic,.lg{background:rgba(16,30,62,.6);border-color:var(--line);color:var(--txt)}
+input,select,textarea{background:rgba(6,16,38,.7);border-color:var(--line);color:var(--txt)}
+input:focus,select:focus,textarea:focus{border-color:#2f6bff;box-shadow:0 0 0 4px rgba(47,107,255,.25)}
+.cb{background:rgba(6,16,38,.7)}.cb:hover{border-color:#2f6bff}
+.cl{background:#0a1630}.mb{background:#0a1630;border:1px solid var(--line)}
+.ci:hover{background:rgba(47,107,255,.15)}
+.mdl{background:rgba(2,6,18,.7)}
+.aside{background:radial-gradient(600px 500px at 30% 20%,#0b2a6b,transparent 70%),radial-gradient(500px 500px at 90% 100%,#064a66,transparent 70%),#030a1c}
+.orb{border-color:rgba(120,170,255,.16)}.orb:after{background:var(--cy);box-shadow:0 0 18px var(--cy)}
+.chip{background:rgba(120,160,255,.08);border-color:rgba(120,170,255,.22)}
+.hero{background:linear-gradient(135deg,rgba(14,40,100,.75),rgba(5,14,36,.8));border-color:var(--line)}
+.hero:before{background:#e08a1e;opacity:.45}.hero:after{background:var(--cy);opacity:.25}
+.sp{stroke:var(--cy)}.st.f{background:linear-gradient(135deg,#1f4fd8,#0c2a7a);border-color:rgba(47,107,255,.5)}.st.f .sp{stroke:#ffd98a}
+.rg.p{stroke:var(--cy);filter:drop-shadow(0 0 5px rgba(34,211,238,.6))}
+.pm i{background:linear-gradient(90deg,#2f6bff,#22d3ee)}
+.tag{background:rgba(120,160,255,.14);color:var(--txt)}
+.tag.ok{background:rgba(52,211,153,.16);color:#6ee7b7}
+.tag.pd,.bd{background:rgba(226,182,92,.18);color:#f0cb7c;border:1px solid rgba(226,182,92,.35)}
+.pk.sel{border-color:#2f6bff;box-shadow:0 0 0 1px rgba(47,107,255,.4),0 0 30px rgba(47,107,255,.25)}
+.pk.u{background:linear-gradient(160deg,rgba(31,79,216,.55),rgba(8,20,52,.7));color:#fff}
+.pk.u ul{color:#b6c8ee}
+.pk:before{background:radial-gradient(300px circle at var(--mx,50%) var(--my,0),rgba(47,107,255,.28),transparent 60%)}
+.col{border-color:rgba(120,160,255,.22)}.col.ov{background:rgba(47,107,255,.12);border-color:#2f6bff}
+.kc{background:rgba(16,30,62,.7);border-color:var(--line)}
+.dot{background:var(--cy);box-shadow:0 0 0 5px rgba(34,211,238,.18)}.dot.ok{background:#34d399;box-shadow:0 0 0 5px rgba(52,211,153,.18)}
+.facts div,.steps div{border-left-color:rgba(226,182,92,.6)}
+.note{border-color:rgba(226,182,92,.4);background:rgba(226,182,92,.08)}
+.toast{background:linear-gradient(135deg,#1f4fd8,#2f6bff);box-shadow:0 12px 30px rgba(47,107,255,.45)}
+.err{color:#ff7a7a}
+.lnk{color:#8fb2ff}
+.logo b{color:var(--cy)}.mk{background:linear-gradient(135deg,#2f6bff,#22d3ee)}.mk:after{background:#fff}
+::-webkit-scrollbar{width:8px;height:8px}::-webkit-scrollbar-thumb{background:rgba(120,160,255,.25);border-radius:9px}
 
-/* ---------- App shell ---------- */
-.topbar{position:sticky;top:0;z-index:20;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 18px;color:#fff;background:linear-gradient(135deg,#1e1b4b 0%,#312e81 100%);box-shadow:0 2px 14px rgba(15,23,42,.18)}
-.topbar .logo-mark{width:34px;height:34px;font-size:17px;border-radius:10px}
-.topbar .logo-name{font-size:18px}
-.chip-badge{background:rgba(167,139,250,.22);color:#ede9fe;border:1px solid rgba(196,181,253,.35);font-size:10.5px;font-weight:800;padding:3px 9px;border-radius:999px;letter-spacing:.4px}
-.top-right{display:flex;align-items:center;gap:10px}
-.avatar{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;font-weight:800;font-size:14px;background:linear-gradient(135deg,#8b5cf6,#6d28d9);color:#fff;flex:none}
-.who{font-size:13px;color:#e0e7ff;max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.btn-out{background:#fff;color:var(--navy);border:0;border-radius:9px;padding:8px 13px;font-weight:700;font-size:13px;cursor:pointer}
-.btn-out:hover{background:#f1f5f9}
-.tabs{position:sticky;top:58px;z-index:15;display:flex;gap:8px;overflow-x:auto;padding:10px 18px 12px;background:#1e1b4b;border-bottom:1px solid rgba(255,255,255,.08);-webkit-overflow-scrolling:touch;scrollbar-width:none}
-.tabs::-webkit-scrollbar{display:none}
-.tab{display:inline-flex;align-items:center;gap:7px;border:0;cursor:pointer;white-space:nowrap;padding:8px 14px;border-radius:999px;font-size:13px;font-weight:700;color:#cbd5e1;background:rgba(255,255,255,.07);transition:background .15s,color .15s,transform .15s}
-.tab:hover{background:rgba(255,255,255,.14);color:#fff}
-.tab.on{background:#8b5cf6;color:#fff;box-shadow:0 4px 12px rgba(139,92,246,.4)}
-.container{max-width:980px;margin:0 auto;padding:22px 16px 60px}
-.view{animation:rise .35s ease both}
-@keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
-.page-title{font-size:24px;font-weight:800;letter-spacing:-.3px;margin-bottom:4px}
-.page-sub{color:var(--muted);font-size:14px;margin-bottom:18px}
-.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:20px;box-shadow:var(--shadow);margin-bottom:16px}
-.card h3{font-size:16px;font-weight:800;margin-bottom:4px}
-.card .hint{color:var(--muted);font-size:13px;margin-bottom:14px}
-.row{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
-.hero-card{position:relative;overflow:hidden;color:#fff;border-radius:18px;padding:24px;margin-bottom:16px;background:linear-gradient(135deg,#312e81 0%,#6d28d9 100%);box-shadow:0 14px 34px rgba(76,29,149,.28)}
-.hero-card::after{content:"";position:absolute;right:-60px;top:-60px;width:220px;height:220px;border-radius:50%;background:rgba(255,255,255,.08)}
-.hero-card small{color:#ddd6fe;font-weight:600;font-size:13px}
-.hero-card .big{font-size:36px;font-weight:800;letter-spacing:-.8px;margin:6px 0 10px}
-.hero-card .sub2{color:#ddd6fe;font-size:13px}
-.grid{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(215px,1fr));margin-bottom:16px}
-.grid.two{grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
-.stat{display:flex;gap:14px;align-items:center;background:#fff;border:1px solid var(--line);border-radius:16px;padding:16px;box-shadow:var(--shadow);transition:transform .2s,box-shadow .2s}
-.stat:hover{transform:translateY(-2px);box-shadow:0 14px 34px rgba(30,27,75,.12)}
-.stat .ico{width:42px;height:42px;border-radius:12px;display:grid;place-items:center;flex:none;background:var(--lav);color:var(--violet)}
-.stat .ico.g{background:#d1fae5;color:#047857}.stat .ico.a{background:#fef3c7;color:#b45309}.stat .ico.b{background:#dbeafe;color:#1d4ed8}
-.stat .lbl{font-size:11.5px;font-weight:800;text-transform:uppercase;letter-spacing:.4px;color:var(--muted)}
-.stat .val{font-size:22px;font-weight:800;letter-spacing:-.4px;color:var(--navy)}
-.pill{display:inline-block;font-size:11px;font-weight:800;letter-spacing:.3px;padding:3px 9px;border-radius:999px;white-space:nowrap}
-.pill.ok{background:var(--okbg);color:var(--ok)}.pill.warn{background:var(--warnbg);color:var(--warn)}.pill.bad{background:var(--badbg);color:var(--bad)}.pill.neutral{background:var(--neutralbg);color:var(--neutral)}
-.scroll{overflow-x:auto}
-table{width:100%;border-collapse:collapse;font-size:14px}
-th,td{text-align:left;padding:11px 8px;border-bottom:1px solid var(--line);vertical-align:middle}
-th{font-size:11.5px;font-weight:800;text-transform:uppercase;letter-spacing:.4px;color:var(--muted);white-space:nowrap}
-tr:last-child td{border-bottom:0}
-.empty{text-align:center;color:var(--muted);font-size:14px;padding:22px 8px}
-.list{display:grid}
-.item{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--line)}
-.item:last-child{border-bottom:0}
-.item .ico{width:36px;height:36px;border-radius:10px;display:grid;place-items:center;background:var(--lav);color:var(--violet);flex:none}
-.item .t{font-weight:700;font-size:14px}
-.item .grow{flex:1;min-width:0}
-.amt{font-weight:800;font-size:14px;white-space:nowrap}.amt.pos{color:#047857}.amt.neg{color:#b91c1c}
-.plan{position:relative;background:#fff;border:1px solid var(--line);border-radius:16px;padding:18px;box-shadow:var(--shadow);transition:transform .2s,box-shadow .2s}
-.plan:hover{transform:translateY(-3px);box-shadow:0 16px 36px rgba(30,27,75,.13)}
-.plan .nm{font-size:17px;font-weight:800;color:var(--navy);margin-bottom:6px}
-.plan .rg{font-size:24px;font-weight:800;letter-spacing:-.4px;margin:6px 0 12px}
-.plan .bar{height:5px;border-radius:99px;background:linear-gradient(90deg,#c4b5fd,#7c3aed);opacity:.7}
-.form-grid{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
-.sk{border-radius:12px;background:linear-gradient(90deg,#eef0f7 25%,#f7f8fc 37%,#eef0f7 63%);background-size:400% 100%;animation:shimmer 1.4s infinite}
-@keyframes shimmer{0%{background-position:100% 50%}100%{background-position:0 50%}}
-#toasts{position:fixed;left:0;right:0;bottom:18px;display:grid;justify-items:center;gap:8px;z-index:50;pointer-events:none;padding:0 14px}
-.toast{pointer-events:auto;max-width:440px;padding:12px 16px;border-radius:12px;font-size:14px;font-weight:600;color:#fff;background:#1e1b4b;box-shadow:0 12px 30px rgba(15,23,42,.3);animation:rise .25s ease both}
-.toast.ok{background:#047857}.toast.err{background:#b91c1c}
-@media (max-width:860px){
-  .auth-shell{grid-template-columns:1fr}
-  .auth-hero{padding:26px 22px 28px;gap:16px}
-  .hero-body h1{font-size:24px}
-  .hero-body p{margin-bottom:0}
-  .points,.hero-foot{display:none}
-  .auth-panel{padding:20px 14px 40px;margin-top:-10px}
+/* ===== v2: true-black, restrained colour ===== */
+:root,[data-theme]{--bg:#050506;--card:rgba(255,255,255,.035);--ink:#f5f6f8;--txt:#d8dbe2;--mute:#868b97;--line:rgba(255,255,255,.09);--ac:#d9b866;--acd:#d9b866}
+body{font-family:Manrope,system-ui,-apple-system,"Segoe UI","Noto Sans","Noto Sans SC","PingFang SC","Microsoft YaHei","Noto Sans JP","Hiragino Sans","Yu Gothic","Noto Sans KR","Malgun Gothic",sans-serif;background:radial-gradient(900px 500px at 8% -10%,rgba(47,107,255,.10),transparent 60%),#050506;background-attachment:fixed}
+body:before{opacity:.10;filter:blur(40px)}body:after{opacity:.08;filter:blur(40px)}
+.sb{background:rgba(10,11,14,.82)}
+.c{background:linear-gradient(160deg,rgba(255,255,255,.05),rgba(255,255,255,.02));box-shadow:inset 0 1px 0 rgba(255,255,255,.05),0 8px 24px rgba(0,0,0,.5)}
+.c.hv:hover{border-color:rgba(255,255,255,.22);box-shadow:0 14px 34px rgba(0,0,0,.6)}
+.hero{background:linear-gradient(135deg,rgba(255,255,255,.05),rgba(255,255,255,.015));border-color:var(--line)}
+.hero:before{background:#d9a24a;opacity:.14}.hero:after{background:#22d3ee;opacity:.08}
+.aside{background:radial-gradient(500px 400px at 30% 20%,rgba(47,107,255,.14),transparent 70%),#050506}
+.orb{border-color:rgba(255,255,255,.08)}
+.chip{background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.12)}
+.st.f{background:linear-gradient(135deg,rgba(47,107,255,.26),rgba(255,255,255,.03));border-color:rgba(47,107,255,.3)}
+.rg.p{filter:none}
+input,select,textarea,.cb{background:rgba(0,0,0,.45)}
+.cl,.mb{background:#0b0c10}
+.mdl{background:rgba(0,0,0,.75)}
+.nv.on{box-shadow:0 4px 14px rgba(47,107,255,.3),inset 0 1px 0 rgba(255,255,255,.2)}
+.nv:hover:not(.on){background:rgba(255,255,255,.06)}
+.btn{box-shadow:0 4px 14px rgba(47,107,255,.25),inset 0 1px 0 rgba(255,255,255,.2)}.btn:hover{box-shadow:0 8px 20px rgba(47,107,255,.35)}
+.btn.ln,.ic{background:rgba(255,255,255,.05);border-color:var(--line)}
+.btn.gd{box-shadow:none}
+.pk.sel{border-color:rgba(255,255,255,.35);box-shadow:none}
+.pk.u{background:linear-gradient(160deg,rgba(47,107,255,.28),rgba(255,255,255,.03))}
+.pk:before{background:radial-gradient(300px circle at var(--mx,50%) var(--my,0),rgba(255,255,255,.07),transparent 60%)}
+.kc{background:rgba(255,255,255,.04)}
+.col{border-color:rgba(255,255,255,.14)}.col.ov{background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.4)}
+.tag{background:rgba(255,255,255,.08)}
+.tag.ok{background:rgba(52,211,153,.12);color:#6ee7b7}
+.tag.pd,.bd{background:rgba(217,184,102,.12);color:#e6c978;border-color:rgba(217,184,102,.28)}
+.note{background:rgba(217,184,102,.05);border-color:rgba(217,184,102,.25)}
+.toast{background:#15171c;border:1px solid var(--line);box-shadow:0 12px 30px rgba(0,0,0,.6)}
+.avt{background:#2f6bff}.mk{background:#2f6bff}.mk:after{background:#fff}.logo b{color:#8fb2ff}
+.dot{box-shadow:0 0 0 4px rgba(255,255,255,.06)}.dot.ok{box-shadow:0 0 0 4px rgba(52,211,153,.12)}
+.lgw{position:relative}
+.lgb{display:flex;align-items:center;gap:8px;height:40px;padding:0 12px;border-radius:99px;border:1px solid var(--line);background:rgba(255,255,255,.05);color:var(--txt);font-size:13px;font-weight:600;transition:background .25s}
+.lgb:hover{background:rgba(255,255,255,.1)}
+.lgl{position:absolute;top:calc(100% + 8px);inset-inline-end:0;min-width:200px;max-height:340px;overflow:auto;background:#0b0c10;border:1px solid var(--line);border-radius:16px;padding:6px;z-index:400;box-shadow:0 24px 60px rgba(0,0,0,.7);animation:pop .25s both}
+.lgl[hidden]{display:none}
+.lgi{display:flex;gap:10px;align-items:center;width:100%;background:none;border:0;text-align:start;padding:9px 10px;border-radius:10px;font-size:14px;color:var(--txt)}
+.lgi:hover,.lgi.on{background:rgba(255,255,255,.08)}
+.lgb .fl,.lgi .fl{position:static;margin:0}
+
+/* ===== v3: match reference dashboard (navy glass over glowing spheres) ===== */
+:root,[data-theme]{--bg:#040813;--card:rgba(14,24,52,.5);--line:rgba(140,175,255,.14);--ink:#f4f7ff;--txt:#d9e3fb;--mute:#8396bd}
+body{background:radial-gradient(1000px 600px at 12% -10%,rgba(30,70,190,.28),transparent 60%),#040813;background-attachment:fixed}
+body:before,body:after{display:none}
+.bgo{position:fixed;border-radius:50%;pointer-events:none;z-index:0}
+.o1{width:380px;height:380px;right:-90px;top:-130px;background:radial-gradient(circle at 35% 30%,#ffe3a6,#e3972d 45%,#8a4a0a 80%,#4a2504);box-shadow:0 0 140px rgba(227,151,45,.35);animation:float 16s ease-in-out infinite alternate}
+.o2{width:440px;height:440px;right:-120px;bottom:-160px;background:radial-gradient(circle at 35% 30%,#b0f7ff,#2fb9db 50%,#0b5a78 85%);box-shadow:0 0 140px rgba(47,185,219,.3);animation:float 20s ease-in-out infinite alternate-reverse}
+.o3{width:480px;height:480px;left:-150px;bottom:-140px;background:radial-gradient(circle at 35% 30%,#7aa9ff,#2457e6 50%,#0c2a82 85%);box-shadow:0 0 140px rgba(36,87,230,.4);animation:float 18s ease-in-out infinite alternate}
+.o4{width:210px;height:210px;left:46%;bottom:-70px;background:radial-gradient(circle at 35% 30%,#c4ffd9,#43d189 50%,#0d6b3a);box-shadow:0 0 100px rgba(67,209,137,.3);animation:float 14s ease-in-out infinite alternate-reverse}
+@media(max-width:900px){.o1{width:240px;height:240px}.o2{width:280px;height:280px}.o3{width:300px;height:300px}.o4{width:140px;height:140px}}
+.auth{background:transparent}.aside{background:transparent}
+.sb{background:linear-gradient(180deg,rgba(40,100,240,.42),rgba(12,28,80,.6) 45%,rgba(6,12,34,.72));border-right:1px solid rgba(140,175,255,.18)}
+.c{background:linear-gradient(160deg,rgba(26,40,80,.56),rgba(8,14,34,.5));border:1px solid rgba(140,175,255,.14);backdrop-filter:blur(26px) saturate(150%);-webkit-backdrop-filter:blur(26px) saturate(150%);box-shadow:inset 0 1px 0 rgba(255,255,255,.07),0 12px 34px rgba(0,0,0,.45)}
+.c.hv:hover{border-color:rgba(90,140,255,.5);box-shadow:0 0 0 1px rgba(47,107,255,.25),0 16px 40px rgba(0,0,0,.5)}
+.hero{background:linear-gradient(135deg,rgba(30,60,140,.38),rgba(6,12,30,.5));backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px)}
+.hero:before{background:#e3972d;opacity:.4}.hero:after{background:#2fb9db;opacity:.22}
+.chip{background:rgba(140,175,255,.08);border-color:rgba(140,175,255,.22)}
+.orb{border-color:rgba(140,175,255,.16)}
+.nv.on{background:linear-gradient(135deg,#3b78ff,#1f55e0);box-shadow:0 8px 22px rgba(47,107,255,.5),inset 0 1px 0 rgba(255,255,255,.25)}
+.nv:hover:not(.on){background:rgba(140,175,255,.1)}
+.btn{box-shadow:0 6px 18px rgba(47,107,255,.4),inset 0 1px 0 rgba(255,255,255,.22)}.btn:hover{box-shadow:0 10px 26px rgba(47,107,255,.55)}
+.btn.ln,.ic,.lgb{background:rgba(140,175,255,.07);border-color:rgba(140,175,255,.18)}
+input,select,textarea,.cb{background:rgba(4,10,28,.6)}
+input:focus,select:focus,textarea:focus{border-color:#3b78ff}
+.cl,.mb,.lgl{background:#0a1228}
+.mdl{background:rgba(2,6,18,.7)}
+.pk.u{background:linear-gradient(160deg,rgba(47,107,255,.5),rgba(8,20,52,.6))}
+.pk.sel{border-color:#3b78ff;box-shadow:0 0 0 1px rgba(59,120,255,.4),0 0 28px rgba(47,107,255,.22)}
+.pk:before{background:radial-gradient(300px circle at var(--mx,50%) var(--my,0),rgba(59,120,255,.22),transparent 60%)}
+.kc{background:rgba(20,34,70,.65)}
+.col{border-color:rgba(140,175,255,.22)}.col.ov{background:rgba(47,107,255,.12);border-color:#3b78ff}
+.tag{background:rgba(140,175,255,.14)}
+.toast{background:linear-gradient(135deg,#1f55e0,#3b78ff);border:0}
+.sp{stroke:#4d8dff}.st.f .sp{stroke:#ffd98a}.rg.p{stroke:#4d8dff;filter:drop-shadow(0 0 5px rgba(77,141,255,.6))}
+.avt,.mk{background:linear-gradient(135deg,#3b78ff,#2fb9db)}
+
+/* ===== v4: background spheres stay fixed in place ===== */
+.bgo{animation:none!important;will-change:auto}
+.hero:before,.hero:after{animation:none!important}
+@media(max-width:900px){.o1{right:-110px;top:-120px}.o2{right:-130px;bottom:-200px}.o3{left:-140px;bottom:-190px}.o4{bottom:-120px}}
+
+/* ===== v5: light mode (same design language) ===== */
+[data-theme=light]{color-scheme:light;--bg:#eef2fb;--card:rgba(255,255,255,.62);--ink:#0b1736;--txt:#1d2b4d;--mute:#5d6e96;--line:rgba(30,60,140,.14);--ac:#c8962f;--acd:#9a7218}
+[data-theme=light] body{background:radial-gradient(1000px 600px at 12% -10%,rgba(80,130,255,.22),transparent 60%),#eef2fb;background-attachment:fixed}
+[data-theme=light] .bgo{opacity:.6}
+[data-theme=light] .o1,[data-theme=light] .o2,[data-theme=light] .o3,[data-theme=light] .o4{box-shadow:none}
+[data-theme=light] .sb{background:linear-gradient(180deg,rgba(47,107,255,.2),rgba(255,255,255,.72) 45%,rgba(255,255,255,.8));border-right-color:rgba(30,60,140,.12)}
+[data-theme=light] .c{background:linear-gradient(160deg,rgba(255,255,255,.82),rgba(255,255,255,.55));border-color:rgba(30,60,140,.12);box-shadow:inset 0 1px 0 #fff,0 10px 30px rgba(20,40,100,.12)}
+[data-theme=light] .c.hv:hover{border-color:rgba(47,107,255,.5);box-shadow:0 0 0 1px rgba(47,107,255,.2),0 16px 38px rgba(20,40,100,.18)}
+[data-theme=light] .hero{background:linear-gradient(135deg,#1f4fd8,#0c2a7a);border-color:transparent}
+[data-theme=light] .aside h2{color:#0b1736}
+[data-theme=light] .aside p{color:#4a5a80}
+[data-theme=light] .chip{background:rgba(255,255,255,.6);border-color:rgba(30,60,140,.16);color:#1d2b4d}
+[data-theme=light] .orb{border-color:rgba(30,60,140,.14)}
+[data-theme=light] .brand,[data-theme=light] .brand i{color:#0b1736}
+[data-theme=light] .brand b,[data-theme=light] .logo b{color:#2f6bff}
+[data-theme=light] .brand .mk{background:linear-gradient(135deg,#3b78ff,#2fb9db)}
+[data-theme=light] .nv:hover:not(.on){background:rgba(47,107,255,.08)}
+[data-theme=light] .btn.ln,[data-theme=light] .ic,[data-theme=light] .lgb{background:rgba(255,255,255,.7);border-color:rgba(30,60,140,.16);color:var(--txt)}
+[data-theme=light] .btn:disabled{background:rgba(30,60,140,.08);color:var(--mute)}
+[data-theme=light] input,[data-theme=light] select,[data-theme=light] textarea,[data-theme=light] .cb{background:rgba(255,255,255,.85);color:var(--txt)}
+[data-theme=light] .cl,[data-theme=light] .mb,[data-theme=light] .lgl{background:#fff;border-color:rgba(30,60,140,.14);box-shadow:0 24px 60px rgba(20,40,100,.22)}
+[data-theme=light] .mdl{background:rgba(10,20,50,.45)}
+[data-theme=light] .lgi:hover,[data-theme=light] .lgi.on{background:rgba(47,107,255,.1)}
+[data-theme=light] .kc{background:rgba(255,255,255,.85)}
+[data-theme=light] .col{border-color:rgba(30,60,140,.22)}
+[data-theme=light] .col.ov{background:rgba(47,107,255,.08)}
+[data-theme=light] .tag{background:rgba(47,107,255,.1);color:var(--txt)}
+[data-theme=light] .tag.ok{background:rgba(52,211,153,.18);color:#0f7a52}
+[data-theme=light] .tag.pd,[data-theme=light] .bd{background:rgba(200,150,47,.16);color:#8a6310;border-color:rgba(200,150,47,.35)}
+[data-theme=light] .note{background:rgba(200,150,47,.1);border-color:rgba(200,150,47,.35)}
+[data-theme=light] .err{color:#d1343b}
+[data-theme=light] .lnk{color:#2f56d6}
+[data-theme=light] .pk:before{background:radial-gradient(300px circle at var(--mx,50%) var(--my,0),rgba(47,107,255,.14),transparent 60%)}
+[data-theme=light] ::-webkit-scrollbar-thumb{background:rgba(30,60,140,.25)}
+.ic svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+
+/* ===== v6: logo, links, trust, labels ===== */
+.logo,.sb .logo{gap:0;letter-spacing:.03em;font-size:16px}
+.logo .mk{margin-right:9px}
+.logo i{font-weight:800;letter-spacing:.02em}
+.logo b{font-weight:300;letter-spacing:.02em;margin-left:1px}
+.lbl{display:block;font-size:12.5px;font-weight:700;color:var(--mute);margin-bottom:2px}
+.lnk{font-size:13px;font-weight:600;text-decoration:none;opacity:.92}
+.lnk:hover{text-decoration:underline;text-underline-offset:3px;opacity:1}
+.lk .mu{font-size:13px}
+.tagl{display:inline-flex;align-items:center;gap:8px;font-size:12.5px;font-weight:700;color:var(--ac);background:rgba(217,184,102,.1);border:1px solid rgba(217,184,102,.3);padding:5px 12px;border-radius:99px;margin-bottom:16px}
+.tagl svg,.trust svg{width:16px;height:16px;flex:none;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.trust{display:flex;gap:12px;align-items:flex-start;margin-top:22px;padding:14px 16px;border:1px solid var(--line);border-radius:16px;background:rgba(47,107,255,.08)}
+.trust svg{width:20px;height:20px;color:#4d8dff;margin-top:2px}
+.trust b{display:block;font-size:13px;color:var(--ink);font-family:Sora,Manrope,system-ui,sans-serif}
+.trust span{display:block;font-size:12.5px;color:var(--mute);line-height:1.45;margin-top:2px}
+[data-theme=light] .tagl{color:#8a6310;background:rgba(200,150,47,.12);border-color:rgba(200,150,47,.35)}
+[data-theme=light] .trust{background:rgba(47,107,255,.06)}
+[data-theme=light] .trust svg{color:#2f6bff}
+
+/* ===== v7: country code next to name ===== */
+.ci span{margin-inline-start:0;font-weight:700;color:var(--ac);font-size:13px;white-space:nowrap}
+.ci{gap:8px}
+[data-theme=light] .ci span{color:#2f56d6}
+
+/* ===== v8: plans, compounding, admin plan editor ===== */
+.rt{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin:0 0 10px;padding:10px 12px;border:1px solid var(--line);border-radius:12px;background:rgba(47,107,255,.08)}
+.rt small{color:var(--mute);font-weight:600;font-size:12.5px}
+.rt b{font-family:Sora,Manrope,system-ui,sans-serif;font-size:20px;color:var(--ink)}
+.pk.u .rt b{color:#fff}.pk.u .rt small{color:#b6c8ee}
+.tag.ng{background:rgba(217,184,102,.12);color:#e6c978}
+[data-theme=light] .tag.ng{background:rgba(200,150,47,.14);color:#8a6310}
+.rk{padding-left:18px;font-size:14px;color:var(--mute);display:grid;gap:6px;margin-top:8px}
+.pe input{margin:0;padding:8px 10px;width:100%;min-width:70px}
+.pe input[type=number]{width:96px}
+
+/* ===== v9: flags (emoji with image fallback) ===== */
+.fq{display:inline-flex;align-items:center;justify-content:center;width:24px;height:18px;flex:none;font-size:17px;line-height:1;box-shadow:none!important;border-radius:0;font-family:"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif}
+.fq img{width:22px;height:16px;object-fit:cover;border-radius:3px;box-shadow:0 0 0 1px rgba(0,0,0,.18)}
+.fq[hidden]{display:none}
+
+/* ===== v10: menu toggle, drawer, wallet ===== */
+.menu-btn{display:grid;place-items:center;width:40px;height:40px;border-radius:12px;border:1px solid var(--line);background:var(--card);flex:none;cursor:pointer;margin-right:10px}
+.menu-btn span{display:block;width:18px;height:2px;background:var(--ink);border-radius:2px;margin:2.5px 0;transition:transform .3s,opacity .3s}
+body.nav-open .menu-btn span:nth-child(1){transform:translateY(7px) rotate(45deg)}
+body.nav-open .menu-btn span:nth-child(2){opacity:0}
+body.nav-open .menu-btn span:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
+#navveil{display:none}
+@media(min-width:901px){
+ #app{transition:grid-template-columns .35s}
+ .sb{transition:opacity .3s,padding .35s}
+ body.nav-closed #app{grid-template-columns:0 1fr}
+ body.nav-closed .sb{visibility:hidden;opacity:0;padding-left:0;padding-right:0;overflow:hidden}
 }
-@media (max-width:560px){
-  .who{display:none}
-  .page-title{font-size:21px}
-  .hero-card .big{font-size:30px}
-  .container{padding:16px 12px 60px}
+@media(max-width:900px){
+ .menu-btn{display:grid}
+ .sb{position:fixed!important;top:0!important;bottom:0!important;left:0;right:auto!important;width:272px;height:100vh!important;flex-direction:column!important;padding:22px 14px!important;border-top:0!important;border-right:1px solid var(--line)!important;transform:translateX(-105%);transition:transform .35s;z-index:60;overflow-y:auto!important;background:var(--card)!important}
+ body.nav-open .sb{transform:none}
+ .sb .logo{display:block!important}
+ #nv{flex-direction:column!important;gap:4px}
+ .nv{flex-direction:row!important;font-size:14px!important;min-width:0!important;padding:11px 12px!important}
+ body.nav-open #navveil{display:block;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:55}
 }
-@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+.wal-row{display:flex;justify-content:space-between;gap:10px;padding:10px 0;border-bottom:1px solid var(--line);font-size:14px}
+.wal-row:last-child{border-bottom:0}
+.wal-msg{font-size:13px;color:var(--mute);margin-top:8px}
+
+/* ===== v11: notifications, team tree, support ===== */
+.bell{position:relative}
+.bell .bdg{position:absolute;top:-4px;right:-4px;min-width:18px;height:18px;padding:0 5px;border-radius:99px;background:#e5484d;color:#fff;font-size:11px;font-weight:700;display:none;place-items:center;line-height:18px;text-align:center}
+.bell .bdg.on{display:grid}
+#npanel{position:fixed;top:64px;right:16px;width:min(340px,calc(100vw - 32px));max-height:60vh;overflow:auto;background:var(--card);border:1px solid var(--line);border-radius:var(--r);box-shadow:0 18px 40px rgba(0,0,0,.35);z-index:70;padding:14px}
+#npanel[hidden]{display:none}
+.nit{padding:10px 0;border-bottom:1px solid var(--line);font-size:14px}
+.nit:last-child{border-bottom:0}
+.nit small{display:block;color:var(--mute);font-size:12px}
+.tn{position:relative}
+.tcard{padding:12px 14px;margin:6px 0}
+
+/* ===== v12: smaller language selector ===== */
+.lgw .lgb{padding:5px 8px!important;font-size:12px!important;gap:6px!important;border-radius:10px!important;min-height:0!important;height:32px}
+.lgw .lgb span{font-size:12px!important;line-height:1}
+.lgw .lgb svg{width:12px!important;height:12px!important}
+.lgw .fl{width:16px!important;height:11px!important}
+.lgw .lgi{padding:6px 10px!important;font-size:12px!important}
+
+/* ===== v13: intro splash, animated login/signup, iris reveal ===== */
+#splash{position:fixed;inset:0;z-index:1000;display:grid;place-items:center;overflow:hidden;color:#fff;background:radial-gradient(900px 600px at 50% 40%,#0b1f55 0%,#050b1f 55%,#02050f 100%)}
+#splash .sp-glow{position:absolute;border-radius:50%;filter:blur(70px);opacity:0;animation:spglow 1.6s .1s ease-out forwards}
+#splash .g1{width:46vmax;height:46vmax;left:-12vmax;top:-14vmax;background:#2f6bff}
+#splash .g2{width:40vmax;height:40vmax;right:-12vmax;bottom:-14vmax;background:#e08a1e;animation-delay:.3s}
+@keyframes spglow{to{opacity:.32}}
+.sp-orbs i{position:absolute;left:50%;top:50%;border:1px solid rgba(140,175,255,.2);border-radius:50%;transform:translate(-50%,-50%) scale(.4);opacity:0;animation:sporb 1.6s cubic-bezier(.2,.8,.2,1) forwards}
+.sp-orbs i:nth-child(1){width:260px;height:260px;animation-delay:.15s}
+.sp-orbs i:nth-child(2){width:420px;height:420px;animation-delay:.3s}
+.sp-orbs i:nth-child(3){width:640px;height:640px;animation-delay:.45s}
+@keyframes sporb{to{transform:translate(-50%,-50%) scale(1);opacity:1}}
+.sp-orbs u{position:absolute;inset:0;border-radius:50%;text-decoration:none;animation:spspin 5s linear infinite}
+.sp-orbs i:nth-child(2) u{animation-duration:8s;animation-direction:reverse}
+.sp-orbs i:nth-child(3) u{animation-duration:12s}
+.sp-orbs u:after{content:"";position:absolute;top:-4px;left:calc(50% - 4px);width:8px;height:8px;border-radius:50%;background:#22d3ee;box-shadow:0 0 18px #22d3ee}
+@keyframes spspin{to{transform:rotate(360deg)}}
+.sp-center{position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;gap:18px;text-align:center;transition:transform .9s cubic-bezier(.5,0,.2,1),opacity .6s}
+#splash.out .sp-center{transform:scale(1.35);opacity:0}
+.sp-mk{width:84px;height:84px;border-radius:26px;position:relative;background:linear-gradient(135deg,#3b78ff,#2fb9db);box-shadow:0 0 60px rgba(59,120,255,.6);opacity:0;transform:scale(.5);filter:blur(14px);animation:spmk 1s .15s cubic-bezier(.2,1.1,.3,1) forwards}
+.sp-mk:after{content:"";position:absolute;inset:26px;border-radius:50%;background:#fff;box-shadow:0 0 24px rgba(255,255,255,.8);animation:sppulse 1.4s 1.1s ease-in-out infinite alternate}
+@keyframes spmk{to{opacity:1;transform:scale(1);filter:blur(0)}}
+@keyframes sppulse{to{transform:scale(.7)}}
+.sp-word{direction:ltr;display:flex;line-height:1;font-family:Sora,Manrope,system-ui,sans-serif;font-size:clamp(26px,5.5vw,44px);letter-spacing:.14em}
+.sp-word span{display:inline-block;opacity:0;transform:translateY(26px);filter:blur(8px);animation:splet .8s cubic-bezier(.2,.8,.2,1) forwards;animation-delay:calc(.5s + var(--d)*70ms)}
+.sp-word .b{font-weight:800}.sp-word .l{font-weight:300;color:#8fb2ff}
+@keyframes splet{to{opacity:1;transform:none;filter:blur(0)}}
+.sp-sub{font-size:12px;letter-spacing:.32em;text-transform:uppercase;color:#8396bd;opacity:0;animation:spfade .8s .95s forwards}
+@keyframes spfade{to{opacity:1}}
+.sp-bar{width:180px;height:3px;border-radius:9px;background:rgba(140,175,255,.16);overflow:hidden;opacity:0;animation:spfade .5s .6s forwards}
+.sp-bar i{display:block;height:100%;width:0;border-radius:9px;background:linear-gradient(90deg,#2f6bff,#22d3ee,#e2b65c);animation:spbar 1s .7s cubic-bezier(.5,0,.2,1) forwards}
+@keyframes spbar{to{width:100%}}
+
+.auth,#app{transition:transform 1.2s cubic-bezier(.2,.8,.2,1),filter 1.2s ease,opacity .9s ease}
+#app{transition:grid-template-columns .35s,transform 1.2s cubic-bezier(.2,.8,.2,1),filter 1.2s ease,opacity .9s ease}
+body.pre .auth,body.pre #app{opacity:0;transform:scale(1.06);filter:blur(12px)}
+
+.av{animation:none}
+@keyframes avin{from{opacity:0;transform:translateY(22px);filter:blur(10px)}}
+@keyframes avc{from{opacity:0;transform:translateY(18px);filter:blur(6px)}}
+body.go .av{animation:avin .7s cubic-bezier(.2,.8,.2,1) backwards}
+body.go .av>*{animation:avc .75s cubic-bezier(.2,.8,.2,1) backwards;animation-delay:calc(var(--k,0)*65ms + 120ms)}
+@keyframes rise{from{opacity:0;transform:translateY(30px);filter:blur(8px)}}
+body.go .aside h2{animation:rise 1s .3s backwards}
+body.go .aside p{animation:rise 1s .5s backwards}
+@keyframes dropin{from{opacity:0;transform:translateY(-16px)}}
+body.go .brand,body.go .tools{animation:dropin .8s .35s backwards}
+.chip{transition:translate .5s ease-out}
+.auth input,.auth select{transition:border-color .25s,box-shadow .25s,transform .25s}
+.auth input:focus{transform:translateY(-2px)}
+.auth .btn:not(:disabled):after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(110deg,transparent 35%,rgba(255,255,255,.38) 50%,transparent 65%);transform:translateX(-130%);animation:shine 3.4s 2.4s ease-in-out infinite}
+@keyframes shine{0%,55%{transform:translateX(-130%)}100%{transform:translateX(130%)}}
+@keyframes shake{20%,60%{transform:translateX(-7px)}40%,80%{transform:translateX(7px)}}
+.box.shake{animation:shake .45s}
+
+@keyframes iris{from{clip-path:circle(0px at var(--cx,50%) var(--cy,50%))}to{clip-path:circle(150vmax at var(--cx,50%) var(--cy,50%))}}
+#app.iris{animation:iris 1.05s cubic-bezier(.5,0,.15,1) both}
+@keyframes authout{to{opacity:0;transform:scale(1.06);filter:blur(10px)}}
+.auth.leave{animation:authout .8s ease forwards;pointer-events:none}
+
+@keyframes viewin{from{opacity:0;transform:translateY(18px) scale(.985);filter:blur(10px)}to{opacity:1;transform:none;filter:blur(0)}}
+.view.on{animation:viewin .6s cubic-bezier(.2,.8,.2,1)}
+@keyframes navin{from{opacity:0;transform:translateX(-18px)}}
+.nv{animation:navin .6s cubic-bezier(.2,.8,.2,1) backwards;animation-delay:calc(var(--n,0)*70ms + 250ms)}
+
+/* ===== v14: same entrance on every page, list, popup ===== */
+.view.on>*,.view.on .stg>*{animation-fill-mode:backwards}
+.view.entering .g>*{animation:ci .75s cubic-bezier(.2,.8,.2,1) backwards}
+.view.entering .g>*:nth-child(1){animation-delay:.10s}
+.view.entering .g>*:nth-child(2){animation-delay:.18s}
+.view.entering .g>*:nth-child(3){animation-delay:.26s}
+.view.entering .g>*:nth-child(4){animation-delay:.34s}
+.view.entering .g>*:nth-child(5){animation-delay:.42s}
+.view.entering .g>*:nth-child(n+6){animation-delay:.50s}
+.view.entering tbody tr,.view.entering .tl,.view.entering .wal-row,.view.entering .tcard,.view.entering .steps>div,.view.entering .rk>li,.view.entering .facts>div{animation:ci .6s cubic-bezier(.2,.8,.2,1) backwards;animation-delay:.35s}
+.view.entering tbody tr:nth-child(2),.view.entering .tl:nth-child(2),.view.entering .wal-row:nth-child(2),.view.entering .steps>div:nth-child(2),.view.entering .rk>li:nth-child(2),.view.entering .facts>div:nth-child(2){animation-delay:.42s}
+.view.entering tbody tr:nth-child(3),.view.entering .tl:nth-child(3),.view.entering .wal-row:nth-child(3),.view.entering .steps>div:nth-child(3),.view.entering .rk>li:nth-child(3),.view.entering .facts>div:nth-child(3){animation-delay:.49s}
+.view.entering tbody tr:nth-child(n+4),.view.entering .tl:nth-child(n+4),.view.entering .wal-row:nth-child(n+4),.view.entering .steps>div:nth-child(n+4),.view.entering .rk>li:nth-child(n+4),.view.entering .facts>div:nth-child(n+4){animation-delay:.56s}
+#chat>*{animation:ci .5s cubic-bezier(.2,.8,.2,1) backwards}
+@keyframes dd{from{opacity:0;transform:translateY(-10px) scale(.97);filter:blur(6px)}}
+#npanel:not([hidden]){animation:dd .35s cubic-bezier(.2,.8,.2,1)}
+@keyframes fadein{from{opacity:0}}
+.mdl:not([hidden]){animation:fadein .3s ease}
+input,select,textarea{transition:border-color .25s,box-shadow .25s,transform .25s}
+input:focus,select:focus,textarea:focus{transform:translateY(-1px)}
+.btn:active:not(:disabled){transform:translateY(0) scale(.97)}
+#app.appout{animation:authout .5s ease forwards;pointer-events:none}
 </style>
 </head>
-<body>
-<div id="root"><div class="boot"><div><div class="spinner"></div><p style="margin-top:14px">Loading PrimeCore…</p></div></div></div>
-<div id="toasts" aria-live="polite"></div>
-<noscript><p style="padding:24px">PrimeCore needs JavaScript enabled to run.</p></noscript>
+<body class="locked">
+<div id="splash" aria-hidden="true"><div class="sp-glow g1"></div><div class="sp-glow g2"></div><div class="sp-orbs"><i><u></u></i><i><u></u></i><i><u></u></i></div><div class="sp-center"><div class="sp-mk"></div><div class="sp-word"><span class="b" style="--d:0">P</span><span class="b" style="--d:1">R</span><span class="b" style="--d:2">I</span><span class="b" style="--d:3">M</span><span class="b" style="--d:4">E</span><span class="l" style="--d:5">C</span><span class="l" style="--d:6">O</span><span class="l" style="--d:7">R</span><span class="l" style="--d:8">E</span></div><div class="sp-sub">Learn. Build. Grow.</div><div class="sp-bar"><i></i></div></div></div>
+<script>document.body.classList.add("pre");setTimeout(function(){document.body.classList.remove("pre");document.body.classList.add("go");var s=document.getElementById("splash");if(s)s.remove()},6000)</script>
+<div class="bgo o1"></div><div class="bgo o2"></div><div class="bgo o3"></div><div class="bgo o4"></div>
+
+<div class="auth" id="auth">
+<div class="brand logo"><span class="mk"></span><i>PRIME</i><b>CORE</b></div>
+<div class="tools"><div id="lg1"></div><button class="ic" id="tg1" aria-label="Switch light or dark theme"></button></div>
+<aside class="aside">
+<div class="orb" style="width:360px;height:360px"></div><div class="orb" style="width:560px;height:560px;animation-duration:70s;animation-direction:reverse"></div><div class="orb" style="width:780px;height:780px;animation-duration:100s"></div>
+<div class="chip" style="top:16%;left:10%">Course unlocked</div>
+<div class="chip" style="top:70%;left:14%;animation-delay:-2s">Reward credited</div>
+<div class="chip" style="top:30%;right:8%;animation-delay:-4s">Meetup confirmed</div>
+<div style="position:relative;z-index:2"><h2>Learn. <b>Build.</b> Grow with a real community.</h2><p>Courses, mentoring and international meetups, all in one secure place.</p></div>
+</aside>
+<div class="pane"><div class="box">
+<div class="av" id="v-login"><div class="tagl"><svg viewBox="0 0 24 24"><path d="M3 17l6-6 4 4 8-8M15 7h6v6"/></svg><span>Grow your finances with confidence</span></div><h3>Welcome back</h3><p class="mu">Log in to your account.</p>
+<label>Email address<input id="l-em" type="email" autocomplete="email"></label>
+<label>Password<input id="l-pw" type="password" autocomplete="current-password"></label>
+<div class="err" id="l-e"></div><button class="btn" style="width:100%" id="l-go">Log in</button>
+<div class="lk"><button class="lnk" data-av="forgot">Forgot password?</button><button class="lnk" data-av="signup">Create account</button></div><div class="trust"><svg viewBox="0 0 24 24"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V8a4 4 0 018 0v3"/></svg><div><b>Secure system</b><span>Your account is protected and your information stays private.</span></div></div></div>
+
+<div class="av" id="v-signup" hidden><div class="tagl"><svg viewBox="0 0 24 24"><path d="M3 17l6-6 4 4 8-8M15 7h6v6"/></svg><span>Grow your finances with confidence</span></div><h3>Create your account</h3><p class="mu">It takes less than a minute.</p>
+<div class="two"><label>Full name<input id="s-fn" autocomplete="name"></label><label>Username<input id="s-un" autocomplete="username"></label></div>
+<label>Email address<input id="s-em" type="email" autocomplete="email"></label>
+<div class="two"><div class="lbl">Country<div class="cp" id="cp"><button type="button" class="cb" id="cb"><span class="fl fq" id="cf" hidden></span><span id="cn">Select country</span></button><div class="cl" id="cdl" hidden><input id="cq" placeholder="Search"><div id="cli"></div></div></div><select id="s-co" hidden></select></div><label>Phone number<div class="ph"><div class="dw"><input id="s-dc" readonly value="+"><span class="fl fq" id="pf" hidden></span></div><input id="s-ph" type="tel" inputmode="numeric" autocomplete="tel-national"></div></label></div>
+<div class="two"><label>Password<input id="s-pw" type="password" autocomplete="new-password"></label><label>Confirm password<input id="s-pc" type="password" autocomplete="new-password"></label></div>
+<div class="pm"><i id="pwm"></i></div>
+<label>Referral code (optional)<input id="s-rc"></label>
+<div class="err" id="s-e"></div><button class="btn" style="width:100%" id="s-go">Create account</button>
+<div class="lk"><span class="mu">Already registered?</span><button class="lnk" data-av="login">Log in</button></div><div class="trust"><svg viewBox="0 0 24 24"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V8a4 4 0 018 0v3"/></svg><div><b>Secure system</b><span>Your account is protected and your information stays private.</span></div></div></div>
+
+<div class="av" id="v-verify" hidden><h3>Verify your email</h3><p class="mu">Enter the code we sent to your email.</p>
+<input id="v-code" inputmode="numeric" autocomplete="one-time-code" placeholder="------">
+<div class="err" id="v-e"></div><button class="btn" style="width:100%" id="v-go">Verify and continue</button>
+<div class="lk"><button class="lnk" id="v-re">Resend code</button><button class="lnk" data-av="login">Back to log in</button></div></div>
+
+<div class="av" id="v-forgot" hidden><h3>Reset password</h3><p class="mu">We will email you a reset code.</p>
+<label>Email address<input id="f-em" type="email" autocomplete="email"></label>
+<div class="err" id="f-e"></div><button class="btn" style="width:100%" id="f-go">Send reset code</button>
+<div class="lk"><button class="lnk" data-av="login">Back to log in</button></div></div>
+
+<div class="av" id="v-reset" hidden><h3>New password</h3><p class="mu">Enter the code and choose a new password.</p>
+<label>Reset code<input id="r-code" inputmode="numeric" autocomplete="one-time-code" placeholder="------"></label>
+<div class="two"><label>New password<input id="r-pw" type="password" autocomplete="new-password"></label><label>Confirm password<input id="r-pc" type="password" autocomplete="new-password"></label></div>
+<div class="err" id="r-e"></div><button class="btn" style="width:100%" id="r-go">Update password</button></div>
+</div></div></div>
+
+<div id="app">
+<aside class="sb"><div class="logo"><span class="mk"></span><i>PRIME</i><b>CORE</b></div><nav id="nv"></nav></aside><div id="navveil"></div>
+<div class="mn">
+<div class="top"><button class="menu-btn" id="mnu" aria-label="Open or close menu"><span></span><span></span><span></span></button><div class="logo"><span class="mk"></span><i>PRIME</i><b>CORE</b></div>
+<div class="tr"><div id="lg2"></div><button class="ic bell" id="bell" aria-label="Notifications"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 10-12 0c0 7-3 9-3 9h18s-3-2-3-9M13.7 21a2 2 0 01-3.4 0"/></svg><span class="bdg" id="bdg">0</span></button><button class="ic" id="snd" aria-label="Sound on or off">&#9834;</button><button class="ic" id="tg2" aria-label="Switch light or dark theme"></button><button class="btn ln sm" id="out">Log out</button><div class="avt" id="avt">M</div></div></div>
+
+<section class="view on" id="home">
+<div class="hd"><div><h1 id="gr">Good evening</h1><p class="mu">Purchases, rewards and team at a glance.</p></div><button class="btn" data-go="packages">View packages</button></div>
+<div class="hero"><h2>Real courses. A real community. Real customer sales.</h2><button class="btn gd" data-go="packages">View packages</button></div>
+<div class="g g4 stg" id="stg"></div>
+<div class="g gm"><div class="c"><div class="row"><h3>Verified commission</h3><span class="tag">Last 12 periods</span></div><div id="chart"></div></div><div class="c row" id="nx"></div></div>
+<div class="g g4 stg" id="mini"></div>
+</section>
+
+<section class="view" id="packages"><div class="hd"><div><h1>Choose your <b>package</b></h1><p class="mu">Tap a package to see what is included. Rates are proposed, not guaranteed.</p></div></div>
+<div class="g g3" id="pkgs"></div>
+<div class="c" style="margin-bottom:14px"><h3>Risks, fees and withdrawal terms</h3><ul class="rk"><li>Daily rates are proposed rates only. They are not guaranteed returns, and earnings can be zero.</li><li>Earnings are credited only from verified, approved and funded revenue. Nothing is credited automatically.</li><li>Fees, lock periods and withdrawal terms are published by the company and shown before you confirm a plan.</li><li>Your capital is at risk. Do not use money you cannot afford to lose.</li></ul></div>
+<div class="c" style="margin-bottom:14px"><h3>Company partnership</h3><div class="steps"><div><b>1. Request</b>You send a partnership request.</div><div><b>2. Review</b>Our team checks your company details.</div><div><b>3. Agreement</b>Both sides sign a written contract with fees and benefits.</div><div><b>4. Onboarding</b>Benefits start only after the signed agreement.</div></div><button class="btn gd sm" id="ptn" style="margin-top:14px">Request partnership</button></div>
+<div class="note">Before launch, enter the real fees, lock period and withdrawal terms. Have a lawyer in each country you operate in check the plans, the referral rewards and the commissions.</div></section>
+
+<section class="view" id="compound"><div class="hd"><div><h1>Daily <b>compounding</b></h1><p class="mu">Only verified, eligible earnings can be reinvested. Figures come from the server.</p></div></div>
+<div class="g g4" id="cmp"></div>
+<div class="g gm"><div class="c"><h3 style="margin-bottom:10px">Current cycle</h3><div id="cyc"></div></div><div class="c"><h3 style="margin-bottom:6px">How it works</h3><p class="mu" style="font-size:14px">Each day the server checks verified earnings, adds only eligible amounts to your reinvested balance and records it once. Your browser only displays the result.</p></div></div>
+<div class="c" style="margin-bottom:14px"><h3 style="margin-bottom:8px">Transaction history</h3><div class="scroll"><table><thead><tr><th>Date</th><th>Type</th><th>Amount</th><th>Status</th></tr></thead><tbody id="txh"></tbody></table></div></div>
+<div class="note">No profit is promised or created here. Reinvestment happens only from verified earnings that are legally approved and funded.</div></section>
+<section class="view" id="wallet"><div class="hd"><div><h1>My <b>wallet</b></h1><p class="mu">Deposit and withdraw in USDT (BEP20).</p></div></div>
+<div class="g g3"><div class="c"><small class="mu">Available balance</small><div class="v" style="font-size:30px;margin-top:6px" id="wbal">$0.00</div></div><div class="c"><small class="mu">Pending deposits</small><div class="v" style="font-size:30px;margin-top:6px" id="wdp">$0.00</div></div><div class="c"><small class="mu">Pending withdrawals</small><div class="v" style="font-size:30px;margin-top:6px" id="wwp">$0.00</div></div></div>
+<div class="g gm" style="margin-top:14px">
+<div class="c"><h3 style="margin-bottom:8px">Deposit</h3>
+<label>Method<select id="dm"><option value="usdt">USDT (BEP20)</option></select></label>
+<label>Amount (USD)<input id="da" type="number" min="30" step="1" placeholder="Minimum $30"></label>
+<button class="btn gd" id="dgo" style="width:100%">Create deposit</button>
+<p class="wal-msg">Deposits are credited automatically once the payment provider confirms the USDT transfer on the blockchain. Status stays PENDING until then.</p></div>
+<div class="c"><h3 style="margin-bottom:8px">Withdrawal</h3>
+<label>Method<select id="wm"><option value="usdt">USDT (BEP20)</option></select></label>
+<label>Amount (USD)<input id="wa" type="number" min="10" step="1" placeholder="Minimum $10"></label>
+<label>USDT wallet address<input id="wd" placeholder="Enter your wallet address"></label>
+<button class="btn" id="wgo" style="width:100%">Request withdrawal</button>
+<p class="wal-msg"><b>Processing time: 24 to 48 hours.</b> Funds are sent to your wallet address once the request is processed.</p></div></div>
+<div class="g gm" style="margin-top:14px">
+<div class="c"><h3 style="margin-bottom:6px">Deposit history</h3><div id="wdh"></div></div>
+<div class="c"><h3 style="margin-bottom:6px">Withdrawal history</h3><div id="wwh"></div></div></div>
+</section>
+
+<section class="view" id="team"><div class="hd"><div><h1>Team <b>commission</b></h1><p class="mu">Proposed rates on verified package purchases by real customers. Never for recruiting alone.</p></div></div>
+<div class="c" style="margin-bottom:14px"><h3 style="margin-bottom:8px">Your referral link</h3><p class="mu" style="font-size:13px;margin-bottom:10px">Share this link. Anyone who signs up with it joins your team automatically.</p><div class="row" style="flex-wrap:nowrap;gap:8px"><input id="rl" readonly value="Loading..." style="margin:0"><button class="btn sm" id="rl-copy">Copy</button></div><p class="mu" style="font-size:13px;margin-top:8px">Your referral code: <b id="rc">-</b></p></div>
+<div class="c" style="margin-bottom:14px"><div class="row"><h3>Team tree</h3><div><small class="mu">Total team business</small> <b id="tt">$0.00</b></div></div><div id="tree" style="margin-top:10px"></div></div>
+<div class="g g3" id="levels"></div>
+<div class="c scroll"><h3 style="margin-bottom:8px">Direct referrals</h3><table><thead><tr><th>Referral ID</th><th>Registered</th><th>Status</th><th>Package bought</th></tr></thead><tbody id="refs"></tbody></table></div></section>
+
+<section class="view" id="salary"><div class="hd"><div><h1>Monthly <b>salary</b></h1><p class="mu">Three salary levels. The salary you earn is paid together in one monthly payout. Proposed amounts, not guaranteed.</p></div></div>
+<div class="g g3" id="sal"></div>
+<div class="c" style="margin-bottom:14px"><h3 style="margin-bottom:8px">How to qualify, step by step</h3><div class="steps"><div><b>1. Check your rank</b>Your self rank is your current package: Junior, Senior or Special. Each level tells you the rank you need.</div><div><b>2. Build your 1st line</b>Only your direct referrals in the 1st line count toward a level, and only if they hold the rank the level asks for.</div><div><b>3. Reach the count</b>Each level needs a set number of team members of that rank. Track your progress on each card above.</div><div><b>4. Verification</b>Only verified, approved and funded packages count. Nothing is counted automatically.</div><div><b>5. Payout</b>Every level you achieve is added together and paid in one monthly payout.</div></div></div>
+<div class="note" id="salnote"></div></section>
+
+<section class="view" id="challenge"><div class="hd"><div><h1>Daily referral <b>bonus</b></h1><p class="mu">Qualified referrals today: <b id="qt">0</b>. Only verified customers who bought a package count.</p></div></div>
+<div class="g g3" id="miles"></div>
+<div class="c" style="margin-top:14px"><h3 style="margin-bottom:8px">Bonus schedule</h3><div class="scroll"><table><thead><tr><th>Qualified referrals in one day</th><th>Extra bonus</th></tr></thead><tbody><tr><td>5 qualified referrals</td><td>$10</td></tr><tr><td>10 qualified referrals</td><td>$25</td></tr><tr><td>20 qualified referrals with verified deposits</td><td>$50</td></tr></tbody></table></div><p class="mu" style="font-size:13px;margin-top:10px">These bonuses are paid in addition to the daily team commission.</p></div>
+<div class="note" style="margin-top:14px"><b>Important note:</b> Daily referral bonuses are available only after all referred users meet the required eligibility criteria and their deposits have been successfully verified. Each referral must be genuine and unique. Self-referrals, duplicate accounts and fraudulent activity are not eligible. Rewards are subject to verification and the available approved reward budget.</div></section>
+
+<section class="view" id="claims"><div class="hd"><div><h1>My <b>claims</b></h1><p class="mu">Each claim is a separate request. PENDING turns to SUCCESS only after the reward is credited.</p></div></div>
+<div class="c" id="cl"></div></section>
+
+<section class="view" id="support"><div class="hd"><div><h1>Customer <b>support</b></h1><p class="mu">Send your message here. Our support team replies in this chat.</p></div></div>
+<div class="c"><div id="chat" style="display:grid;gap:10px;max-height:55vh;overflow:auto;padding:4px"></div></div>
+<div class="c" style="margin-top:14px"><label>Your message<textarea id="sp-m" rows="3" placeholder="Type your message"></textarea></label><button class="btn gd" id="sp-go" style="width:100%;margin-top:10px">Send message</button></div>
+</section>
+
+<section class="view" id="about"><div class="hd"><div><h1>The <b>company</b></h1><p class="mu">Replace these with your real, verifiable details.</p></div></div>
+<div class="c"><div class="facts"><div><small class="mu">Registered name</small><br><b>Add legal company name</b></div><div><small class="mu">Registration number</small><br><b>Add number and country</b></div><div><small class="mu">Head office</small><br><b>Add full address</b></div><div><small class="mu">Founded</small><br><b>Add year</b></div><div><small class="mu">Support email</small><br><b>Add email</b></div><div><small class="mu">Past meetups</small><br><b>Add real cities and dates</b></div></div>
+<div class="row" style="justify-content:flex-start;margin-top:18px"><button class="btn" id="live">Join live session</button><button class="btn ln" id="sup">Contact support</button></div></div>
+<div class="c"><h3 style="margin-bottom:8px">Risks, fees and terms</h3><ul class="mu" style="padding-left:20px;display:grid;gap:8px">
+<li>Packages are purchases of digital products and services. They are not investments or deposits.</li>
+<li>Earnings are not guaranteed. Commission rates and rewards are proposed and may change.</li>
+<li>Commission is paid only on verified purchases by real customers, not for recruiting alone.</li>
+<li>Add your exact refund policy, fees and withdrawal terms here.</li>
+<li>Travel, visa and meetup benefits apply only to packages that list them.</li>
+<li>Direct selling laws differ by country. Check local rules before you promote.</li></ul></div></section>
+</div></div>
+<div id="npanel" hidden></div>
+<div class="mdl" id="mdl" hidden><div class="mb"><div class="row" style="flex-wrap:nowrap"><h3 id="mt">Partnership request</h3><button class="ic" id="mx" aria-label="Close">&times;</button></div>
+<p class="mu" style="margin:6px 0 14px">Tell us about your company. Our team will contact you to discuss a written agreement.</p>
+<div class="two"><label>Company name<input id="iq-co"></label><label>Contact person<input id="iq-nm"></label></div>
+<div class="two"><label>Email address<input id="iq-em" type="email"></label><label>Country<input id="iq-ct"></label></div>
+<label>Deal type<select id="iq-ty"><option>Partnership</option><option>Training and licensing</option><option>Revenue share</option><option>Events and meetups</option><option>Other</option></select></label>
+<label>Message<textarea id="iq-ms" rows="3"></textarea></label>
+<label class="ck"><input type="checkbox" id="iq-ag"><span>I understand that fees and benefits apply only as written in a signed agreement.</span></label>
+<div class="err" id="iq-e"></div><button class="btn" style="width:100%" id="iq-go">Send request</button></div></div>
+<div class="toast" id="toast"></div>
 
 <script>
-(function () {
-'use strict';
+var AC=null,snd=true;
+try{snd=localStorage.getItem("pc-snd")!=="0"}catch(e){}
+var MB=null;
+function ctx(){AC=AC||new(window.AudioContext||window.webkitAudioContext)();if(AC.state==="suspended")AC.resume();if(!MB){MB=AC.createDynamicsCompressor();var m=AC.createGain();m.gain.value=.8;MB.connect(m);m.connect(AC.destination)}return AC}
+function tone(f,d,t,v,dl,fe){if(!snd)return;try{var c=ctx(),n=c.currentTime+(dl||0),o=c.createOscillator(),g=c.createGain(),lp=c.createBiquadFilter();o.type=t||"sine";o.frequency.setValueAtTime(f,n);if(fe)o.frequency.exponentialRampToValueAtTime(fe,n+d);lp.type="lowpass";lp.frequency.value=3800;g.gain.setValueAtTime(.0001,n);g.gain.linearRampToValueAtTime(v||.05,n+.008);g.gain.exponentialRampToValueAtTime(.0001,n+d);o.connect(lp);lp.connect(g);g.connect(MB);o.start(n);o.stop(n+d+.02)}catch(e){}}
+var sfx={tick:function(){tone(1250,.07,"sine",.05,0,780);tone(2400,.03,"triangle",.012)},nav:function(){tone(520,.14,"sine",.05,0,860);tone(1040,.1,"sine",.02,.02)},ok:function(){[659,830,988,1319].forEach(function(f,k){tone(f,.4,"sine",.05,k*.075);tone(f*2,.25,"sine",.012,k*.075)})},err:function(){tone(240,.16,"triangle",.06,0,170);tone(190,.2,"triangle",.05,.11,130)}};
+document.addEventListener("click",function(e){var t=e.target.closest("button,.pk");if(t&&!t.disabled&&t.id!=="snd"){t.classList.contains("nv")?sfx.nav():sfx.tick()}});
+document.addEventListener("pointerdown",function(e){var b=e.target.closest(".btn");if(!b||b.disabled)return;var r=b.getBoundingClientRect(),s=document.createElement("span");s.className="rp";s.style.left=e.clientX-r.left+"px";s.style.top=e.clientY-r.top+"px";b.appendChild(s);setTimeout(function(){s.remove()},650)});
+document.addEventListener("pointermove",function(e){var p=e.target.closest&&e.target.closest(".pk");if(p){var r=p.getBoundingClientRect();p.style.setProperty("--mx",e.clientX-r.left+"px");p.style.setProperty("--my",e.clientY-r.top+"px")}});
+function burst(x,y){for(var i=0;i<22;i++){var s=document.createElement("span"),a=Math.random()*6.28,d=60+Math.random()*90;s.className="cf";s.style.left=x+"px";s.style.top=y+"px";s.style.background=["#2f6bff","#22d3ee","#e2b65c"][i%3];s.style.boxShadow="0 0 8px currentColor";s.style.setProperty("--x",Math.cos(a)*d+"px");s.style.setProperty("--y",Math.sin(a)*d-30+"px");document.body.appendChild(s);setTimeout(function(n){n.remove()},1000,s)}}
+var $=function(i){return document.getElementById(i)};
+function toast(m,bad){var t=$("toast");t.textContent=m;t.className="toast show";if(bad)sfx.err();clearTimeout(t._h);t._h=setTimeout(function(){t.className="toast"},2600)}
+function today(){return new Date().toISOString().slice(0,10)}
 
-var BUILD = '2026-11-21.4';
+var PK=[
+{n:"JUNIOR",min:30,max:500,rate:2,inc:["Entry tier","Verified earnings only","Full terms shown before you confirm"]},
+{n:"SENIOR",min:501,max:1500,rate:2.5,inc:["Growth tier","Verified earnings only","Full terms shown before you confirm"]},
+{n:"SPECIAL",min:1501,max:5000,rate:3,inc:["Advanced tier","Verified earnings only","Full terms shown before you confirm"]}];
+function pf(){PK.forEach(function(x){x.p="$"+x.min.toLocaleString()+" - $"+x.max.toLocaleString()})}
+try{var sv=JSON.parse(localStorage.getItem("pc-plans"));if(sv&&sv.length===PK.length)sv.forEach(function(z,i){if(z&&z.n&&z.min>=0&&z.max>z.min&&z.rate>=0){PK[i].n=String(z.n).slice(0,24);PK[i].min=+z.min;PK[i].max=+z.max;PK[i].rate=+z.rate}})}catch(e){}
+pf();
+var LV=[{l:"Level 1",r:10,t:2},{l:"Level 2",r:7,t:5},{l:"Level 3",r:3,t:10}];
+var MS=[{q:5,a:10},{q:10,a:25},{q:20,a:50}];
+var D={name:"Member",pkg:-1,purchases:0,comm:0,courses:0,refs:0,qual:0,budget:0,claims:[],inq:[],audit:[]};
+var NV=[["home","Overview","M3 11l9-8 9 8v10H3z"],["packages","Packages","M3 7l9-4 9 4v10l-9 4-9-4zM3 7l9 4 9-4M12 11v10"],["wallet","Wallet","M3 7h18v12H3zM3 7l3-3h12l3 3M16 13h2"],["claims","Claims","M6 3h12v18l-3-2-3 2-3-2-3 2zM9 8h6M9 12h6"],["support","Support","M4 12a8 8 0 0116 0v5a2 2 0 01-2 2h-2v-6h4M4 12v5a2 2 0 002 2h2v-6H4"],["about","Company","M12 3a9 9 0 100 18 9 9 0 000-18zM12 11v5M12 8v.1"]];
+$("nv").innerHTML=NV.map(function(n,i){return'<button class="nv'+(i?'':' on')+'" data-v="'+n[0]+'"><svg viewBox="0 0 24 24"><path d="'+n[2]+'"/></svg><span>'+n[1]+'</span></button>'}).join("");
 
-/* Project URL: base address only, no /rest/v1/ on the end. */
-var SUPABASE_URL = 'https://qufxjfntdqjhympultbx.supabase.co';
-var SUPABASE_KEY = 'sb_publishable_639f9uEApKsGgOtQW_J9Jg_M-nnwtnB';
+document.getElementById("mnu").onclick=function(){if(innerWidth>900)document.body.classList.toggle("nav-closed");else document.body.classList.toggle("nav-open")};
+document.getElementById("navveil").onclick=function(){document.body.classList.remove("nav-open")};
+function show(v){
+ document.body.classList.remove("nav-open");
+ if(v==="support")loadChat();
+ document.querySelectorAll(".view").forEach(function(e){e.classList.remove("on")});
+ var e=$(v);e.classList.add("on");
+ [].forEach.call(e.children,function(c,i){c.style.setProperty("--i",i);[].forEach.call(c.classList.contains("stg")?c.children:[],function(k,j){k.style.setProperty("--i",j+1)})});
+ document.querySelectorAll(".nv").forEach(function(b){b.classList.toggle("on",b.dataset.v===v)});
+ window.scrollTo({top:0,behavior:"smooth"});render();
+}
+document.querySelectorAll(".nv").forEach(function(b){b.onclick=function(){show(b.dataset.v)}});
+document.addEventListener("click",function(e){var g=e.target.closest("[data-go]");if(g)show(g.dataset.go)});
 
-var CDNS = [
-  'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js',
-  'https://unpkg.com/@supabase/supabase-js@2/dist/umd/supabase.js'
+function count(el,to,pre){var st=performance.now();(function f(n){var k=Math.min(1,(n-st)/900);el.textContent=pre+Math.round(to*k).toLocaleString();if(k<1)requestAnimationFrame(f)})(st)}
+function path(v,w,h){var mx=Math.max.apply(0,v),mn=Math.min.apply(0,v);return v.map(function(y,i){return(i?"L":"M")+(i*w/(v.length-1)).toFixed(1)+" "+(h-4-(y-mn)/(mx-mn||1)*(h-8)).toFixed(1)}).join("")}
+function spark(v){return'<svg viewBox="0 0 120 40" preserveAspectRatio="none"><path class="sp" pathLength="1" d="'+path(v,120,40)+'"/></svg>'}
+function ring(p,txt){return'<div class="rw"><svg viewBox="0 0 40 40"><circle class="rg b" cx="20" cy="20" r="16" pathLength="100"/><circle class="rg p" cx="20" cy="20" r="16" pathLength="100" style="--o:'+(100-Math.min(100,p))+'"/></svg><b>'+txt+'</b></div>'}
+function done(){return D.claims.filter(function(c){return c.st==="SUCCESS"}).reduce(function(a,c){return a+c.amt},0)}
+function stats(){
+ var h=new Date().getHours();$("gr").innerHTML=T(h<12?"Good morning":h<18?"Good afternoon":"Good evening")+", <b>"+D.name+"</b>";
+ var S=[["Total Purchases","$"+D.purchases.toLocaleString(),[3,4,4,6,5,8,9,9,12],"f"],["Verified Commission","$"+D.comm,[1,2,2,4,3,5,7,6,9],""],["Current Package",(PK[D.pkg]?PK[D.pkg].n:"None"),[2,2,3,3,4,4,5,5,6],""],["Completed Rewards","$"+done(),[0,0,1,1,2,2,3,4,4],""]];
+ $("stg").innerHTML=S.map(function(s){return'<div class="c st hv '+s[3]+'"><small>'+s[0]+'</small><div class="v">'+s[1]+'</div>'+spark(s[2])+'</div>'}).join("");
+ var pend=D.claims.filter(function(c){return c.st==="PENDING"}).length;
+ $("mini").innerHTML=[["Courses Unlocked",D.courses],["Pending Claims",pend],["Direct Referrals",D.refs],["Pending Withdrawals","$0"]].map(function(s){return'<div class="c st hv"><small>'+s[0]+'</small><div class="v">'+s[1]+'</div></div>'}).join("");
+ var v=[0,0,0,0,0,0,0,0,0,0,0,0],P=path(v,600,200);
+ $("chart").innerHTML='<svg viewBox="0 0 600 210" preserveAspectRatio="none" style="width:100%;height:210px;margin-top:10px"><defs><linearGradient id="ag" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#d4b46a" stop-opacity=".45"/><stop offset="1" stop-color="#d4b46a" stop-opacity="0"/></linearGradient></defs>'+[50,100,150].map(function(y){return'<line x1="0" x2="600" y1="'+y+'" y2="'+y+'" stroke="var(--line)"/>'}).join("")+'<g class="ar"><path d="'+P+'L600 210L0 210Z" fill="url(#ag)"/><path d="'+P+'" fill="none" stroke="var(--ink)" stroke-width="2.5" vector-effect="non-scaling-stroke"/></g></svg>';
+ var nx=MS.filter(function(m){return D.qual<m.q})[0];
+ $("nx").innerHTML=nx?ring(D.qual/nx.q*100,D.qual+"/"+nx.q)+'<div><h3>Next reward</h3><p class="mu">$'+nx.a+' at '+nx.q+' qualified referrals today.</p><button class="btn sm" style="margin-top:10px" data-go="challenge">Open daily bonus</button></div>':'<div><h3>All milestones reached</h3><p class="mu">Claim your rewards in Daily Bonus.</p></div>';
+}
+function pkgs(){
+ $("pkgs").innerHTML=PK.map(function(p,i){return'<div class="c pk hv'+(i===4?' u':'')+(i===D.pkg?' sel':'')+'" data-i="'+i+'" tabindex="0"><div class="row"><span class="tag'+(i===D.pkg?' pd':'')+'">'+(i===D.pkg?'Your package':'Package')+'</span><span class="tag ng">Not guaranteed</span></div><h3 style="margin-top:10px">'+p.n+'</h3><div class="pr">'+p.p+'</div><div class="rt"><small>Proposed daily rate</small><b>'+p.rate+'%</b></div><ul>'+p.inc.map(function(x){return"<li>"+x+"</li>"}).join("")+'</ul><div class="more"><p style="margin-bottom:10px">The rate is proposed only and is not a guaranteed return. Earnings are credited only from verified, approved revenue. Fees, lock period and withdrawal terms apply.</p><button class="btn gd sm" data-pick="'+i+'">Select package</button></div></div>'}).join("");
+ document.querySelectorAll(".pk").forEach(function(c){c.onclick=function(e){if(e.target.closest("[data-pick]"))return;c.classList.toggle("sel")}});
+ document.querySelectorAll("[data-pick]").forEach(function(b){b.onclick=function(){D.pkg=+b.dataset.pick;D.audit.unshift("Package set to "+PK[D.pkg].n+"");sfx.ok();toast("Package selected: "+PK[D.pkg].n);pkgs();stats()}});
+}
+function compv(){D.comp=D.comp||{start:0,ver:0,reinv:0,end:0,cs:"Not started",ce:"Not started",tx:[]};var c=D.comp,m=function(n){return"$"+Number(n).toLocaleString()};
+ $("cmp").innerHTML=[["Eligible starting balance",m(c.start),"f"],["Verified earnings",m(c.ver),""],["Reinvested earnings",m(c.reinv),""],["Updated eligible balance",m(c.end),""]].map(function(x){return'<div class="c st hv '+x[2]+'"><small>'+x[0]+'</small><div class="v">'+x[1]+'</div></div>'}).join("");
+ $("cyc").innerHTML='<div class="facts"><div><small class="mu">Cycle start</small><br><b>'+c.cs+'</b></div><div><small class="mu">Cycle end</small><br><b>'+c.ce+'</b></div></div>';
+ $("txh").innerHTML=c.tx.length?c.tx.map(function(t){return'<tr><td>'+t.d+'</td><td>'+t.t+'</td><td>'+m(t.a)+'</td><td><span class="tag '+(t.s==="SUCCESS"?"ok":"pd")+'">'+t.s+'</span></td></tr>'}).join(""):'<tr><td colspan="4" class="mu">No transactions yet</td></tr>';
+}
+function pev(){
+ $("pe").innerHTML=PK.map(function(p,i){return'<tr><td><input data-k="n" data-i="'+i+'" value="'+p.n+'" maxlength="24"></td><td><input type="number" data-k="min" data-i="'+i+'" value="'+p.min+'" min="0"></td><td><input type="number" data-k="max" data-i="'+i+'" value="'+p.max+'" min="0"></td><td><input type="number" data-k="rate" data-i="'+i+'" value="'+p.rate+'" min="0" max="100" step="0.1"></td></tr>'}).join("");
+}
+if($("pe-save"))$("pe-save").onclick=function(){var N=PK.map(function(p){return{n:p.n,min:p.min,max:p.max,rate:p.rate}});
+ document.querySelectorAll("#pe input").forEach(function(e){var i=+e.dataset.i,k=e.dataset.k;N[i][k]=k==="n"?e.value.trim():parseFloat(e.value)});
+ var ok=N.every(function(z,i){return z.n&&z.min>=0&&z.max>z.min&&z.rate>=0&&z.rate<=100&&(i===0||z.min>N[i-1].max)});
+ if(!ok){toast("Check names, ranges and rates. Ranges must not overlap.",1);return}
+ N.forEach(function(z,i){PK[i].n=z.n;PK[i].min=z.min;PK[i].max=z.max;PK[i].rate=z.rate});pf();
+ try{localStorage.setItem("pc-plans",JSON.stringify(N))}catch(e){}
+ D.audit.unshift("Plan settings updated by admin");sfx.ok();toast("Plan settings saved");pkgs();stats();render()};
+function lv(){
+ $("levels").innerHTML=LV.map(function(x){var p=Math.round(Math.min(100,D.qual/x.t*100)),ok=D.qual>=x.t;return'<div class="c hv row" style="flex-wrap:nowrap">'+ring(p,p+"%")+'<div><div class="row" style="gap:8px"><h3>'+x.l+'</h3><span class="tag '+(ok?'ok':'')+'">'+(ok?'Eligible':'In progress')+'</span></div><p class="mu" style="font-size:14px">Proposed '+x.r+'% on verified sales. Needs '+x.t+' direct referrals.</p></div></div>'}).join("");
+ var r="";for(var i=1;i<=0;i++)r+='<tr style="animation:ci .5s '+i*70+'ms both"><td>REF-'+(1000+i)+'</td><td>2026-11-'+(10+i)+'</td><td><span class="tag ok">Verified</span></td><td>'+PK[i%3].n+'</td></tr>';
+ $("refs").innerHTML=r;
+}
+function miles(){
+ $("miles").innerHTML=MS.map(function(m,i){var got=D.qual>=m.q,dup=D.claims.some(function(c){return c.ms===i&&c.d===today()});
+ return'<div class="c hv"><div class="row" style="flex-wrap:nowrap">'+ring(D.qual/m.q*100,Math.min(D.qual,m.q)+"/"+m.q)+'<div><span class="tag">'+m.q+' qualified referrals</span><div class="v" style="font-size:34px;margin-top:6px">$'+m.a+'</div></div></div><p class="mu" style="font-size:13px;margin:12px 0">Proposed reward. Needs admin approval.</p><button class="btn" style="width:100%" data-m="'+i+'" '+((!got||dup)?"disabled":"")+'>'+(dup?"Claim requested":got?"Claim $"+m.a:"Not reached yet")+'</button></div>'}).join("");
+ document.querySelectorAll("[data-m]").forEach(function(b){b.onclick=function(e){claim(+b.dataset.m,e)}});
+}
+function claim(i,e){
+ var m=MS[i];if(D.qual<m.q)return toast("Milestone not reached",1);
+ if(D.claims.some(function(c){return c.ms===i&&c.d===today()}))return toast("Already claimed today",1);
+ var id="CLM-"+Date.now().toString().slice(-6)+i;
+ D.claims.unshift({id:id,ms:i,cat:"Daily challenge, "+m.q+" referrals",amt:m.a,d:today(),st:"PENDING",h:["Submitted"]});
+ D.audit.unshift("Claim "+id+" submitted ($"+m.a+")");
+ if(e)burst(e.clientX,e.clientY);sfx.ok();toast("Request submitted: PENDING");render();
+}
+function approve(id){
+ var c=D.claims.find(function(x){return x.id===id});if(!c||c.st!=="PENDING")return;
+ if(D.budget<c.amt)return toast("Reward budget too low",1);
+ D.budget-=c.amt;c.st="SUCCESS";c.h.push("Approved and credited");D.audit.unshift("Claim "+id+" credited by admin");
+ burst(innerWidth/2,innerHeight/2);sfx.ok();toast("Reward credited: SUCCESS");render();
+}
+function claimsv(){
+ $("cl").innerHTML=D.claims.length?D.claims.map(function(c){return'<div class="tl"><div class="dot '+(c.st==="SUCCESS"?"ok":"")+'"></div><div style="flex:1"><div class="row"><b>'+c.cat+'</b><span class="tag '+(c.st==="SUCCESS"?"ok":"pd")+'">'+c.st+'</span></div><div class="mu" style="font-size:13px">'+c.id+' / $'+c.amt+' / '+c.d+'</div><div style="font-size:13px;margin-top:4px">'+c.h.join(" &rarr; ")+'</div></div></div>'}).join(""):'<p class="mu">No claims yet. Reach a milestone in Daily Challenge to claim.</p>';
+}
+function kb(){
+ function card(c){return'<div class="kc" draggable="'+(c.st==="PENDING")+'" data-id="'+c.id+'"><div class="row"><b>$'+c.amt+'</b><span class="mu" style="font-size:12px">'+c.id+'</span></div><div class="mu" style="font-size:13px">'+c.cat+' / '+c.d+'</div>'+(c.st==="PENDING"?'<button class="btn sm" style="margin-top:8px" data-a="'+c.id+'">Approve</button>':"")+'</div>'}
+ var P=D.claims.filter(function(c){return c.st==="PENDING"}),S=D.claims.filter(function(c){return c.st==="SUCCESS"});
+ $("kb").innerHTML='<div class="col" data-st="PENDING"><h3>Pending ('+P.length+')</h3>'+(P.map(card).join("")||'<p class="mu" style="font-size:13px">No pending requests.</p>')+'</div><div class="col" data-st="SUCCESS"><h3>Success ('+S.length+')</h3>'+(S.map(card).join("")||'<p class="mu" style="font-size:13px">Drop a request here to credit it.</p>')+'</div>';
+ document.querySelectorAll("[data-a]").forEach(function(b){b.onclick=function(){approve(b.dataset.a)}});
+ $("adm").innerHTML='<div class="c"><small class="mu">Reward budget left</small><div class="v" style="font-size:28px">$'+D.budget+'</div></div><div class="c"><small class="mu">Level rates (%)</small><div class="row" style="justify-content:flex-start;gap:8px">'+LV.map(function(x,i){return'<input type="number" min="0" max="100" value="'+x.r+'" data-lv="'+i+'" style="width:70px">'}).join("")+'</div></div><div class="c"><small class="mu">Challenge rewards ($)</small><div class="row" style="justify-content:flex-start;gap:8px">'+MS.map(function(x,i){return'<input type="number" min="0" value="'+x.a+'" data-ms="'+i+'" style="width:70px">'}).join("")+'</div></div>';
+ document.querySelectorAll("[data-lv]").forEach(function(i){i.onchange=function(){LV[+i.dataset.lv].r=+i.value;D.audit.unshift("Level rate changed");render()}});
+ document.querySelectorAll("[data-ms]").forEach(function(i){i.onchange=function(){MS[+i.dataset.ms].a=+i.value;D.audit.unshift("Reward amount changed");render()}});
+ $("audit").innerHTML=D.audit.map(function(a){return"<div>"+a+"</div>"}).join("");
+}
+document.addEventListener("dragstart",function(e){var k=e.target.closest&&e.target.closest(".kc");if(k)e.dataTransfer.setData("text/plain",k.dataset.id)});
+document.addEventListener("dragover",function(e){var c=e.target.closest&&e.target.closest(".col[data-st=SUCCESS]");document.querySelectorAll(".col").forEach(function(x){x.classList.toggle("ov",x===c)});if(c)e.preventDefault()});
+document.addEventListener("drop",function(e){var c=e.target.closest&&e.target.closest(".col[data-st=SUCCESS]");document.querySelectorAll(".col").forEach(function(x){x.classList.remove("ov")});if(c){e.preventDefault();approve(e.dataTransfer.getData("text/plain"))}});
+var RN=["JUNIOR","SENIOR","SPECIAL"];
+var SAL=[{t:200,s:250,rk:1,n:5},{t:500,s:500,rk:2,n:10},{t:1000,s:1000,rk:2,n:20}];
+var SALD={line1:{}};
+function salary(){
+ var el=$("sal");if(!el)return;
+ var self=D.pkg,tot=0,all=true;
+ el.innerHTML=SAL.map(function(x,i){
+  var have=SALD.line1[x.rk]||0,selfOk=self===x.rk,ok=selfOk&&have>=x.n;
+  if(ok)tot+=x.s;else all=false;
+  return'<div class="c hv"><div class="row" style="flex-wrap:nowrap">'+ring(Math.min(have/x.n,1)*100,Math.min(have,x.n)+"/"+x.n)+'<div><span class="tag">Level '+(i+1)+' · Team '+x.t+'</span><div class="v" style="font-size:34px;margin-top:6px">$'+x.s+'<small class="mu" style="font-size:14px"> / month</small></div></div></div>'
+   +'<p class="mu" style="font-size:13px;margin-top:12px">Condition: self rank '+RN[x.rk]+' with '+x.n+' '+RN[x.rk]+' in 1st line.</p>'
+   +'<p style="font-size:13px;margin-top:8px"><b>'+(ok?'Achieved':(selfOk?'Not yet: '+have+' of '+x.n+' in 1st line':'Not yet: your own package must be '+RN[x.rk]+''))+'</b></p></div>';
+ }).join("");
+ $("salnote").innerHTML=all
+  ?'<b>All three salary levels achieved.</b> Total: $'+tot.toLocaleString()+' per month, paid together in one monthly payout. Subject to verification and company approval.'
+  :'<b>Achieved so far: $'+tot.toLocaleString()+' per month.</b> Each achieved level is paid every month. Levels above Level 3 give nothing extra. Subject to verification and company approval.';
+}
+var W={bal:0,dep:[],wd:[]};
+function wRow(r){return'<div class="wal-row"><span>'+r.d+' &middot; USDT</span><span>$'+r.a.toFixed(2)+' <span class="tag '+(r.st==="CREDITED"||r.st==="PAID"?"ok":"pd")+'">'+r.st+'</span></span></div>'}
+function wallet(){
+ var pd=W.dep.filter(function(r){return r.st==="PENDING"}).reduce(function(a,r){return a+r.a},0);
+ var pw=W.wd.filter(function(r){return r.st==="PENDING"}).reduce(function(a,r){return a+r.a},0);
+ $("wbal").textContent="$"+W.bal.toFixed(2);
+ $("wdp").textContent="$"+pd.toFixed(2);
+ $("wwp").textContent="$"+pw.toFixed(2);
+ $("wdh").innerHTML=W.dep.length?W.dep.map(wRow).join(""):'<p class="mu" style="font-size:14px">No deposits yet.</p>';
+ $("wwh").innerHTML=W.wd.length?W.wd.map(wRow).join(""):'<p class="mu" style="font-size:14px">No withdrawals yet.</p>';
+}
+function nowStr(){return new Date().toISOString().slice(0,16).replace("T"," ")}
+$("dgo").onclick=function(){
+ var a=+$("da").value;
+ if(!a||a<30)return toast("Minimum deposit is $30",1);
+ W.dep.unshift({d:nowStr(),a:a,st:"PENDING"});
+ $("da").value="";sfx.ok();toast("Deposit created. Waiting for blockchain confirmation");primeNotify("Deposit created","$"+a+" USDT deposit is pending blockchain confirmation.");wallet();
+};
+$("wgo").onclick=function(){
+ var a=+$("wa").value,addr=$("wd").value.trim();
+ if(!a||a<10)return toast("Minimum withdrawal is $10",1);
+ if(a>W.bal)return toast("Amount exceeds available balance",1);
+ if(addr.length<10)return toast("Enter a valid wallet address",1);
+ W.bal-=a;W.wd.unshift({d:nowStr(),a:a,st:"PENDING"});
+ $("wa").value="";$("wd").value="";sfx.ok();toast("Withdrawal requested. Processing time 24 to 48 hours");primeNotify("Withdrawal requested","$"+a+" USDT withdrawal is being processed. Expected within 24 to 48 hours.");wallet();
+};
+var NT=[];
+function esc(t){return String(t).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
+function renderBell(){
+ var un=NT.filter(function(n){return!n.read}).length,b=$("bdg");
+ b.textContent=un>9?"9+":un;b.classList.toggle("on",un>0);
+ $("npanel").innerHTML='<b style="display:block;margin-bottom:6px">Notifications</b>'+(NT.length?NT.map(function(n){return'<div class="nit"><b>'+esc(n.t)+'</b><div>'+esc(n.b)+'</div><small>'+n.time+'</small></div>'}).join(""):'<p class="mu" style="font-size:14px">No notifications yet.</p>');
+}
+function primeNotify(t,b){NT.unshift({t:t,b:b,time:nowStr(),read:false});renderBell()}
+$("bell").onclick=function(e){e.stopPropagation();var p=$("npanel");p.hidden=!p.hidden;if(!p.hidden){NT.forEach(function(n){n.read=true});renderBell()}};
+document.addEventListener("click",function(e){if(!e.target.closest("#npanel")&&!e.target.closest("#bell"))$("npanel").hidden=true});
+
+var TREE={name:"You",biz:"",rank:-1,pb:0,tb:0,children:[]};
+function treeHTML(n,depth){
+ return'<div class="tn" style="margin-left:'+(depth*18)+'px"><div class="c tcard"><b>'+esc(n.name)+'</b> <span class="mu">'+esc(n.biz||"")+'</span><div class="mu" style="font-size:13px;margin-top:4px">Rank: '+(n.rank>=0?RN[n.rank]:"None")+' &middot; Personal business: $'+n.pb.toFixed(2)+' &middot; Team business: $'+n.tb.toFixed(2)+'</div></div>'+n.children.map(function(c){return treeHTML(c,depth+1)}).join("")+'</div>';
+}
+function sumBiz(n){return n.children.reduce(function(a,c){return a+c.pb+sumBiz(c)},0)}
+function tree(){
+ var total=sumBiz(TREE);
+ $("tt").textContent="$"+total.toFixed(2);
+ $("tree").innerHTML=treeHTML(TREE,0)+(TREE.children.length?"":'<p class="mu" style="font-size:14px;margin-top:8px">No team members yet. Your referrals will appear here.</p>');
+}
+function render(){renderBell();tree();wallet();stats();pkgs();lv();miles();claimsv();compv();salary();$("qt").textContent=D.qual;if(window.applyLang)applyLang()}
+
+var INQT=0;
+$("ptn").onclick=function(){openInq(4)};
+function openInq(i){INQT=i;$("mt").textContent=PK[i].n+" partnership request";$("iq-e").textContent="";$("mdl").hidden=false}
+$("mx").onclick=function(){$("mdl").hidden=true};
+$("mdl").onclick=function(e){if(e.target===this)this.hidden=true};
+$("iq-go").onclick=function(){
+ var f={company:$("iq-co").value.trim(),name:$("iq-nm").value.trim(),email:$("iq-em").value.trim().toLowerCase(),country:$("iq-ct").value.trim(),type:$("iq-ty").value,message:$("iq-ms").value.trim()};
+ function bad(t){$("iq-e").textContent=t}
+ if(f.company.length<2)return bad("Enter your company name.");
+ if(f.name.length<2)return bad("Enter the contact person.");
+ if(!/^\S+@\S+\.\S+$/.test(f.email))return bad("Enter a valid email address.");
+ if(!f.country)return bad("Enter your country.");
+ if(!$("iq-ag").checked)return bad("Please accept the agreement note to continue.");
+ var r={id:"INQ-"+Date.now().toString().slice(-6),plan:PK[INQT].n,d:today(),st:"NEW",company:f.company,name:f.name,email:f.email,country:f.country,type:f.type,msg:f.message};
+ D.inq.unshift(r);D.audit.unshift("Partnership inquiry "+r.id+" received ("+r.plan+")");
+ if(typeof sb!=="undefined"&&sb){sb.from("partnership_inquiries").insert({plan:r.plan,company:f.company,contact_name:f.name,email:f.email,country:f.country,deal_type:f.type,message:f.message}).then(function(x){if(x.error)toast("Saved on screen only. Create the database table first.",1)})}
+ $("mdl").hidden=true;["iq-co","iq-nm","iq-em","iq-ct","iq-ms"].forEach(function(i){$(i).value=""});$("iq-ag").checked=false;
+ sfx.ok();toast("Request sent. We will contact you.");render();
+};
+function inqv(){
+ var T={NEW:"pd",REVIEW:"",CLOSED:"ok"},L={NEW:"New",REVIEW:"Under review",CLOSED:"Closed"};
+ $("inq").innerHTML=D.inq.length?D.inq.map(function(r){return'<div class="tl"><div class="dot '+(r.st==="CLOSED"?"ok":"")+'"></div><div style="flex:1"><div class="row"><b>'+r.company+' / '+r.plan+'</b><span class="tag '+T[r.st]+'">'+L[r.st]+'</span></div><div class="mu" style="font-size:13px">'+r.id+' / '+r.type+' / '+r.name+' / '+r.email+' / '+r.country+' / '+r.d+'</div>'+(r.msg?'<div style="font-size:13px;margin-top:4px">'+r.msg+'</div>':"")+'<div class="row" style="justify-content:flex-start;gap:8px;margin-top:8px"><button class="btn sm ln" data-iq="'+r.id+'" data-s="REVIEW">Under review</button><button class="btn sm" data-iq="'+r.id+'" data-s="CLOSED">Close</button></div></div></div>'}).join(""):'<p class="mu">No inquiries yet. Requests from ELITE and UNIVERSAL appear here.</p>';
+ document.querySelectorAll("[data-iq]").forEach(function(b){b.onclick=function(){var r=D.inq.find(function(x){return x.id===b.dataset.iq});r.st=b.dataset.s;D.audit.unshift("Inquiry "+r.id+" set to "+L[r.st]);render()}});
+}
+function setUser(u){var m=u.user_metadata||{};D.name=((m.full_name||u.email.split("@")[0])+"").split(" ")[0];$("avt").textContent=D.name.charAt(0).toUpperCase()}
+// ---- Supabase CDN loads next; auth logic follows ----
+</script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script>
+// ---- CONFIG: paste your own values. Use the anon (public) key only. NEVER put the service-role key here. ----
+var CFG={url:"https://qufxjfntdqjhympultbx.supabase.co",anon:"sb_publishable_639f9uEApKsGgOtQW_J9Jg_M-nnwtnB",live:"",support:"",phone:""};
+var sb=null;
+if(CFG.url.indexOf("http")===0&&window.supabase){sb=window.supabase.createClient(CFG.url,CFG.anon)}
+function $$(i){return document.getElementById(i)}
+var CO=[["Pakistan","+92"],["India","+91"],["Bangladesh","+880"],["Sri Lanka","+94"],["Nepal","+977"],["United Arab Emirates","+971"],["Saudi Arabia","+966"],["Qatar","+974"],["Kuwait","+965"],["Oman","+968"],["Bahrain","+973"],["Turkey","+90"],["Egypt","+20"],["United Kingdom","+44"],["United States","+1"],["Canada","+1"],["Australia","+61"],["Germany","+49"],["France","+33"],["Italy","+39"],["Spain","+34"],["Netherlands","+31"],["Sweden","+46"],["Ireland","+353"],["Malaysia","+60"],["Singapore","+65"],["Indonesia","+62"],["Philippines","+63"],["Thailand","+66"],["China","+86"],["Japan","+81"],["South Korea","+82"],["Nigeria","+234"],["Kenya","+254"],["Ghana","+233"],["South Africa","+27"],["Brazil","+55"],["Mexico","+52"]];
+$$("s-co").innerHTML='<option value="">Select country</option>'+CO.map(function(c,i){return'<option value="'+i+'">'+c[0]+'</option>'}).join("");
+$$("s-co").onchange=function(){$$("s-dc").value=this.value===""?"+":CO[+this.value][1]};
+var pend="";
+function av(n){document.querySelectorAll(".av").forEach(function(e){e.hidden=e.id!=="v-"+n});document.querySelectorAll(".err").forEach(function(e){e.textContent=""})}
+document.querySelectorAll("[data-av]").forEach(function(b){b.onclick=function(){av(b.dataset.av)}});
+function er(id,t){$$(id).textContent=t}
+function needSb(id){if(!sb){er(id,"Supabase keys are not set in the CONFIG section of this file.");return true}return false}
+function okEm(e){return /^\S+@\S+\.\S+$/.test(e)}
+function okPw(p){return p.length>=8&&/[A-Za-z]/.test(p)&&/[0-9]/.test(p)}
+function unlock(u){loadMe(u);document.body.classList.remove("locked");$$("auth").style.display="none";toast("Welcome "+((u.user_metadata&&u.user_metadata.full_name)||u.email));render()}
+function busy(b,f){b.disabled=true;return f().then(function(r){b.disabled=false;return r},function(x){b.disabled=false;throw x})}
+
+$$("l-go").onclick=function(){
+ var e=$$("l-em").value.trim().toLowerCase(),p=$$("l-pw").value;er("l-e","");
+ if(needSb("l-e"))return;
+ if(!okEm(e)||!p){er("l-e","Enter your email and password.");return}
+ busy(this,function(){return sb.auth.signInWithPassword({email:e,password:p})}).then(function(r){
+  if(r.error){
+   if(/confirm/i.test(r.error.message)){pend=e;av("verify");sb.auth.resend({type:"signup",email:e});return}
+   er("l-e","Incorrect email or password.");return}
+  unlock(r.data.user)})};
+
+$$("s-go").onclick=function(){
+ var n=$$("s-fn").value.trim(),u=$$("s-un").value.trim(),e=$$("s-em").value.trim().toLowerCase(),c=$$("s-co").value,ph=$$("s-ph").value.replace(/\D/g,""),p=$$("s-pw").value;er("s-e","");
+ if(needSb("s-e"))return;
+ if(n.length<2)return er("s-e","Enter your full name.");
+ if(!/^[A-Za-z0-9_]{3,20}$/.test(u))return er("s-e","Username: 3 to 20 letters, numbers or underscore.");
+ if(!okEm(e))return er("s-e","Enter a valid email address.");
+ if(c==="")return er("s-e","Select your country.");
+ if(ph.length<6||ph.length>14)return er("s-e","Enter a valid phone number.");
+ if(!okPw(p))return er("s-e","Password needs 8+ characters with letters and numbers.");
+ if(p!==$$("s-pc").value)return er("s-e","Passwords do not match.");
+ var meta={full_name:n,username:u,country:CO[+c][0],phone:CO[+c][1]+ph,referral_code:$$("s-rc").value.trim()};
+ busy(this,function(){return sb.auth.signUp({email:e,password:p,options:{data:meta}})}).then(function(r){
+  if(r.error){er("s-e",r.error.message);return}
+  if(r.data.user&&r.data.user.identities&&r.data.user.identities.length===0){er("s-e","This email is already registered. Please log in.");return}
+  if(r.data.session){unlock(r.data.user);return}
+  pend=e;av("verify")})};
+
+$$("v-go").onclick=function(){
+ var t=$$("v-code").value.trim();er("v-e","");if(!t)return er("v-e","Enter the code.");
+ busy(this,function(){return sb.auth.verifyOtp({email:pend,token:t,type:"signup"})}).then(function(r){
+  if(r.error){er("v-e","Wrong or expired code. Try again.");return}
+  unlock(r.data.user)})};
+$$("v-re").onclick=function(){if(sb&&pend){sb.auth.resend({type:"signup",email:pend}).then(function(){toast("Code sent again")})}};
+
+$$("f-go").onclick=function(){
+ var e=$$("f-em").value.trim().toLowerCase();er("f-e","");
+ if(needSb("f-e"))return;if(!okEm(e))return er("f-e","Enter a valid email address.");
+ busy(this,function(){return sb.auth.resetPasswordForEmail(e)}).then(function(r){
+  if(r.error){er("f-e",r.error.message);return}
+  pend=e;av("reset");toast("If this email is registered, a code was sent")})};
+
+$$("r-go").onclick=function(){
+ var t=$$("r-code").value.trim(),p=$$("r-pw").value;er("r-e","");
+ if(!t)return er("r-e","Enter the reset code.");
+ if(!okPw(p))return er("r-e","Password needs 8+ characters with letters and numbers.");
+ if(p!==$$("r-pc").value)return er("r-e","Passwords do not match.");
+ var b=this;b.disabled=true;
+ sb.auth.verifyOtp({email:pend,token:t,type:"recovery"}).then(function(r){
+  if(r.error){b.disabled=false;er("r-e","Wrong or expired code.");return}
+  return sb.auth.updateUser({password:p}).then(function(u){b.disabled=false;
+   if(u.error){er("r-e",u.error.message);return}
+   toast("Password updated");unlock(u.data.user)})})};
+
+$$("out").onclick=function(){(sb?sb.auth.signOut():Promise.resolve()).then(function(){location.reload()})};
+$$("live").onclick=function(){CFG.live?window.open(CFG.live,"_blank","noopener"):toast("Add the live session link in CONFIG")};
+$$("sup").onclick=function(){CFG.support?window.open(CFG.support,"_blank","noopener"):toast("Add the support link in CONFIG")};
+if(sb)sb.auth.getSession().then(function(r){if(r.data.session)unlock(r.data.session.user)});
+
+
+var _un=unlock;unlock=function(u){setUser(u);_un(u)};
+$("s-pw").oninput=function(){var p=this.value,sc=(p.length>=8)+(/[A-Z]/.test(p))+(/[0-9]/.test(p))+(/[^A-Za-z0-9]/.test(p));var b=$("pwm");b.style.width=sc*25+"%";b.style.background=sc>=3?"var(--ac)":"var(--ink)"};
+var SUN='<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>',MOON='<svg viewBox="0 0 24 24"><path d="M21 12.8A9 9 0 1111.2 3a7 7 0 009.8 9.8z"/></svg>';
+function theme(t){document.documentElement.setAttribute("data-theme",t);["tg1","tg2"].forEach(function(i){$(i).innerHTML=t==="dark"?SUN:MOON});try{localStorage.setItem("pc-theme",t)}catch(e){}}
+var th="light";try{th=localStorage.getItem("pc-theme")==="dark"?"dark":"light"}catch(e){}
+theme(th);
+["tg1","tg2"].forEach(function(i){$(i).onclick=function(){theme(document.documentElement.getAttribute("data-theme")==="dark"?"light":"dark")}});
+$("snd").classList.toggle("off",!snd);
+$("snd").onclick=function(){snd=!snd;this.classList.toggle("off",!snd);try{localStorage.setItem("pc-snd",snd?"1":"0")}catch(e){}if(snd)sfx.ok()};
+/* ---------- country flags ---------- */
+var ISO="pk,in,bd,lk,np,ae,sa,qa,kw,om,bh,tr,eg,gb,us,ca,au,de,fr,it,es,nl,se,ie,my,sg,id,ph,th,cn,jp,kr,ng,ke,gh,za,br,mx".split(",");
+function flag(i){return"https://flagcdn.com/w40/"+ISO[i]+".png"}
+var EMO=(function(){try{var c=document.createElement("canvas");c.width=c.height=24;var x=c.getContext("2d");x.textBaseline="top";x.font="20px sans-serif";x.fillText("\uD83C\uDDF5\uD83C\uDDF0",0,0);var d=x.getImageData(0,0,24,24).data;for(var i=0;i<d.length;i+=4){if(d[i+3]>0&&(Math.abs(d[i]-d[i+1])>25||Math.abs(d[i+1]-d[i+2])>25))return true}}catch(e){}return false})();
+function cc2e(c){return String.fromCodePoint.apply(null,c.toUpperCase().split("").map(function(ch){return 127397+ch.charCodeAt(0)}))}
+function fi(c){return EMO?cc2e(c):'<img src="https://flagcdn.com/w40/'+c+'.png" alt="" onerror="this.style.display=\'none\'">'}
+function pickC(i){$("s-co").value=i;$("s-dc").value=CO[i][1];["cf","pf"].forEach(function(x){$(x).innerHTML=fi(ISO[i]);$(x).hidden=false});$("cn").textContent=CO[i][0];$("cdl").hidden=true}
+function listC(q){q=q.replace(/^\+/,"");var L=[];CO.forEach(function(c,i){var n=c[0].toLowerCase(),d=c[1].replace("+",""),r=-1;if(!q)r=1;else if(n.indexOf(q)===0)r=0;else if(n.split(" ").some(function(w){return w.indexOf(q)===0}))r=1;else if(d.indexOf(q)===0)r=2;if(r>-1)L.push([r,i])});L.sort(function(x,y){return x[0]-y[0]||x[1]-y[1]});$("cli").innerHTML=L.map(function(m){var c=CO[m[1]];return'<div class="ci" data-c="'+m[1]+'"><span class="fl fq">'+fi(ISO[m[1]])+'</span><b style="font-weight:600">'+c[0]+'</b><span>'+c[1]+'</span></div>'}).join("")}
+$("cb").onclick=function(){var o=$("cdl").hidden;$("cdl").hidden=!o;if(o){$("cq").value="";listC("");$("cq").focus()}};
+$("cq").oninput=function(){listC(this.value.trim().toLowerCase())};
+$("cli").onclick=function(e){var c=e.target.closest(".ci");if(c)pickC(+c.dataset.c)};
+document.addEventListener("click",function(e){if(!e.target.closest("#cp"))$("cdl").hidden=true});
+/* ---------- languages ---------- */
+var LANGS=[["en", "English"], ["hi", "हिन्दी"], ["ur", "اردو"], ["ar", "العربية"], ["es", "Español"], ["zh", "中文"], ["fr", "Français"], ["de", "Deutsch"], ["pt", "Português"], ["ru", "Русский"], ["tr", "Türkçe"], ["ja", "日本語"], ["ko", "한국어"], ["id", "Bahasa Indonesia"]];
+var R=[
+["Overview","ओवरव्यू","جائزہ","نظرة عامة","Resumen"],
+["Packages","पैकेज","پیکجز","الباقات","Paquetes"],
+["Team","टीम","ٹیم","الفريق","Equipo"],
+["Challenge","चैलेंज","چیلنج","التحدي","Desafío"],
+["Claims","क्लेम","کلیمز","المطالبات","Reclamos"],
+["Admin","एडमिन","ایڈمن","الإدارة","Admin"],
+["Company","कंपनी","کمپنی","الشركة","Empresa"],
+["Log out","लॉग आउट","لاگ آؤٹ","تسجيل الخروج","Cerrar sesión"],
+["View packages","पैकेज देखें","پیکجز دیکھیں","عرض الباقات","Ver paquetes"],
+["Welcome back","वापसी पर स्वागत है","خوش آمدید","مرحبًا بعودتك","Bienvenido de nuevo"],
+["Log in to your account.","अपने अकाउंट में लॉग इन करें।","اپنے اکاؤنٹ میں لاگ ان کریں۔","سجّل الدخول إلى حسابك.","Inicia sesión en tu cuenta."],
+["Email address","ईमेल पता","ای میل ایڈریس","البريد الإلكتروني","Correo electrónico"],
+["Password","पासवर्ड","پاس ورڈ","كلمة المرور","Contraseña"],
+["Log in","लॉग इन","لاگ ان","تسجيل الدخول","Iniciar sesión"],
+["Forgot password?","पासवर्ड भूल गए?","پاس ورڈ بھول گئے؟","نسيت كلمة المرور؟","¿Olvidaste tu contraseña?"],
+["Create account","अकाउंट बनाएं","اکاؤنٹ بنائیں","إنشاء حساب","Crear cuenta"],
+["Create your account","अपना अकाउंट बनाएं","اپنا اکاؤنٹ بنائیں","أنشئ حسابك","Crea tu cuenta"],
+["It takes less than a minute.","इसमें एक मिनट से भी कम लगता है।","اس میں ایک منٹ سے بھی کم لگتا ہے۔","يستغرق أقل من دقيقة.","Toma menos de un minuto."],
+["Full name","पूरा नाम","پورا نام","الاسم الكامل","Nombre completo"],
+["Username","यूज़रनेम","یوزر نیم","اسم المستخدم","Usuario"],
+["Country","देश","ملک","الدولة","País"],
+["Phone number","फ़ोन नंबर","فون نمبر","رقم الهاتف","Teléfono"],
+["Confirm password","पासवर्ड की पुष्टि करें","پاس ورڈ کی تصدیق کریں","تأكيد كلمة المرور","Confirmar contraseña"],
+["Referral code (optional)","रेफ़रल कोड (वैकल्पिक)","ریفرل کوڈ (اختیاری)","رمز الإحالة (اختياري)","Código de referido (opcional)"],
+["Already registered?","पहले से रजिस्टर्ड हैं?","پہلے سے رجسٹرڈ ہیں؟","لديك حساب بالفعل؟","¿Ya tienes cuenta?"],
+["Verify your email","अपना ईमेल सत्यापित करें","اپنا ای میل تصدیق کریں","تحقق من بريدك الإلكتروني","Verifica tu correo"],
+["Enter the code we sent to your email.","हमने आपके ईमेल पर जो कोड भेजा है, वह दर्ज करें।","ہم نے آپ کے ای میل پر جو کوڈ بھیجا ہے وہ درج کریں۔","أدخل الرمز الذي أرسلناه إلى بريدك.","Introduce el código que enviamos a tu correo."],
+["Verify and continue","सत्यापित करें और आगे बढ़ें","تصدیق کریں اور آگے بڑھیں","تحقق ومتابعة","Verificar y continuar"],
+["Resend code","कोड दोबारा भेजें","کوڈ دوبارہ بھیجیں","إعادة إرسال الرمز","Reenviar código"],
+["Back to log in","लॉग इन पर वापस","لاگ ان پر واپس","العودة لتسجيل الدخول","Volver a iniciar sesión"],
+["Reset password","पासवर्ड रीसेट करें","پاس ورڈ ری سیٹ کریں","إعادة تعيين كلمة المرور","Restablecer contraseña"],
+["We will email you a reset code.","हम आपको रीसेट कोड ईमेल करेंगे।","ہم آپ کو ری سیٹ کوڈ ای میل کریں گے۔","سنرسل إليك رمز إعادة التعيين.","Te enviaremos un código por correo."],
+["Send reset code","रीसेट कोड भेजें","ری سیٹ کوڈ بھیجیں","إرسال رمز إعادة التعيين","Enviar código"],
+["New password","नया पासवर्ड","نیا پاس ورڈ","كلمة مرور جديدة","Nueva contraseña"],
+["Update password","पासवर्ड अपडेट करें","پاس ورڈ اپ ڈیٹ کریں","تحديث كلمة المرور","Actualizar contraseña"],
+["Total Purchases","कुल खरीद","کل خریداری","إجمالي المشتريات","Compras totales"],
+["Verified Commission","सत्यापित कमीशन","تصدیق شدہ کمیشن","العمولة الموثقة","Comisión verificada"],
+["Current Package","वर्तमान पैकेज","موجودہ پیکج","الباقة الحالية","Paquete actual"],
+["Completed Rewards","पूर्ण रिवॉर्ड","مکمل انعامات","المكافآت المكتملة","Recompensas completadas"],
+["Courses Unlocked","अनलॉक किए गए कोर्स","کھلے ہوئے کورسز","الدورات المفتوحة","Cursos desbloqueados"],
+["Pending Claims","लंबित क्लेम","زیر التواء کلیمز","مطالبات قيد الانتظار","Reclamos pendientes"],
+["Direct Referrals","डायरेक्ट रेफ़रल","براہ راست ریفرلز","الإحالات المباشرة","Referidos directos"],
+["Pending Withdrawals","लंबित निकासी","زیر التواء رقم نکلوانا","سحوبات قيد الانتظار","Retiros pendientes"],
+["Next reward","अगला रिवॉर्ड","اگلا انعام","المكافأة التالية","Próxima recompensa"],
+["Open challenge","चैलेंज खोलें","چیلنج کھولیں","افتح التحدي","Abrir desafío"],
+["Select package","पैकेज चुनें","پیکج منتخب کریں","اختر الباقة","Elegir paquete"],
+["Request partnership","साझेदारी का अनुरोध","شراکت داری کی درخواست","طلب شراكة","Solicitar alianza"],
+["Your package","आपका पैकेज","آپ کا پیکج","باقتك","Tu paquete"],
+["Package","पैकेज","پیکج","باقة","Paquete"],
+["Enterprise","एंटरप्राइज़","انٹرپرائز","للشركات","Empresarial"],
+["Select country","देश चुनें","ملک منتخب کریں","اختر الدولة","Selecciona país"],
+["Not reached yet","अभी हासिल नहीं हुआ","ابھی حاصل نہیں ہوا","لم يتحقق بعد","Aún no alcanzado"],
+["Eligible","पात्र","اہل","مؤهل","Elegible"],
+["In progress","प्रगति में","جاری ہے","قيد التقدم","En progreso"],
+["Verified","सत्यापित","تصدیق شدہ","موثّق","Verificado"],
+["Demo data","डेमो डेटा","ڈیمو ڈیٹا","بيانات تجريبية","Datos de ejemplo"],
+["Send request","अनुरोध भेजें","درخواست بھیجیں","إرسال الطلب","Enviar solicitud"],
+["Company name","कंपनी का नाम","کمپنی کا نام","اسم الشركة","Nombre de la empresa"],
+["Contact person","संपर्क व्यक्ति","رابطہ شخص","الشخص المسؤول","Persona de contacto"],
+["Deal type","डील का प्रकार","ڈیل کی قسم","نوع الاتفاق","Tipo de acuerdo"],
+["Message","संदेश","پیغام","الرسالة","Mensaje"],
+["Choose your <b>package</b>","अपना <b>पैकेज</b> चुनें","اپنا <b>پیکج</b> منتخب کریں","اختر <b>باقتك</b>","Elige tu <b>paquete</b>"],
+["Team <b>commission</b>","टीम <b>कमीशन</b>","ٹیم <b>کمیشن</b>","<b>عمولة</b> الفريق","<b>Comisión</b> del equipo"],
+["Daily referral <b>challenge</b>","डेली रेफ़रल <b>चैलेंज</b>","روزانہ ریفرل <b>چیلنج</b>","<b>تحدي</b> الإحالات اليومي","<b>Desafío</b> diario de referidos"],
+["My <b>claims</b>","मेरे <b>क्लेम</b>","میرے <b>کلیمز</b>","<b>مطالباتي</b>","Mis <b>reclamos</b>"],
+["Admin <b>panel</b>","एडमिन <b>पैनल</b>","ایڈمن <b>پینل</b>","<b>لوحة</b> الإدارة","<b>Panel</b> de admin"],
+["The <b>company</b>","<b>कंपनी</b>","<b>کمپنی</b>","<b>الشركة</b>","La <b>empresa</b>"],
+["Learn. <b>Build.</b> Grow with a real community.","सीखें। <b>बनाएं।</b> एक असली कम्युनिटी के साथ आगे बढ़ें।","سیکھیں۔ <b>بنائیں۔</b> ایک حقیقی کمیونٹی کے ساتھ آگے بڑھیں۔","تعلّم. <b>ابنِ.</b> وانمُ مع مجتمع حقيقي.","Aprende. <b>Construye.</b> Crece con una comunidad real."],
+["Courses, mentoring and international meetups, all in one secure place.","कोर्स, मेंटरिंग और अंतरराष्ट्रीय मीटअप, सब एक सुरक्षित जगह।","کورسز، مینٹرنگ اور بین الاقوامی میٹ اپس، سب ایک محفوظ جگہ۔","دورات وإرشاد ولقاءات دولية، كل ذلك في مكان آمن واحد.","Cursos, mentoría y encuentros internacionales en un solo lugar seguro."],
+["Real courses. A real community. Real customer sales.","असली कोर्स। असली कम्युनिटी। असली ग्राहकों की बिक्री।","حقیقی کورسز۔ حقیقی کمیونٹی۔ حقیقی صارفین کی فروخت۔","دورات حقيقية. مجتمع حقيقي. مبيعات حقيقية للعملاء.","Cursos reales. Comunidad real. Ventas reales a clientes."]
 ];
-function loadScript(src) {
-  return new Promise(function (res, rej) {
-    var s = document.createElement('script');
-    s.src = src; s.async = true;
-    s.onload = res; s.onerror = function () { rej(new Error('load failed ' + src)); };
-    document.head.appendChild(s);
-  });
+var I18={};R.forEach(function(r){I18[r[0]]={hi:r[1],ur:r[2],ar:r[3],es:r[4]}});
+var XT={"zh": ["概览", "套餐", "团队", "挑战", "申请", "管理", "公司", "退出登录", "查看套餐", "欢迎回来", "登录您的账户。", "电子邮箱", "密码", "登录", "忘记密码？", "创建账户", "创建您的账户", "只需不到一分钟。", "姓名", "用户名", "国家/地区", "手机号码", "确认密码", "推荐码（选填）", "已有账户？", "验证邮箱", "请输入我们发送到您邮箱的验证码。", "验证并继续", "重新发送验证码", "返回登录", "重置密码", "我们将向您发送重置验证码。", "发送重置验证码", "新密码", "更新密码", "总购买额", "已核实佣金", "当前套餐", "已完成奖励", "已解锁课程", "待处理申请", "直接推荐", "待处理提现", "下一个奖励", "打开挑战", "选择套餐", "申请合作", "您的套餐", "套餐", "企业", "选择国家/地区", "尚未达成", "符合条件", "进行中", "已验证", "演示数据", "发送请求", "公司名称", "联系人", "合作类型", "留言", "选择您的<b>套餐</b>", "团队<b>佣金</b>", "每日推荐<b>挑战</b>", "我的<b>申请</b>", "管理<b>面板</b>", "关于<b>公司</b>", "学习。<b>创造。</b>与真实社区共同成长。", "课程、辅导与国际聚会，尽在一个安全的平台。", "真实课程。真实社区。真实客户销售。"], "fr": ["Aperçu", "Forfaits", "Équipe", "Défi", "Demandes", "Admin", "Entreprise", "Se déconnecter", "Voir les forfaits", "Bon retour", "Connectez-vous à votre compte.", "Adresse e-mail", "Mot de passe", "Se connecter", "Mot de passe oublié ?", "Créer un compte", "Créez votre compte", "Cela prend moins d'une minute.", "Nom complet", "Nom d'utilisateur", "Pays", "Numéro de téléphone", "Confirmer le mot de passe", "Code de parrainage (facultatif)", "Déjà inscrit ?", "Vérifiez votre e-mail", "Saisissez le code envoyé à votre adresse e-mail.", "Vérifier et continuer", "Renvoyer le code", "Retour à la connexion", "Réinitialiser le mot de passe", "Nous vous enverrons un code de réinitialisation.", "Envoyer le code", "Nouveau mot de passe", "Mettre à jour le mot de passe", "Achats totaux", "Commission vérifiée", "Forfait actuel", "Récompenses obtenues", "Cours débloqués", "Demandes en attente", "Parrainages directs", "Retraits en attente", "Prochaine récompense", "Ouvrir le défi", "Choisir le forfait", "Demander un partenariat", "Votre forfait", "Forfait", "Entreprise", "Sélectionner un pays", "Pas encore atteint", "Éligible", "En cours", "Vérifié", "Données de démo", "Envoyer la demande", "Nom de l'entreprise", "Personne à contacter", "Type d'accord", "Message", "Choisissez votre <b>forfait</b>", "<b>Commission</b> d'équipe", "<b>Défi</b> quotidien de parrainage", "Mes <b>demandes</b>", "<b>Panneau</b> admin", "L'<b>entreprise</b>", "Apprenez. <b>Créez.</b> Progressez avec une vraie communauté.", "Cours, mentorat et rencontres internationales, au même endroit sécurisé.", "De vrais cours. Une vraie communauté. De vraies ventes clients."], "de": ["Übersicht", "Pakete", "Team", "Challenge", "Anträge", "Admin", "Unternehmen", "Abmelden", "Pakete ansehen", "Willkommen zurück", "Melden Sie sich bei Ihrem Konto an.", "E-Mail-Adresse", "Passwort", "Anmelden", "Passwort vergessen?", "Konto erstellen", "Erstellen Sie Ihr Konto", "Es dauert weniger als eine Minute.", "Vollständiger Name", "Benutzername", "Land", "Telefonnummer", "Passwort bestätigen", "Empfehlungscode (optional)", "Bereits registriert?", "E-Mail bestätigen", "Geben Sie den Code ein, den wir an Ihre E-Mail gesendet haben.", "Bestätigen und fortfahren", "Code erneut senden", "Zurück zur Anmeldung", "Passwort zurücksetzen", "Wir senden Ihnen einen Code zum Zurücksetzen.", "Code senden", "Neues Passwort", "Passwort aktualisieren", "Gesamtkäufe", "Verifizierte Provision", "Aktuelles Paket", "Abgeschlossene Prämien", "Freigeschaltete Kurse", "Offene Anträge", "Direkte Empfehlungen", "Offene Auszahlungen", "Nächste Prämie", "Challenge öffnen", "Paket wählen", "Partnerschaft anfragen", "Ihr Paket", "Paket", "Enterprise", "Land auswählen", "Noch nicht erreicht", "Berechtigt", "In Bearbeitung", "Verifiziert", "Demodaten", "Anfrage senden", "Firmenname", "Ansprechpartner", "Vereinbarungstyp", "Nachricht", "Wählen Sie Ihr <b>Paket</b>", "Team-<b>Provision</b>", "Tägliche Empfehlungs-<b>Challenge</b>", "Meine <b>Anträge</b>", "Admin-<b>Bereich</b>", "Das <b>Unternehmen</b>", "Lernen. <b>Aufbauen.</b> Wachsen mit einer echten Community.", "Kurse, Mentoring und internationale Treffen an einem sicheren Ort.", "Echte Kurse. Eine echte Community. Echte Kundenumsätze."], "pt": ["Visão geral", "Pacotes", "Equipe", "Desafio", "Solicitações", "Admin", "Empresa", "Sair", "Ver pacotes", "Bem-vindo de volta", "Entre na sua conta.", "Endereço de e-mail", "Senha", "Entrar", "Esqueceu a senha?", "Criar conta", "Crie sua conta", "Leva menos de um minuto.", "Nome completo", "Nome de usuário", "País", "Número de telefone", "Confirmar senha", "Código de indicação (opcional)", "Já tem cadastro?", "Verifique seu e-mail", "Digite o código que enviamos para o seu e-mail.", "Verificar e continuar", "Reenviar código", "Voltar ao login", "Redefinir senha", "Enviaremos um código de redefinição por e-mail.", "Enviar código", "Nova senha", "Atualizar senha", "Compras totais", "Comissão verificada", "Pacote atual", "Recompensas concluídas", "Cursos desbloqueados", "Solicitações pendentes", "Indicações diretas", "Saques pendentes", "Próxima recompensa", "Abrir desafio", "Selecionar pacote", "Solicitar parceria", "Seu pacote", "Pacote", "Empresarial", "Selecione o país", "Ainda não alcançado", "Elegível", "Em andamento", "Verificado", "Dados de demonstração", "Enviar solicitação", "Nome da empresa", "Pessoa de contato", "Tipo de acordo", "Mensagem", "Escolha seu <b>pacote</b>", "<b>Comissão</b> da equipe", "<b>Desafio</b> diário de indicações", "Minhas <b>solicitações</b>", "<b>Painel</b> admin", "A <b>empresa</b>", "Aprenda. <b>Construa.</b> Cresça com uma comunidade real.", "Cursos, mentoria e encontros internacionais em um só lugar seguro.", "Cursos reais. Comunidade real. Vendas reais a clientes."], "ru": ["Обзор", "Пакеты", "Команда", "Челлендж", "Заявки", "Админ", "Компания", "Выйти", "Посмотреть пакеты", "С возвращением", "Войдите в свой аккаунт.", "Адрес электронной почты", "Пароль", "Войти", "Забыли пароль?", "Создать аккаунт", "Создайте аккаунт", "Это займёт меньше минуты.", "Полное имя", "Имя пользователя", "Страна", "Номер телефона", "Подтвердите пароль", "Реферальный код (необязательно)", "Уже зарегистрированы?", "Подтвердите почту", "Введите код, отправленный на вашу почту.", "Подтвердить и продолжить", "Отправить код ещё раз", "Вернуться ко входу", "Сброс пароля", "Мы отправим вам код для сброса.", "Отправить код", "Новый пароль", "Обновить пароль", "Всего покупок", "Подтверждённая комиссия", "Текущий пакет", "Полученные награды", "Открытые курсы", "Заявки в ожидании", "Прямые рефералы", "Выводы в ожидании", "Следующая награда", "Открыть челлендж", "Выбрать пакет", "Запросить партнёрство", "Ваш пакет", "Пакет", "Корпоративный", "Выберите страну", "Ещё не достигнуто", "Доступно", "В процессе", "Подтверждено", "Демо-данные", "Отправить запрос", "Название компании", "Контактное лицо", "Тип соглашения", "Сообщение", "Выберите свой <b>пакет</b>", "<b>Комиссия</b> команды", "Ежедневный реферальный <b>челлендж</b>", "Мои <b>заявки</b>", "<b>Панель</b> администратора", "О <b>компании</b>", "Учитесь. <b>Создавайте.</b> Растите вместе с настоящим сообществом.", "Курсы, наставничество и международные встречи в одном безопасном месте.", "Настоящие курсы. Настоящее сообщество. Настоящие продажи клиентам."], "tr": ["Genel Bakış", "Paketler", "Ekip", "Meydan Okuma", "Talepler", "Yönetici", "Şirket", "Çıkış yap", "Paketleri gör", "Tekrar hoş geldiniz", "Hesabınıza giriş yapın.", "E-posta adresi", "Şifre", "Giriş yap", "Şifreni mi unuttun?", "Hesap oluştur", "Hesabınızı oluşturun", "Bir dakikadan az sürer.", "Ad soyad", "Kullanıcı adı", "Ülke", "Telefon numarası", "Şifreyi onayla", "Referans kodu (isteğe bağlı)", "Zaten kayıtlı mısınız?", "E-postanızı doğrulayın", "E-postanıza gönderdiğimiz kodu girin.", "Doğrula ve devam et", "Kodu yeniden gönder", "Girişe dön", "Şifreyi sıfırla", "Size bir sıfırlama kodu e-postalayacağız.", "Sıfırlama kodu gönder", "Yeni şifre", "Şifreyi güncelle", "Toplam Alışveriş", "Doğrulanmış Komisyon", "Mevcut Paket", "Tamamlanan Ödüller", "Açılan Kurslar", "Bekleyen Talepler", "Doğrudan Referanslar", "Bekleyen Çekimler", "Sonraki ödül", "Meydan okumayı aç", "Paket seç", "Ortaklık talep et", "Paketiniz", "Paket", "Kurumsal", "Ülke seçin", "Henüz ulaşılmadı", "Uygun", "Devam ediyor", "Doğrulandı", "Demo verileri", "Talebi gönder", "Şirket adı", "İletişim kişisi", "Anlaşma türü", "Mesaj", "<b>Paketinizi</b> seçin", "Ekip <b>komisyonu</b>", "Günlük referans <b>meydan okuması</b>", "<b>Taleplerim</b>", "Yönetici <b>paneli</b>", "<b>Şirket</b>", "Öğrenin. <b>Üretin.</b> Gerçek bir toplulukla büyüyün.", "Kurslar, mentorluk ve uluslararası buluşmalar, tek bir güvenli yerde.", "Gerçek kurslar. Gerçek topluluk. Gerçek müşteri satışları."], "ja": ["概要", "パッケージ", "チーム", "チャレンジ", "申請", "管理", "会社", "ログアウト", "パッケージを見る", "おかえりなさい", "アカウントにログインしてください。", "メールアドレス", "パスワード", "ログイン", "パスワードをお忘れですか？", "アカウント作成", "アカウントを作成", "1分もかかりません。", "氏名", "ユーザー名", "国", "電話番号", "パスワード（確認）", "紹介コード（任意）", "すでに登録済みですか？", "メールを認証", "メールに送信したコードを入力してください。", "認証して続行", "コードを再送信", "ログインに戻る", "パスワードをリセット", "リセットコードをメールで送信します。", "リセットコードを送信", "新しいパスワード", "パスワードを更新", "購入総額", "確認済みコミッション", "現在のパッケージ", "獲得済み報酬", "解放済みコース", "保留中の申請", "直接紹介", "保留中の出金", "次の報酬", "チャレンジを開く", "パッケージを選択", "提携を申請", "あなたのパッケージ", "パッケージ", "エンタープライズ", "国を選択", "未達成", "対象", "進行中", "確認済み", "デモデータ", "リクエストを送信", "会社名", "担当者", "契約の種類", "メッセージ", "<b>パッケージ</b>を選ぶ", "チーム<b>コミッション</b>", "毎日の紹介<b>チャレンジ</b>", "私の<b>申請</b>", "管理<b>パネル</b>", "<b>会社</b>について", "学ぶ。<b>創る。</b>本物のコミュニティと共に成長。", "コース、メンタリング、国際ミートアップを、ひとつの安全な場所で。", "本物のコース。本物のコミュニティ。本物の顧客販売。"], "ko": ["개요", "패키지", "팀", "챌린지", "청구", "관리자", "회사", "로그아웃", "패키지 보기", "다시 오신 것을 환영합니다", "계정에 로그인하세요.", "이메일 주소", "비밀번호", "로그인", "비밀번호를 잊으셨나요?", "계정 만들기", "계정을 만드세요", "1분도 걸리지 않습니다.", "이름", "사용자 이름", "국가", "전화번호", "비밀번호 확인", "추천 코드(선택)", "이미 가입하셨나요?", "이메일 인증", "이메일로 보낸 코드를 입력하세요.", "인증 후 계속", "코드 재전송", "로그인으로 돌아가기", "비밀번호 재설정", "재설정 코드를 이메일로 보내드립니다.", "재설정 코드 보내기", "새 비밀번호", "비밀번호 업데이트", "총 구매액", "확인된 커미션", "현재 패키지", "완료된 보상", "잠금 해제된 강좌", "대기 중인 청구", "직접 추천", "대기 중인 출금", "다음 보상", "챌린지 열기", "패키지 선택", "파트너십 요청", "내 패키지", "패키지", "엔터프라이즈", "국가 선택", "아직 달성하지 못함", "자격 있음", "진행 중", "확인됨", "데모 데이터", "요청 보내기", "회사 이름", "담당자", "계약 유형", "메시지", "<b>패키지</b> 선택", "팀 <b>커미션</b>", "일일 추천 <b>챌린지</b>", "내 <b>청구</b>", "관리자 <b>패널</b>", "<b>회사</b> 소개", "배우고. <b>만들고.</b> 진짜 커뮤니티와 함께 성장하세요.", "강좌, 멘토링, 국제 모임을 한곳에서 안전하게.", "진짜 강좌. 진짜 커뮤니티. 진짜 고객 판매."], "id": ["Ringkasan", "Paket", "Tim", "Tantangan", "Klaim", "Admin", "Perusahaan", "Keluar", "Lihat paket", "Selamat datang kembali", "Masuk ke akun Anda.", "Alamat email", "Kata sandi", "Masuk", "Lupa kata sandi?", "Buat akun", "Buat akun Anda", "Hanya butuh kurang dari semenit.", "Nama lengkap", "Nama pengguna", "Negara", "Nomor telepon", "Konfirmasi kata sandi", "Kode referral (opsional)", "Sudah terdaftar?", "Verifikasi email Anda", "Masukkan kode yang kami kirim ke email Anda.", "Verifikasi dan lanjutkan", "Kirim ulang kode", "Kembali ke halaman masuk", "Atur ulang kata sandi", "Kami akan mengirim kode reset ke email Anda.", "Kirim kode reset", "Kata sandi baru", "Perbarui kata sandi", "Total Pembelian", "Komisi Terverifikasi", "Paket Saat Ini", "Hadiah Selesai", "Kursus Terbuka", "Klaim Tertunda", "Referral Langsung", "Penarikan Tertunda", "Hadiah berikutnya", "Buka tantangan", "Pilih paket", "Ajukan kemitraan", "Paket Anda", "Paket", "Enterprise", "Pilih negara", "Belum tercapai", "Memenuhi syarat", "Sedang berjalan", "Terverifikasi", "Data demo", "Kirim permintaan", "Nama perusahaan", "Narahubung", "Jenis kesepakatan", "Pesan", "Pilih <b>paket</b> Anda", "<b>Komisi</b> tim", "<b>Tantangan</b> referral harian", "<b>Klaim</b> saya", "<b>Panel</b> admin", "<b>Perusahaan</b>", "Belajar. <b>Berkarya.</b> Tumbuh bersama komunitas nyata.", "Kursus, mentoring, dan pertemuan internasional di satu tempat yang aman.", "Kursus nyata. Komunitas nyata. Penjualan pelanggan nyata."]};
+R.forEach(function(r,i){for(var k in XT)I18[r[0]][k]=XT[k][i]});
+var NL=["hi", "ur", "ar", "es", "zh", "fr", "de", "pt", "ru", "tr", "ja", "ko", "id"],R2=[["Grow your finances with confidence", "अपनी आर्थिक स्थिति को भरोसे के साथ बढ़ाएँ", "اپنی مالی حالت کو اعتماد کے ساتھ بڑھائیں", "نمِّ وضعك المالي بثقة", "Haz crecer tus finanzas con confianza", "自信地增长您的财富", "Développez vos finances en toute confiance", "Bauen Sie Ihre Finanzen mit Zuversicht aus", "Faça suas finanças crescerem com confiança", "Укрепляйте свои финансы уверенно", "Finansal durumunuzu güvenle büyütün", "自信を持って資産を育てましょう", "자신 있게 재정 상태를 키우세요", "Kembangkan keuangan Anda dengan percaya diri"], ["Secure system", "सुरक्षित सिस्टम", "محفوظ نظام", "نظام آمن", "Sistema seguro", "安全系统", "Système sécurisé", "Sicheres System", "Sistema seguro", "Безопасная система", "Güvenli sistem", "安全なシステム", "보안 시스템", "Sistem aman"], ["Your account is protected and your information stays private.", "आपका अकाउंट सुरक्षित है और आपकी जानकारी निजी रहती है।", "آپ کا اکاؤنٹ محفوظ ہے اور آپ کی معلومات نجی رہتی ہیں۔", "حسابك محمي ومعلوماتك تبقى خاصة.", "Tu cuenta está protegida y tu información permanece privada.", "您的账户受到保护，您的信息保持私密。", "Votre compte est protégé et vos informations restent privées.", "Ihr Konto ist geschützt und Ihre Daten bleiben privat.", "Sua conta está protegida e suas informações permanecem privadas.", "Ваш аккаунт защищён, а ваши данные остаются конфиденциальными.", "Hesabınız korunur ve bilgileriniz gizli kalır.", "アカウントは保護され、情報は非公開に保たれます。", "계정은 보호되며 정보는 비공개로 유지됩니다.", "Akun Anda terlindungi dan informasi Anda tetap pribadi."]];
+R2.forEach(function(r){I18[r[0]]={};NL.forEach(function(k,i){I18[r[0]][k]=r[i+1]})});
+var R3=[["Proposed daily rate", "प्रस्तावित दैनिक दर", "مجوزہ یومیہ شرح", "المعدل اليومي المقترح", "Tasa diaria propuesta", "拟定日利率", "Taux quotidien proposé", "Vorgeschlagener Tagessatz", "Taxa diária proposta", "Предлагаемая дневная ставка", "Önerilen günlük oran", "提案日次レート", "제안 일일 요율", "Tarif harian yang diusulkan"], ["Not guaranteed", "गारंटी नहीं", "ضمانت شدہ نہیں", "غير مضمون", "No garantizado", "不保证", "Non garanti", "Nicht garantiert", "Não garantido", "Не гарантируется", "Garanti değildir", "保証なし", "보장되지 않음", "Tidak dijamin"], ["Compounding", "कंपाउंडिंग", "کمپاؤنڈنگ", "إعادة الاستثمار المركّب", "Capitalización", "复利", "Capitalisation", "Zinseszins", "Capitalização", "Реинвестирование", "Bileşik büyüme", "複利", "복리", "Pemajemukan"]];R3.forEach(function(r){I18[r[0]]={};NL.forEach(function(k,i){I18[r[0]][k]=r[i+1]})});
+var lang="en";try{lang=localStorage.getItem("pc-lang")||"en"}catch(e){}
+function T(s){var d=I18[s];return lang==="en"||!d||!d[lang]?s:d[lang]}
+function applyLang(){
+ var de=document.documentElement;de.lang=lang;de.dir=(lang==="ar"||lang==="ur")?"rtl":"ltr";
+ var w=document.createTreeWalker(document.body,NodeFilter.SHOW_TEXT),n,L=[];
+ while(n=w.nextNode())L.push(n);
+ L.forEach(function(n){var p=n.parentNode.tagName;if(p==="SCRIPT"||p==="STYLE")return;var o=n._o||n.nodeValue.trim();if(!o||!I18[o])return;n._o=o;n.nodeValue=n.nodeValue.replace(/\S[\s\S]*\S|\S/,T(o))});
+ document.querySelectorAll("h1,h2").forEach(function(h){if(h.id==="gr"||!h.children.length)return;var k=h._k||h.innerHTML.trim();if(!I18[k])return;h._k=k;h.innerHTML=T(k)});
 }
-function boot(i) {
-  if (window.supabase && window.supabase.createClient) return Promise.resolve();
-  if (i >= CDNS.length) return Promise.resolve();
-  return loadScript(CDNS[i]).catch(function () {}).then(function () { return boot(i + 1); });
+var LF={en:"gb",hi:"in",ur:"pk",ar:"sa",es:"es",zh:"cn",fr:"fr",de:"de",pt:"br",ru:"ru",tr:"tr",ja:"jp",ko:"kr",id:"id"};
+function lfl(c){return'<span class="fl fq">'+fi(LF[c])+'</span>'}
+function paintLang(){["lg1","lg2"].forEach(function(id){var w=$(id),cur=LANGS.filter(function(l){return l[0]===lang})[0];w.className="lgw";
+ w.innerHTML='<button type="button" class="lgb" aria-haspopup="listbox" aria-label="Language">'+lfl(lang)+'<span>'+cur[1]+'</span><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></button><div class="lgl" role="listbox" hidden>'+LANGS.map(function(l){return'<button type="button" class="lgi'+(l[0]===lang?' on':'')+'" data-l="'+l[0]+'">'+lfl(l[0])+'<span>'+l[1]+'</span></button>'}).join("")+'</div>'})}
+["lg1","lg2"].forEach(function(id){$(id).addEventListener("click",function(e){var i=e.target.closest(".lgi"),b=e.target.closest(".lgb");if(i){lang=i.dataset.l;try{localStorage.setItem("pc-lang",lang)}catch(x){};paintLang();render()}else if(b){var l=this.querySelector(".lgl"),o=l.hidden;document.querySelectorAll(".lgl").forEach(function(x){x.hidden=true});l.hidden=!o}})});
+document.addEventListener("click",function(e){if(!e.target.closest(".lgw"))document.querySelectorAll(".lgl").forEach(function(x){x.hidden=true})});
+paintLang();
+
+render();
+function refLink(code){return location.origin+location.pathname+"?ref="+encodeURIComponent(code)}
+function loadMe(u){
+ if(!sb||!u)return;
+ sb.from("profiles").select("referral_code").eq("id",u.id).single().then(function(r){
+  if(r.error||!r.data||!r.data.referral_code){$$("rl").value="Code not ready yet. Refresh in a moment.";return}
+  $$("rl").value=refLink(r.data.referral_code);$$("rc").textContent=r.data.referral_code;
+ });
 }
-boot(0).then(startApp);
-
-function startApp() {
-
-/* ================= Setup ================= */
-var sb = null;
-var libOk = !!(window.supabase && window.supabase.createClient);
-if (libOk) {
-  try {
-    sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
-      auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
-    });
-  } catch (e) { console.error('Supabase init failed', e); }
-}
-
-var DEFAULT_PLANS = [
-  { name: 'Junior', min: 30, max: 500 },
-  { name: 'Senior', min: 501, max: 1500 },
-  { name: 'Special', min: 1501, max: 5000 },
-  { name: 'Elite', min: 5001, max: 20000 },
-  { name: 'Universal', min: 20001, max: 50000 }
-];
-var TABS = [
-  ['dashboard', 'Dashboard', 'dashboard'], ['tasks', 'Tasks', 'tasks'], ['rewards', 'Daily Reward', 'gift'],
-  ['wallet', 'Wallet', 'wallet'], ['invest', 'Invest', 'invest'], ['team', 'Team', 'team'], ['profile', 'Profile', 'user']
-];
-var ICONS = {
-  dashboard: '<rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>',
-  tasks: '<polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>',
-  gift: '<polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/>',
-  wallet: '<path d="M20 12V8H6a2 2 0 0 1 0-4h12v4"/><path d="M4 6v12a2 2 0 0 0 2 2h14v-4"/><path d="M18 12a2 2 0 0 0 0 4h4v-4z"/>',
-  invest: '<polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/>',
-  team: '<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>',
-  user: '<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>',
-  check: '<polyline points="20 6 9 17 4 12"/>',
-  clock: '<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>',
-  down: '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>',
-  up: '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>',
-  award: '<circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/>',
-  shield: '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>',
-  lock: '<rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>'
+$$("rl-copy").onclick=function(){
+ var v=$$("rl").value;
+ if(navigator.clipboard){navigator.clipboard.writeText(v).then(function(){toast("Link copied")})}
+ else{$$("rl").select();document.execCommand("copy");toast("Link copied")}
 };
-function ic(n, s) {
-  s = s || 18;
-  return '<svg viewBox="0 0 24 24" width="' + s + '" height="' + s + '" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + (ICONS[n] || '') + '</svg>';
+var RF=new URLSearchParams(location.search).get("ref");
+if(RF){setTimeout(function(){$$("s-rc").value=RF;av("signup")},0)}
+if(sb){sb.auth.getSession().then(function(r){if(r.data&&r.data.session)unlock(r.data.session.user)})}
+function bubble(m){
+ var me=m.sender==="MEMBER";
+ return'<div style="justify-self:'+(me?'end':'start')+';max-width:82%;background:'+(me?'var(--inv)':'var(--card)')+';color:'+(me?'var(--invt)':'var(--txt)')+';border:1px solid var(--line);border-radius:14px;padding:10px 12px"><small style="display:block;font-size:11px;opacity:.7;margin-bottom:4px">'+(me?'You':'Support team')+' &middot; '+esc((m.created_at||"").slice(0,16).replace("T"," "))+'</small><div style="font-size:14px;white-space:pre-wrap">'+esc(m.body)+'</div></div>';
 }
-
-var MSG = {
-  insufficient_balance: 'Your available balance is not enough.',
-  invalid_amount: 'Enter an amount within the allowed limits.',
-  invalid_method: 'Choose a valid method.',
-  invalid_reference: 'Enter a valid payment reference (5+ characters).',
-  invalid_destination: 'Enter a valid destination (5+ characters).',
-  duplicate_reference: 'This payment reference was already submitted.',
-  already_claimed_today: "You have already requested today's reward. Come back tomorrow.",
-  already_started: 'You have already started this task.',
-  not_submittable: 'This task cannot be submitted right now.',
-  task_unavailable: 'This task is no longer available.',
-  deposits_disabled: 'Deposit requests are currently unavailable.',
-  withdrawals_disabled: 'Withdrawal requests are currently unavailable.',
-  not_authenticated: 'Please sign in again.'
+function loadChat(){
+ if(!sb)return;
+ sb.from("support_messages").select("sender,body,created_at").order("created_at",{ascending:true}).limit(200).then(function(r){
+  if(r.error){$$("chat").innerHTML='<p class="mu" style="font-size:14px">Chat is not available right now.</p>';return}
+  $$("chat").innerHTML=r.data.length?r.data.map(bubble).join(""):'<p class="mu" style="font-size:14px">No messages yet. Send us your question below.</p>';
+  $$("chat").scrollTop=$$("chat").scrollHeight;
+ });
+}
+$$("sp-go").onclick=function(){
+ var b=$$("sp-m").value.trim();
+ if(!b)return toast("Type a message first",1);
+ if(!sb)return toast("Not connected",1);
+ busy(this,function(){return sb.from("support_messages").insert({sender:"MEMBER",body:b})}).then(function(r){
+  if(r.error)return toast("Message not sent. Please try again.",1);
+  $$("sp-m").value="";sfx.ok();toast("Message sent");loadChat();
+ });
 };
-var KIND = {
-  deposit_request: 'Deposit request', deposit_credit: 'Deposit', withdrawal_hold: 'Withdrawal request',
-  withdrawal: 'Withdrawal', task_credit: 'Task reward', reward_credit: 'Daily reward', adjustment: 'Adjustment'
-};
-var PILLS = { pending: 'warn', submitted: 'warn', started: 'neutral', successful: 'ok', success: 'ok', approved: 'ok', paid: 'ok', posted: 'ok', rejected: 'bad', cancelled: 'bad' };
-var LABELS = { paid: 'SUCCESS', successful: 'SUCCESS', success: 'SUCCESS', started: 'NOT SUBMITTED', submitted: 'PENDING', pending: 'PENDING', rejected: 'REJECTED' };
-
-/* ================= Helpers ================= */
-var $ = function (s, r) { return (r || document).querySelector(s); };
-var esc = function (v) {
-  return String(v == null ? '' : v).replace(/[&<>"']/g, function (c) {
-    return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
-  });
-};
-var num = function (v) { var n = Number(v); return isFinite(n) ? n : 0; };
-var money = function (n) { return '$' + num(n).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); };
-var fmt = function (d) {
-  if (!d) return '—';
-  var x = new Date(d);
-  return isNaN(x) ? '—' : x.toLocaleString(undefined, { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
-};
-var fmtDay = function (d) {
-  if (!d) return '—';
-  var x = new Date(d);
-  return isNaN(x) ? '—' : x.toLocaleDateString(undefined, { day: '2-digit', month: 'short', year: 'numeric' });
-};
-var sid = function (id) { return String(id || '').slice(0, 8).toUpperCase(); };
-var sumOf = function (rows, key) { return (rows || []).reduce(function (a, r) { return a + num(r[key || 'amount']); }, 0); };
-function pill(s) {
-  var k = String(s || '').toLowerCase();
-  return '<span class="pill ' + (PILLS[k] || 'neutral') + '">' + esc(LABELS[k] || k.toUpperCase()) + '</span>';
-}
-function withTimeout(p, ms) {
-  var t;
-  return Promise.race([
-    p,
-    new Promise(function (_, rej) { t = setTimeout(function () { rej(new Error('Request timed out')); }, ms || 15000); })
-  ]).then(function (v) { clearTimeout(t); return v; }, function (e) { clearTimeout(t); throw e; });
-}
-function isNetErr(m) { return /failed to fetch|networkerror|load failed|network request failed/i.test(m); }
-function friendlyError(err) {
-  var m = String((err && err.message) || err || '').trim();
-  for (var k in MSG) { if (m.indexOf(k) > -1) return MSG[k]; }
-  if (isNetErr(m)) return 'Cannot reach the server (' + m + '). Check the connection status below the form.';
-  if (/timed out/i.test(m)) return 'The server took too long to respond. Please try again.';
-  if (/invalid login credentials/i.test(m)) return 'Email or password is incorrect.';
-  if (/email not confirmed/i.test(m)) return 'Please confirm your email first, using the link we sent you.';
-  if (/already registered|already been registered/i.test(m)) return 'An account with this email already exists. Try signing in.';
-  if (/rate limit|too many/i.test(m)) return 'Too many attempts. Please wait a minute and try again.';
-  if (/password/i.test(m) && /(short|least|weak)/i.test(m)) return 'Password is too weak. Use at least 8 characters.';
-  if (/database error/i.test(m)) return 'Could not create the account. Please try again or contact support.';
-  return m || 'Something went wrong. Please try again.';
-}
-function toast(type, text) {
-  var box = $('#toasts');
-  var d = document.createElement('div');
-  d.className = 'toast ' + (type === 'err' ? 'err' : 'ok');
-  d.textContent = text;
-  box.appendChild(d);
-  setTimeout(function () { if (d.parentNode) d.parentNode.removeChild(d); }, 3800);
-}
-function alertHTML(type, text) { return text ? '<div class="alert ' + type + '" role="status">' + esc(text) + '</div>' : ''; }
-function animateCounts(root) {
-  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  Array.prototype.forEach.call((root || document).querySelectorAll('[data-count]'), function (el) {
-    var to = num(el.getAttribute('data-count'));
-    if (reduce || to === 0) { el.textContent = money(to); return; }
-    var start = performance.now(), dur = 700;
-    (function tick(t) {
-      var p = Math.min(1, (t - start) / dur), e = 1 - Math.pow(1 - p, 3);
-      el.textContent = money(to * e);
-      if (p < 1) requestAnimationFrame(tick);
-    })(start);
-  });
-}
-
-/* ================= State ================= */
-var S = { user: null, tab: 'dashboard', entering: false };
-var A = { mode: 'signin', email: '', busy: false };
-var D = emptyData();
-function emptyData() {
-  return { wallet: { available_balance: 0, pending_balance: 0 }, deposits: [], withdrawals: [], ledger: [], tasks: [], completions: [],
-    rewards: [], team: [], profile: null, settings: {}, errors: [], loaded: false };
-}
-
-/* ================= Server check ================= */
-function setServerStatus(kind, text) {
-  var dot = $('#srvDot'), t = $('#srvText');
-  if (!dot || !t) return;
-  dot.className = 'status-dot ' + kind;
-  t.textContent = text;
-}
-async function checkServer() {
-  setServerStatus('wait', 'Checking connection…');
-  if (!sb) { setServerStatus('bad', 'Connection library did not load. Check your internet and reload.'); return false; }
-  try {
-    await withTimeout(fetch(SUPABASE_URL + '/auth/v1/health', { headers: { apikey: SUPABASE_KEY } }), 10000);
-    setServerStatus('ok', 'Secure connection ready');
-    return true;
-  } catch (e) {
-    var host = SUPABASE_URL.replace('https://', '');
-    setServerStatus('bad', 'Cannot reach ' + host + ' (' + ((e && e.message) || e) + '). Possible causes: project paused, wrong address, network block, or an old cached page.');
-    return false;
-  }
-}
-async function runDiagnostics() {
-  var box = $('#debugBox'); if (!box) return;
-  box.classList.remove('hidden');
-  var lines = [];
-  var log = function (t) { lines.push(t); box.textContent = lines.join('\n'); };
-  log('Build: ' + BUILD);
-  log('Server: ' + SUPABASE_URL);
-  log('Key: ' + SUPABASE_KEY.slice(0, 16) + '…');
-  log('Library loaded: ' + libOk);
-  log('Browser online: ' + navigator.onLine);
-  try { await withTimeout(fetch('https://www.google.com/generate_204', { mode: 'no-cors' }), 10000); log('General internet: OK'); }
-  catch (e) { log('General internet: FAILED (' + ((e && e.message) || e) + ')'); }
-  try { var r = await withTimeout(fetch(SUPABASE_URL + '/auth/v1/health', { headers: { apikey: SUPABASE_KEY } }), 12000); log('Auth health: HTTP ' + r.status); }
-  catch (e) { log('Auth health: FAILED (' + ((e && e.message) || e) + ')'); }
-  try { var r2 = await withTimeout(fetch(SUPABASE_URL + '/rest/v1/', { headers: { apikey: SUPABASE_KEY } }), 12000); log('REST: HTTP ' + r2.status); }
-  catch (e) { log('REST: FAILED (' + ((e && e.message) || e) + ')'); }
-  log('Done.');
-}
-
-/* ================= Auth screens ================= */
-function authHTML() {
-  var m = A.mode;
-  var title = m === 'signup' ? 'Create your account' : m === 'reset' ? 'Choose a new password' : 'Welcome back';
-  var sub = m === 'signup' ? 'Register your PrimeCore member account.' : m === 'reset' ? 'Use at least 8 characters.' : 'Sign in to your PrimeCore account.';
-  var refParam = '';
-  try { refParam = new URLSearchParams(location.search).get('ref') || ''; } catch (e) {}
-  var fields = '';
-  if (m === 'signup') {
-    fields += '<div class="field"><label for="f_name">Full name</label><input id="f_name" name="full_name" type="text" autocomplete="name" required minlength="2" maxlength="80" placeholder="Muhammad Adnan"></div>' +
-      '<div class="field"><label for="f_phone">Phone / WhatsApp (optional)</label><input id="f_phone" name="phone" type="tel" autocomplete="tel" placeholder="+92 300 0000000"></div>' +
-      '<div class="field"><label for="f_ref">Referral code (optional)</label><input id="f_ref" name="referral" type="text" value="' + esc(refParam) + '" placeholder="PC1A2B3C"></div>';
-  }
-  if (m !== 'reset') {
-    fields += '<div class="field"><label for="f_email">Email</label><input id="f_email" name="email" type="email" autocomplete="email" required value="' + esc(A.email) + '" placeholder="you@example.com"></div>' +
-      '<div class="field"><label for="f_pass">Password</label><input id="f_pass" name="password" type="password" required autocomplete="' + (m === 'signup' ? 'new-password' : 'current-password') + '" placeholder="••••••••"></div>';
-  } else {
-    fields += '<div class="field"><label for="f_pass">New password</label><input id="f_pass" name="password" type="password" required minlength="8" autocomplete="new-password"></div>' +
-      '<div class="field"><label for="f_pass2">Confirm new password</label><input id="f_pass2" name="confirm" type="password" required minlength="8" autocomplete="new-password"></div>';
-  }
-  var btn = m === 'signup' ? 'Create account' : m === 'reset' ? 'Update password' : 'Sign in';
-  var links = m === 'reset' ? '' :
-    '<div class="links"><button class="link" type="button" data-act="forgot">Forgot password?</button>' +
-    '<button class="link" type="button" data-act="mode" data-mode="' + (m === 'signup' ? 'signin' : 'signup') + '">' + (m === 'signup' ? 'Already have an account? Sign in' : 'Create account') + '</button></div>';
-  var debug = /[?&]debug=1/.test(location.search) ? '<pre id="debugBox" class="debug hidden"></pre>' : '';
-  return '<div class="auth-shell">' +
-    '<section class="auth-hero"><span class="blob b1"></span><span class="blob b2"></span>' +
-      '<div class="logo"><div class="logo-mark">P</div><div class="logo-name">PrimeCore</div></div>' +
-      '<div class="hero-body"><h1>Your business account, in one secure place.</h1>' +
-      '<p>Track your wallet, requests and activity through a clear, verified member portal.</p>' +
-      '<ul class="points">' +
-        '<li><span class="dot">' + ic('check', 14) + '</span>Clear wallet and transaction history</li>' +
-        '<li><span class="dot">' + ic('check', 14) + '</span>Every request reviewed and verified</li>' +
-        '<li><span class="dot">' + ic('check', 14) + '</span>Email-verified secure sign-in</li></ul></div>' +
-      '<div class="hero-foot">© PrimeCore. All rights reserved.</div></section>' +
-    '<section class="auth-panel"><div class="auth-card">' +
-      '<h2>' + title + '</h2><p class="sub">' + sub + '</p>' +
-      '<form data-form="auth" novalidate>' + fields + '<button id="authBtn" class="btn block" type="submit">' + btn + '</button></form>' +
-      links + '<div id="authMsg"></div>' +
-      '<div class="status-line"><span id="srvDot" class="status-dot wait"></span><span id="srvText">Checking connection…</span></div>' +
-      '<div class="build">Build ' + BUILD + '</div>' + debug +
-    '</div></section></div>';
-}
-function showAuth(mode, msg) {
-  S.user = null; S.entering = false; D = emptyData();
-  if (mode) A.mode = mode;
-  $('#root').innerHTML = authHTML();
-  if (msg) $('#authMsg').innerHTML = alertHTML(msg.t, msg.m);
-  checkServer();
-  runDiagnostics();
-}
-
-/* ================= App shell ================= */
-function initials(name) {
-  var p = String(name || '?').trim().split(/\s+/);
-  return ((p[0] || '?').charAt(0) + (p.length > 1 ? p[p.length - 1].charAt(0) : '')).toUpperCase();
-}
-function displayName() {
-  var n = (D.profile && D.profile.full_name) || (S.user && S.user.user_metadata && S.user.user_metadata.full_name) || '';
-  return n || (S.user && S.user.email ? S.user.email.split('@')[0] : 'Member');
-}
-function renderShell() {
-  var nm = displayName();
-  $('#root').innerHTML =
-    '<header class="topbar"><div class="logo"><div class="logo-mark">P</div><div class="logo-name">PrimeCore</div><span class="chip-badge">PRO PORTAL</span></div>' +
-    '<div class="top-right"><span class="avatar" id="avatar">' + esc(initials(nm)) + '</span><span class="who" id="who">' + esc(nm) + '</span>' +
-    '<button class="btn-out" type="button" data-act="signout">Sign out</button></div></header>' +
-    '<nav class="tabs" id="tabs" aria-label="Main"></nav><main class="container"><div id="view" class="view"></div></main>';
-  renderTabs();
-}
-function renderTabs() {
-  $('#tabs').innerHTML = TABS.map(function (t) {
-    return '<button type="button" class="tab' + (S.tab === t[0] ? ' on' : '') + '" data-tab="' + t[0] + '">' + ic(t[2], 16) + t[1] + '</button>';
-  }).join('');
-}
-function renderView() {
-  var v = $('#view'); if (!v) return;
-  var fn = V[S.tab] || V.dashboard;
-  v.className = 'view';
-  void v.offsetWidth;
-  v.innerHTML = fn();
-  animateCounts(v);
-  var av = $('#avatar'), who = $('#who');
-  if (av) av.textContent = initials(displayName());
-  if (who) who.textContent = displayName();
-}
-function skeleton() {
-  $('#view').innerHTML = '<div class="sk" style="height:34px;width:200px;margin-bottom:16px"></div><div class="sk" style="height:130px;margin-bottom:16px"></div>' +
-    '<div class="grid"><div class="sk" style="height:76px"></div><div class="sk" style="height:76px"></div><div class="sk" style="height:76px"></div></div>';
-}
-
-/* ================= Data ================= */
-async function q(name, p) {
-  try {
-    var r = await withTimeout(p, 15000);
-    if (r.error) { D.errors.push(name); console.warn(name, r.error); return null; }
-    return r.data;
-  } catch (e) { D.errors.push(name); console.warn(name, e); return null; }
-}
-async function loadData() {
-  var uid = S.user.id;
-  D.errors = [];
-  var r = await Promise.all([
-    q('wallet', sb.from('wallet_balances').select('available_balance,pending_balance').eq('user_id', uid).maybeSingle()),
-    q('deposits', sb.from('deposits').select('id,amount,method,reference,status,requested_at').eq('user_id', uid).order('requested_at', { ascending: false }).limit(50)),
-    q('withdrawals', sb.from('withdrawals').select('id,amount,method,destination,status,requested_at').eq('user_id', uid).order('requested_at', { ascending: false }).limit(50)),
-    q('ledger', sb.from('wallet_ledger').select('id,kind,amount,status,created_at').eq('user_id', uid).order('created_at', { ascending: false }).limit(15)),
-    q('tasks', sb.from('tasks').select('id,title,description,reward_amount').eq('is_active', true).order('created_at')),
-    q('completions', sb.from('task_completions').select('id,task_id,status,started_at,submitted_at').eq('user_id', uid).order('started_at', { ascending: false })),
-    q('rewards', sb.from('daily_rewards').select('id,reward_amount,reward_date,status,created_at').eq('user_id', uid).order('created_at', { ascending: false }).limit(60)),
-    q('team', sb.rpc('my_referrals')),
-    q('profile', sb.from('profiles').select('full_name,phone,email,referral_code,created_at').eq('id', uid).maybeSingle()),
-    q('settings', sb.from('app_settings').select('key,value'))
-  ]);
-  D.wallet = r[0] || { available_balance: 0, pending_balance: 0 };
-  D.deposits = r[1] || []; D.withdrawals = r[2] || []; D.ledger = r[3] || [];
-  D.tasks = r[4] || []; D.completions = r[5] || []; D.rewards = r[6] || [];
-  D.team = r[7] || []; D.profile = r[8] || null;
-  D.settings = {};
-  (r[9] || []).forEach(function (s) { D.settings[s.key] = s.value; });
-  D.loaded = true;
-}
-function plans() {
-  var p = D.settings.plan_categories;
-  return (Array.isArray(p) && p.length) ? p : DEFAULT_PLANS;
-}
-function dailyAmount() { return D.settings.daily_reward_amount != null ? num(D.settings.daily_reward_amount) : 5; }
-function taskReward(id) {
-  var t = D.tasks.filter(function (x) { return x.id === id; })[0];
-  return t ? num(t.reward_amount) : 0;
-}
-function derived() {
-  var paidTasks = D.completions.filter(function (c) { return c.status === 'paid'; });
-  var successRewards = D.rewards.filter(function (r) { return r.status === 'success'; });
-  return {
-    deposits: sumOf(D.deposits.filter(function (d) { return d.status === 'successful'; })),
-    pendingWd: sumOf(D.withdrawals.filter(function (w) { return w.status === 'pending'; })),
-    pendingClaims: D.completions.filter(function (c) { return c.status === 'submitted'; }).length +
-      D.rewards.filter(function (r) { return r.status === 'pending'; }).length,
-    successful: paidTasks.reduce(function (a, c) { return a + taskReward(c.task_id); }, 0) + sumOf(successRewards, 'reward_amount')
-  };
-}
-function setupNotice() {
-  return D.errors.length
-    ? '<div class="alert info">Some sections could not be loaded (' + esc(D.errors.join(', ')) + '). If this is a new setup, run the database schema file in Supabase first.</div>'
-    : '';
-}
-async function refresh() { await loadData(); renderView(); }
-
-/* ================= Views ================= */
-var V = {};
-function statCard(icon, cls, label, value, isMoney) {
-  return '<div class="stat"><span class="ico ' + cls + '">' + ic(icon, 20) + '</span><div><div class="lbl">' + esc(label) + '</div><div class="val"' +
-    (isMoney ? ' data-count="' + num(value) + '">' + money(0) : '>' + esc(value)) + '</div></div></div>';
-}
-function greeting() {
-  var h = new Date().getHours();
-  return h < 12 ? 'Good morning' : h < 18 ? 'Good afternoon' : 'Good evening';
-}
-
-V.dashboard = function () {
-  var d = derived();
-  var first = displayName().split(' ')[0];
-  var act = D.ledger.slice(0, 8).map(function (t) {
-    var amt = num(t.amount), neg = amt < 0;
-    return '<div class="item"><span class="ico">' + ic(neg ? 'up' : 'down') + '</span><div class="grow"><div class="t">' + esc(KIND[t.kind] || t.kind) +
-      '</div><div class="muted">' + fmt(t.created_at) + '</div></div><div style="text-align:right"><div class="amt ' + (neg ? 'neg' : 'pos') + '">' +
-      (neg ? '−' : '+') + money(Math.abs(amt)) + '</div>' + pill(t.status) + '</div></div>';
-  }).join('');
-  return '<h1 class="page-title">' + greeting() + ', ' + esc(first) + '</h1><p class="page-sub">Here is your account overview.</p>' + setupNotice() +
-    '<div class="hero-card"><small>Valid balance</small><div class="big" data-count="' + num(D.wallet.available_balance) + '">' + money(0) + '</div>' +
-    '<div class="sub2">Pending: ' + money(D.wallet.pending_balance) + ' · Balances change only after verification.</div></div>' +
-    '<div class="grid">' +
-      statCard('down', '', 'Total deposits', d.deposits, true) +
-      statCard('award', 'g', 'Successful rewards', d.successful, true) +
-      statCard('up', 'a', 'Pending withdrawals', d.pendingWd, true) +
-      statCard('clock', 'a', 'Pending claims', d.pendingClaims, false) +
-      statCard('team', 'b', 'Direct registrations', D.team.length, false) +
-      statCard('shield', '', 'Current plan', 'Not enrolled', false) +
-    '</div>' +
-    '<div class="grid two"><div class="card"><div class="row"><h3>Recent activity</h3><button class="btn ghost sm" data-go="wallet">View wallet</button></div>' +
-    '<div class="list">' + (act || '<div class="empty">No transactions yet.</div>') + '</div></div>' +
-    '<div class="card"><h3>Quick actions</h3><p class="hint">Jump to the most common tasks.</p>' +
-    '<div style="display:grid;gap:10px"><button class="btn" data-go="rewards">Request daily reward</button>' +
-    '<button class="btn ghost" data-go="tasks">Open tasks</button><button class="btn ghost" data-go="wallet">Deposit or withdraw</button></div></div></div>';
-};
-
-V.tasks = function () {
-  var by = {};
-  D.completions.forEach(function (c) { by[c.task_id] = c; });
-  var cards = D.tasks.map(function (t) {
-    var c = by[t.id], action = '';
-    if (!c) action = '<button class="btn sm" data-act="start-task" data-id="' + esc(t.id) + '">Start task</button>';
-    else if (c.status === 'started') action = '<button class="btn sm" data-act="submit-task" data-id="' + esc(c.id) + '">Submit for verification</button>';
-    else if (c.status === 'submitted') action = '<span class="muted">Awaiting review</span>';
-    else if (c.status === 'paid') action = '<span class="muted">Reward credited</span>';
-    return '<div class="card"><div class="row"><h3>' + esc(t.title) + '</h3><b>' + money(t.reward_amount) + '</b></div>' +
-      '<p class="hint" style="margin-bottom:12px">' + esc(t.description || '') + '</p><div class="row">' +
-      (c ? pill(c.status) : '<span class="pill neutral">NOT STARTED</span>') + action + '</div></div>';
-  }).join('');
-  var hist = D.completions.map(function (c) {
-    var t = D.tasks.filter(function (x) { return x.id === c.task_id; })[0];
-    return '<tr><td class="mono">' + esc(sid(c.id)) + '</td><td>' + esc(t ? t.title : '—') + '</td><td>' + money(t ? t.reward_amount : 0) +
-      '</td><td>' + fmt(c.submitted_at || c.started_at) + '</td><td>' + pill(c.status) + '</td></tr>';
-  }).join('');
-  return '<h1 class="page-title">Tasks</h1><p class="page-sub">Rewards are credited only after the company verifies the completed task.</p>' + setupNotice() +
-    (cards || '<div class="card"><div class="empty">No tasks are available right now.</div></div>') +
-    '<div class="card"><h3>Task claim history</h3><p class="hint">Request ID, task, reward, date and status.</p><div class="scroll">' +
-    (hist ? '<table><tr><th>Request ID</th><th>Task</th><th>Amount</th><th>Date</th><th>Status</th></tr>' + hist + '</table>' : '<div class="empty">No claim requests yet.</div>') +
-    '</div></div>';
-};
-
-V.rewards = function () {
-  var today = new Date().toISOString().slice(0, 10);
-  var done = D.rewards.some(function (r) { return r.reward_date === today; });
-  var rows = D.rewards.map(function (r) {
-    return '<tr><td class="mono">' + esc(sid(r.id)) + '</td><td>Daily reward</td><td>' + money(r.reward_amount) + '</td><td>' + fmt(r.created_at) + '</td><td>' + pill(r.status) + '</td></tr>';
-  }).join('');
-  return '<h1 class="page-title">Daily Reward</h1><p class="page-sub">Request your daily check-in reward once per day.</p>' + setupNotice() +
-    '<div class="card"><div class="row"><div><h3>Today\'s reward</h3><p class="hint" style="margin:0">Amount: ' + money(dailyAmount()) +
-    '. Each request starts as PENDING and becomes SUCCESS only after the reward is verified and credited. Resets at 00:00 UTC.</p></div>' +
-    '<button class="btn" data-act="claim-daily"' + (done ? ' disabled' : '') + '>' + (done ? 'Requested today' : 'Request today\'s reward') + '</button></div></div>' +
-    '<div class="card"><h3>Daily reward history</h3><p class="hint">Request ID, category, amount, date and status.</p><div class="scroll">' +
-    (rows ? '<table><tr><th>Request ID</th><th>Category</th><th>Amount</th><th>Date</th><th>Status</th></tr>' + rows + '</table>' : '<div class="empty">No daily reward requests yet.</div>') +
-    '</div></div>';
-};
-
-V.wallet = function () {
-  var methods = '<option value="bank">Bank transfer</option><option value="crypto">Crypto</option><option value="other">Other</option>';
-  var dep = D.deposits.map(function (d) {
-    return '<tr><td class="mono">' + esc(sid(d.id)) + '</td><td>' + money(d.amount) + '</td><td>' + esc(d.method) + '</td><td>' + fmt(d.requested_at) + '</td><td>' + pill(d.status) + '</td></tr>';
-  }).join('');
-  var wd = D.withdrawals.map(function (w) {
-    return '<tr><td class="mono">' + esc(sid(w.id)) + '</td><td>' + money(w.amount) + '</td><td>' + esc(w.method) + '</td><td>' + fmt(w.requested_at) + '</td><td>' + pill(w.status) + '</td></tr>';
-  }).join('');
-  var led = D.ledger.map(function (t) {
-    var amt = num(t.amount), neg = amt < 0;
-    return '<tr><td>' + fmt(t.created_at) + '</td><td>' + esc(KIND[t.kind] || t.kind) + '</td><td class="amt ' + (neg ? 'neg' : 'pos') + '">' + (neg ? '−' : '+') + money(Math.abs(amt)) + '</td><td>' + pill(t.status) + '</td></tr>';
-  }).join('');
-  return '<h1 class="page-title">Wallet</h1><p class="page-sub">Balances change only after a request is verified.</p>' + setupNotice() +
-    '<div class="grid two"><div class="stat"><span class="ico g">' + ic('wallet', 20) + '</span><div><div class="lbl">Available balance</div><div class="val" data-count="' + num(D.wallet.available_balance) + '">' + money(0) + '</div></div></div>' +
-    '<div class="stat"><span class="ico a">' + ic('clock', 20) + '</span><div><div class="lbl">Pending holds</div><div class="val" data-count="' + num(D.wallet.pending_balance) + '">' + money(0) + '</div></div></div></div>' +
-    '<div class="form-grid">' +
-    '<div class="card"><h3>Request a deposit</h3><p class="hint">Stays PENDING until the transfer is verified.</p><form data-form="deposit">' +
-      '<div class="field"><label>Amount (USD)</label><input name="amount" type="number" min="10" step="0.01" required></div>' +
-      '<div class="field"><label>Method</label><select name="method">' + methods + '</select></div>' +
-      '<div class="field"><label>Payment reference</label><input name="reference" required minlength="5"></div>' +
-      '<button class="btn block" type="submit">Submit deposit request</button></form></div>' +
-    '<div class="card"><h3>Request a withdrawal</h3><p class="hint">The amount is held now and released if rejected. Payouts are made outside the app after review.</p><form data-form="withdraw">' +
-      '<div class="field"><label>Amount (USD)</label><input name="amount" type="number" min="10" step="0.01" required></div>' +
-      '<div class="field"><label>Method</label><select name="method">' + methods + '</select></div>' +
-      '<div class="field"><label>Destination (account or wallet)</label><input name="destination" required minlength="5"></div>' +
-      '<button class="btn block" type="submit">Submit withdrawal request</button></form></div></div>' +
-    '<div class="card"><h3>Deposit history</h3><div class="scroll">' + (dep ? '<table><tr><th>Request ID</th><th>Amount</th><th>Method</th><th>Date</th><th>Status</th></tr>' + dep + '</table>' : '<div class="empty">No deposit requests yet.</div>') + '</div></div>' +
-    '<div class="card"><h3>Withdrawal requests</h3><div class="scroll">' + (wd ? '<table><tr><th>Request ID</th><th>Amount</th><th>Method</th><th>Date</th><th>Status</th></tr>' + wd + '</table>' : '<div class="empty">No withdrawal requests yet.</div>') + '</div></div>' +
-    '<div class="card"><h3>Transaction history</h3><div class="scroll">' + (led ? '<table><tr><th>Date</th><th>Type</th><th>Amount</th><th>Status</th></tr>' + led + '</table>' : '<div class="empty">No transactions yet.</div>') + '</div></div>';
-};
-
-V.invest = function () {
-  var cards = plans().map(function (p) {
-    return '<div class="plan"><div class="row"><div class="nm">' + esc(p.name) + '</div><span class="pill neutral">NOT OPEN</span></div>' +
-      '<div class="rg">' + money(p.min).replace('.00', '') + ' – ' + money(p.max).replace('.00', '') + '</div><div class="bar"></div></div>';
-  }).join('');
-  return '<h1 class="page-title">Invest</h1><p class="page-sub">Membership categories and balance ranges, shown for information only.</p>' +
-    '<div class="grid">' + cards + '</div>' +
-    '<div class="card"><div class="row" style="justify-content:flex-start;gap:12px"><span class="ico" style="width:40px;height:40px;border-radius:12px;display:grid;place-items:center;background:var(--lav);color:var(--violet)">' + ic('lock', 20) + '</span>' +
-    '<div><h3>No plan is open yet</h3><p class="hint" style="margin:0">No returns are promised or shown. Terms, risk disclosures and approvals will be published here before any category opens.</p></div></div></div>';
-};
-
-V.team = function () {
-  var code = (D.profile && D.profile.referral_code) || '';
-  var link = location.origin + location.pathname + (code ? '?ref=' + encodeURIComponent(code) : '');
-  var rows = D.team.map(function (m) {
-    return '<tr><td>' + esc(m.full_name || 'Member') + '</td><td>' + fmtDay(m.joined_at) + '</td></tr>';
-  }).join('');
-  return '<h1 class="page-title">Team</h1><p class="page-sub">People who registered with your referral code.</p>' + setupNotice() +
-    '<div class="grid two"><div class="stat"><span class="ico b">' + ic('team', 20) + '</span><div><div class="lbl">Direct registrations</div><div class="val">' + D.team.length + '</div></div></div>' +
-    '<div class="stat"><span class="ico">' + ic('award', 20) + '</span><div><div class="lbl">Your referral code</div><div class="val mono" style="font-size:18px">' + esc(code || '—') + '</div></div></div></div>' +
-    '<div class="card"><h3>Invite link</h3><p class="hint">Registration records only. Referrals do not generate payments.</p>' +
-    '<div class="row"><span class="mono" style="word-break:break-all">' + esc(link) + '</span><button class="btn ghost sm" data-act="copy-ref" data-link="' + esc(link) + '">Copy link</button></div></div>' +
-    '<div class="card"><h3>Direct registrations</h3><div class="scroll">' +
-    (rows ? '<table><tr><th>Member</th><th>Registered</th></tr>' + rows + '</table>' : '<div class="empty">No registrations yet.</div>') + '</div></div>';
-};
-
-V.profile = function () {
-  var p = D.profile || {};
-  return '<h1 class="page-title">Profile</h1><p class="page-sub">Your account details.</p>' + setupNotice() +
-    '<div class="card"><table>' +
-    '<tr><th>Email</th><td>' + esc(p.email || (S.user && S.user.email) || '—') + '</td></tr>' +
-    '<tr><th>Member since</th><td>' + fmtDay(p.created_at || (S.user && S.user.created_at)) + '</td></tr>' +
-    '<tr><th>Member ID</th><td class="mono" style="word-break:break-all">' + esc(S.user ? S.user.id : '') + '</td></tr></table></div>' +
-    '<div class="form-grid"><div class="card"><h3>Edit details</h3><form data-form="profile">' +
-    '<div class="field"><label>Full name</label><input name="full_name" required minlength="2" maxlength="80" value="' + esc(p.full_name || '') + '"></div>' +
-    '<div class="field"><label>Phone</label><input name="phone" type="tel" value="' + esc(p.phone || '') + '"></div>' +
-    '<button class="btn block" type="submit">Save changes</button></form></div>' +
-    '<div class="card"><h3>Password</h3><p class="hint">We will email a secure reset link to your registered address.</p>' +
-    '<button class="btn ghost block" data-act="pwd-reset">Email me a reset link</button></div></div>';
-};
-
-/* ================= Actions ================= */
-async function rpc(name, args, okMsg, busyBtn) {
-  if (busyBtn) busyBtn.disabled = true;
-  try {
-    var r = await withTimeout(sb.rpc(name, args || {}), 20000);
-    if (r.error) throw r.error;
-    toast('ok', okMsg);
-    await refresh();
-  } catch (e) {
-    toast('err', friendlyError(e));
-    if (busyBtn) busyBtn.disabled = false;
-  }
-}
-function formData(f) { var d = {}; new FormData(f).forEach(function (v, k) { d[k] = String(v); }); return d; }
-
-var FORMS = {
-  deposit: async function (d, btn) {
-    var amt = parseFloat(d.amount);
-    if (!(amt >= 10)) throw new Error('invalid_amount');
-    if (!window.confirm('Submit a deposit request for ' + money(amt) + '? It stays pending until verified.')) return;
-    await rpc('request_deposit', { p_amount: amt, p_method: d.method, p_reference: (d.reference || '').trim() }, 'Deposit request submitted. Status: PENDING.', btn);
-  },
-  withdraw: async function (d, btn) {
-    var amt = parseFloat(d.amount);
-    if (!(amt >= 10)) throw new Error('invalid_amount');
-    if (!window.confirm('Request a withdrawal of ' + money(amt) + '? The amount is held until reviewed.')) return;
-    await rpc('request_withdrawal', { p_amount: amt, p_method: d.method, p_destination: (d.destination || '').trim() }, 'Withdrawal request submitted. Funds are held until reviewed.', btn);
-  },
-  profile: async function (d) {
-    var r = await withTimeout(sb.from('profiles').update({ full_name: (d.full_name || '').trim(), phone: (d.phone || '').trim() || null }).eq('id', S.user.id));
-    if (r.error) throw r.error;
-    toast('ok', 'Profile saved.');
-    await refresh();
-  }
-};
-
-async function onAuth(f) {
-  var d = formData(f);
-  var msg = $('#authMsg'), btn = $('#authBtn');
-  msg.innerHTML = '';
-  if (!sb) { msg.innerHTML = alertHTML('err', 'The connection library did not load. Check your internet and reload the page.'); return; }
-  if (A.busy) return;
-  var label = btn.textContent;
-  A.busy = true; btn.disabled = true;
-  btn.textContent = A.mode === 'signup' ? 'Creating account…' : A.mode === 'reset' ? 'Updating…' : 'Signing in…';
-  try {
-    if (A.mode === 'reset') {
-      if ((d.password || '').length < 8) throw new Error('Password must be at least 8 characters.');
-      if (d.password !== d.confirm) throw new Error('Passwords do not match.');
-      var ru = await withTimeout(sb.auth.updateUser({ password: d.password }), 20000);
-      if (ru.error) throw ru.error;
-      A.mode = 'signin';
-      toast('ok', 'Password updated.');
-      var s0 = await sb.auth.getSession();
-      if (s0.data && s0.data.session) await enterApp(s0.data.session.user); else showAuth('signin');
-      return;
-    }
-    var email = (d.email || '').trim();
-    A.email = email;
-    if (A.mode === 'signup') {
-      if ((d.password || '').length < 8) throw new Error('Password must be at least 8 characters.');
-      var r = await withTimeout(sb.auth.signUp({
-        email: email, password: d.password,
-        options: {
-          data: { full_name: (d.full_name || '').trim() || 'User', phone: (d.phone || '').trim() || null, referral_code: (d.referral || '').trim() || null },
-          emailRedirectTo: location.origin + location.pathname
-        }
-      }), 25000);
-      if (r.error) throw r.error;
-      var u = r.data && r.data.user;
-      if (u && Array.isArray(u.identities) && u.identities.length === 0) throw new Error('already registered');
-      if (r.data && r.data.session && r.data.session.user) { await enterApp(r.data.session.user); return; }
-      msg.innerHTML = alertHTML('ok', 'Account created. Check your email for a confirmation link, then sign in.');
-    } else {
-      var s = await withTimeout(sb.auth.signInWithPassword({ email: email, password: d.password }), 25000);
-      if (s.error) throw s.error;
-      if (s.data && s.data.user) { await enterApp(s.data.user); return; }
-    }
-  } catch (e) {
-    msg.innerHTML = alertHTML('err', friendlyError(e));
-    if (isNetErr(String((e && e.message) || e)) || /timed out/i.test(String((e && e.message) || e))) checkServer();
-  } finally {
-    A.busy = false;
-    var b = $('#authBtn');
-    if (b) { b.disabled = false; b.textContent = label; }
-  }
-}
-
-async function onForgot() {
-  var el = $('#f_email'); var msg = $('#authMsg');
-  var email = el ? el.value.trim() : '';
-  if (!email) { msg.innerHTML = alertHTML('err', 'Enter your email first, then tap "Forgot password?".'); return; }
-  if (!sb) { msg.innerHTML = alertHTML('err', 'The connection library did not load. Reload the page.'); return; }
-  try {
-    var r = await withTimeout(sb.auth.resetPasswordForEmail(email, { redirectTo: location.origin + location.pathname }), 20000);
-    if (r.error) throw r.error;
-    msg.innerHTML = alertHTML('ok', 'If an account exists for that email, a reset link has been sent.');
-  } catch (e) { msg.innerHTML = alertHTML('err', friendlyError(e)); }
-}
-
-async function signOut() {
-  try { if (sb) await sb.auth.signOut(); } catch (e) { console.error(e); }
-  A.mode = 'signin';
-  showAuth('signin');
-}
-
-async function enterApp(user) {
-  if (S.entering) return;
-  S.entering = true;
-  S.user = user;
-  S.tab = 'dashboard';
-  D = emptyData();
-  renderShell();
-  skeleton();
-  try { await loadData(); } catch (e) { console.error(e); }
-  S.entering = false;
-  renderView();
-}
-
-/* ================= Events ================= */
-document.addEventListener('submit', async function (e) {
-  var f = e.target;
-  if (!f.dataset || !f.dataset.form) return;
-  e.preventDefault();
-  if (f.dataset.form === 'auth') { onAuth(f); return; }
-  var fn = FORMS[f.dataset.form]; if (!fn) return;
-  var btn = f.querySelector('button[type=submit]');
-  if (btn) btn.disabled = true;
-  try { await fn(formData(f), btn); }
-  catch (ex) { toast('err', friendlyError(ex)); }
-  finally { if (btn && document.body.contains(btn)) btn.disabled = false; }
-});
-
-document.addEventListener('click', async function (e) {
-  var t = e.target.closest && e.target.closest('[data-tab],[data-go],[data-act]');
-  if (!t) return;
-  var go = t.getAttribute('data-tab') || t.getAttribute('data-go');
-  if (go) {
-    S.tab = go; renderTabs(); renderView(); window.scrollTo({ top: 0, behavior: 'smooth' });
-    return;
-  }
-  var a = t.getAttribute('data-act'), id = t.getAttribute('data-id');
-  if (a === 'mode') { var el = $('#f_email'); if (el) A.email = el.value; A.mode = t.getAttribute('data-mode'); showAuth(); return; }
-  if (a === 'forgot') { onForgot(); return; }
-  if (a === 'signout') { if (window.confirm('Sign out of PrimeCore on this device?')) signOut(); return; }
-  if (!sb) return;
-  if (a === 'start-task') { rpc('start_task', { p_task: id }, 'Task started.', t); return; }
-  if (a === 'submit-task') { rpc('submit_task', { p_completion: id }, 'Submitted. Status: PENDING review.', t); return; }
-  if (a === 'claim-daily') { rpc('claim_daily_reward', {}, 'Daily reward requested. Status: PENDING.', t); return; }
-  if (a === 'copy-ref') {
-    var link = t.getAttribute('data-link');
-    try { await navigator.clipboard.writeText(link); toast('ok', 'Invite link copied.'); }
-    catch (er) { window.prompt('Copy your invite link:', link); }
-    return;
-  }
-  if (a === 'pwd-reset') {
-    try {
-      var email = (D.profile && D.profile.email) || (S.user && S.user.email);
-      var r = await withTimeout(sb.auth.resetPasswordForEmail(email, { redirectTo: location.origin + location.pathname }), 20000);
-      if (r.error) throw r.error;
-      toast('ok', 'If an account exists for your email, a reset link has been sent.');
-    } catch (ex) { toast('err', friendlyError(ex)); }
-  }
-});
-
-/* ================= Session ================= */
-if (sb) {
-  sb.auth.onAuthStateChange(function (event, session) {
-    // Deferred so Supabase calls never run inside the auth callback.
-    setTimeout(function () {
-      if (event === 'PASSWORD_RECOVERY') { showAuth('reset'); return; }
-      if (event === 'SIGNED_OUT') { if (S.user) showAuth('signin'); return; }
-      if ((event === 'SIGNED_IN' || event === 'INITIAL_SESSION') && session && session.user) {
-        if (!S.user || S.user.id !== session.user.id) enterApp(session.user);
-      }
-    }, 0);
-  });
-}
-
-(async function init() {
-  if (!sb) { showAuth('signin'); return; }
-  try {
-    var res = await withTimeout(sb.auth.getSession(), 10000);
-    var session = res && res.data ? res.data.session : null;
-    if (session && session.user && A.mode !== 'reset') {
-      if (!S.user) await enterApp(session.user);
-    } else if (!S.user && A.mode !== 'reset') {
-      showAuth('signin');
-    }
-  } catch (e) {
-    console.error('Session error', e);
-    if (!S.user) showAuth('signin');
-  }
-})();
-
-} // startApp
+</script>
+<script>
+/* ---------- v13: intro splash + animated login/signup ---------- */
+(function(){
+ var B=document.body,sp=document.getElementById("splash"),au=document.getElementById("auth"),app=document.getElementById("app");
+ var reduce=false;
+ // stagger order for form fields, nav items
+ document.querySelectorAll(".av").forEach(function(a){[].forEach.call(a.children,function(c,i){c.style.setProperty("--k",i)})});
+ document.querySelectorAll(".nv").forEach(function(b,i){b.style.setProperty("--n",i)});
+ // splash reveal: a circle opens from the logo and shows the site
+ var revealed=false;
+ function reveal(){
+  if(revealed||!sp)return;revealed=true;
+  sp.classList.add("out");B.classList.add("go");B.classList.remove("pre");
+  if(!B.classList.contains("locked")){var h=document.getElementById("home");enter("home");h.classList.remove("on");void h.offsetWidth;h.classList.add("on");if(window.render)render()}
+  var t0=performance.now(),D=950,F=90,cx=innerWidth/2,cy=innerHeight/2,R=Math.hypot(cx,cy);
+  function m(r){var g="radial-gradient(circle at "+cx+"px "+cy+"px,transparent "+r+"px,#000 "+(r+F)+"px)";sp.style.webkitMaskImage=g;sp.style.maskImage=g}
+  m(-F);
+  (function f(n){var k=Math.min(1,(n-t0)/D),e=k<.5?4*k*k*k:1-Math.pow(-2*k+2,3)/2;m(e*(R+F)-F);if(k<1)requestAnimationFrame(f);else{sp.remove();sp=null}})(t0);
+ }
+ setTimeout(reveal,1850);sp.addEventListener("pointerdown",reveal);
+ // login success: dashboard opens as a circle from the button
+ var pt={x:innerWidth/2,y:innerHeight/2};
+ document.addEventListener("pointerdown",function(e){pt={x:e.clientX,y:e.clientY}},true);
+ // "entering" marks a page for ~1.8s so its cards, rows and lists animate in one by one
+ function enter(id){var e=document.getElementById(id);if(!e)return;e.classList.add("entering");clearTimeout(e._t);e._t=setTimeout(function(){e.classList.remove("entering")},1800)}
+ var base=window.unlock;
+ window.unlock=function(u){
+  var play=!reduce&&!sp&&!B.classList.contains("pre")&&au.style.display!=="none"&&B.classList.contains("locked");
+  enter("home");
+  base(u);
+  if(!play)return;
+  au.style.display="";au.classList.add("leave");
+  app.style.setProperty("--cx",pt.x+"px");app.style.setProperty("--cy",pt.y+"px");app.classList.add("iris");
+  if(window.burst)burst(pt.x,pt.y);
+  setTimeout(function(){au.style.display="none";au.classList.remove("leave")},820);
+  setTimeout(function(){app.classList.remove("iris")},1100);
+ };
+ // shake the form when an error message appears
+ var mo=new MutationObserver(function(list){list.forEach(function(r){var el=r.target.nodeType===3?r.target.parentNode:r.target;if(!el||!el.classList||!el.classList.contains("err")||!el.textContent.trim())return;var bx=el.closest(".box");if(!bx)return;bx.classList.remove("shake");void bx.offsetWidth;bx.classList.add("shake");setTimeout(function(){bx.classList.remove("shake")},500)})});
+ document.querySelectorAll(".err").forEach(function(e){mo.observe(e,{childList:true,characterData:true,subtree:true})});
+ // soft parallax on the floating chips
+ var ch=au.querySelectorAll(".chip");
+ au.addEventListener("pointermove",function(e){var x=e.clientX/innerWidth-.5,y=e.clientY/innerHeight-.5;ch.forEach(function(c,i){var f=(i+1)*14;c.style.translate=(-x*f)+"px "+(-y*f)+"px"})});
+ // every page change gets the same entrance as the dashboard
+ var _show=window.show;
+ window.show=function(v){enter(v);_show(v)};
+ // logout fades the dashboard out before reloading
+ var out=document.getElementById("out"),oc=out.onclick;
+ out.onclick=function(){app.classList.add("appout");setTimeout(function(){if(oc)oc.call(out)},450)};
+ // quieter, shorter, professional UI sounds (the speaker button still turns them off)
+ function soft(f,d,v,dl,t){if(!snd)return;try{var c=ctx(),n=c.currentTime+(dl||0),o=c.createOscillator(),g=c.createGain(),lp=c.createBiquadFilter();o.type=t||"sine";o.frequency.setValueAtTime(f,n);lp.type="lowpass";lp.frequency.value=2200;g.gain.setValueAtTime(.0001,n);g.gain.linearRampToValueAtTime(v,n+.012);g.gain.exponentialRampToValueAtTime(.0001,n+d);o.connect(lp);lp.connect(g);g.connect(MB);o.start(n);o.stop(n+d+.05)}catch(e){}}
+ sfx.tick=function(){soft(660,.07,.012)};
+ sfx.nav=function(){soft(587,.09,.014);soft(880,.12,.008,.03)};
+ sfx.ok=function(){soft(659,.28,.022);soft(988,.4,.02,.09)};
+ sfx.err=function(){soft(196,.22,.03,0,"triangle")};
 })();
 </script>
 </body>
