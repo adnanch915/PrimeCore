@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>PrimeCore — Fintech & Asset Portal</title>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
     body { background: #f1f5f9; color: #0f172a; min-height: 100vh; }
@@ -20,7 +20,7 @@
     .tabs { background: #1e1b4b; padding: 0 20px 13px; display: flex; gap: 8px; overflow-x: auto; border-bottom: 1px solid rgba(255, 255, 255, 0.08); }
     .tab { background: rgba(255, 255, 255, 0.06); color: #cbd5e1; border: none; padding: 8px 15px; border-radius: 999px; cursor: pointer; font-weight: 600; font-size: 13px; white-space: nowrap; }
     .tab.active { background: #8b5cf6; color: #ffffff; }
-    .container { max-width: 760px; margin: 26px auto; padding: 0 16px; }
+    .container { max-width: 780px; margin: 26px auto; padding: 0 16px; }
     .card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 16px; padding: 22px; box-shadow: 0 8px 24px rgba(15, 23, 42, 0.05); margin-bottom: 16px; }
     .card-title { font-size: 22px; font-weight: 700; color: #0f172a; margin-bottom: 6px; }
     .card-sub { color: #64748b; font-size: 14px; margin-bottom: 18px; }
@@ -66,9 +66,19 @@
       <p id="authSubtitle" class="card-sub">Sign in to your PrimeCore account.</p>
 
       <form id="authForm">
-        <div id="nameFieldWrap" class="field hidden">
-          <label for="fullNameInput">Full Name</label>
-          <input id="fullNameInput" type="text" placeholder="MUHAMMAD ADNAN" />
+        <div id="signupExtraFields" class="hidden">
+          <div class="field">
+            <label for="fullNameInput">Full Name</label>
+            <input id="fullNameInput" type="text" placeholder="MUHAMMAD ADNAN" />
+          </div>
+          <div class="field">
+            <label for="phoneInput">Phone / WhatsApp (Optional)</label>
+            <input id="phoneInput" type="text" placeholder="+92 300 0000000" />
+          </div>
+          <div class="field">
+            <label for="referralInput">Referral Code (Optional)</label>
+            <input id="referralInput" type="text" placeholder="PRIME-REF" />
+          </div>
         </div>
         <div class="field">
           <label for="emailInput">Email</label>
@@ -102,6 +112,7 @@
             <div id="pendBalText" class="stat-val">$0.00</div>
           </div>
         </div>
+        <div id="dashMsg"></div>
       </div>
 
       <div id="tab-tasks" class="card tab-panel hidden">
@@ -123,17 +134,57 @@
 
       <div id="tab-invest" class="card tab-panel hidden">
         <h2 class="card-title" style="font-size: 20px;">Invest</h2>
-        <p style="color: #475569;">Starter and growth investment plans will appear here.</p>
+        <p class="card-sub">Plan categories are shown for information only. No returns are promised and none of these plans is open for investment yet.</p>
+        <div class="grid-2">
+          <div class="stat-box">
+            <div class="stat-label">Junior</div>
+            <div class="stat-val">$30 – $500</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-label">Senior</div>
+            <div class="stat-val">$501 – $1,500</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-label">Special</div>
+            <div class="stat-val">$1,501 – $5,000</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-label">Elite</div>
+            <div class="stat-val">$5,001 – $20,000</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-label">Universal</div>
+            <div class="stat-val">$20,001 – $50,000</div>
+          </div>
+        </div>
+        <p class="card-sub" style="margin-top: 16px; margin-bottom: 0;">Terms, risk disclosures and approvals will be published here before any plan opens.</p>
       </div>
     </section>
   </main>
 
   <script>
+    // Verify these two values in Supabase > Project Settings > API.
+    // A project URL is normally https://<20-character-ref>.supabase.co
     const SUPABASE_URL = "https://qufxjfntdqhympultbx.supabase.co";
     const SUPABASE_KEY = "sb_publishable_639f9uEApKsGgOtQW_J9Jg_M-nnwtnB";
-    const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    if (!/^https:\/\/[a-z0-9]{20}\.supabase\.co$/.test(SUPABASE_URL)) {
+      console.warn("SUPABASE_URL does not look like a standard project URL. A wrong URL causes 'Failed to fetch'.");
+    }
+
+    let sb = null;
+    try {
+      sb = window.supabase
+        ? window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
+            auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
+          })
+        : null;
+    } catch (e) {
+      console.error("Supabase init failed:", e);
+    }
 
     let isSignUp = false;
+    let busy = false;
 
     const loadingView = document.getElementById("loadingView");
     const authView = document.getElementById("authView");
@@ -142,6 +193,36 @@
     const signOutBtn = document.getElementById("signOutBtn");
     const authMessage = document.getElementById("authMessage");
     const authSubmitBtn = document.getElementById("authSubmitBtn");
+
+    function setMessage(el, type, text) {
+      el.innerHTML = "";
+      if (!text) return;
+      const d = document.createElement("div");
+      d.className = type === "ok" ? "msg-ok" : "msg-err";
+      d.textContent = text;
+      el.appendChild(d);
+    }
+
+    function friendlyError(err) {
+      const m = String((err && err.message) || err || "");
+      if (/failed to fetch|networkerror|load failed|network request failed|timed out/i.test(m)) {
+        return "Cannot reach the server. Check your internet connection and try again. If it keeps happening, the app's server address may be misconfigured.";
+      }
+      if (/invalid login credentials/i.test(m)) return "Email or password is incorrect.";
+      if (/email not confirmed/i.test(m)) return "Please confirm your email first, using the link we sent you.";
+      if (/already registered|already been registered/i.test(m)) return "An account with this email already exists. Try signing in.";
+      if (/rate limit|too many/i.test(m)) return "Too many attempts. Please wait a minute and try again.";
+      if (/password/i.test(m) && /(short|least|weak)/i.test(m)) return "Password is too weak. Use at least 8 characters.";
+      if (/database error/i.test(m)) return "Could not create the account. Please try again or contact support.";
+      return m || "Something went wrong. Please try again.";
+    }
+
+    function withTimeout(promise, ms) {
+      return Promise.race([
+        promise,
+        new Promise((_, reject) => setTimeout(() => reject(new Error("Request timed out")), ms || 15000))
+      ]);
+    }
 
     function showLoading() {
       loadingView.classList.remove("hidden");
@@ -169,45 +250,59 @@
 
     async function loadUserData(user) {
       document.getElementById("userEmailText").textContent = "Signed in as: " + (user.email || "");
+      if (!sb) return;
+      const dashMsg = document.getElementById("dashMsg");
+      setMessage(dashMsg, "err", "");
       try {
-        const { data: wallet } = await sb
-          .from("wallet_balances")
-          .select("available_balance, pending_balance")
-          .eq("user_id", user.id)
-          .maybeSingle();
-
-        const avail = Number(wallet?.available_balance ?? 0).toFixed(2);
-        const pend = Number(wallet?.pending_balance ?? 0).toFixed(2);
+        const walletRes = await withTimeout(
+          sb.from("wallet_balances")
+            .select("available_balance, pending_balance")
+            .eq("user_id", user.id)
+            .maybeSingle()
+        );
+        if (walletRes.error) throw walletRes.error;
+        const wallet = walletRes.data;
+        const avail = Number((wallet && wallet.available_balance) || 0).toFixed(2);
+        const pend = Number((wallet && wallet.pending_balance) || 0).toFixed(2);
 
         document.getElementById("availBalText").textContent = "$" + avail;
         document.getElementById("pendBalText").textContent = "$" + pend;
         document.getElementById("walletDetailText").textContent =
           "Available: $" + avail + " | Pending: $" + pend;
 
-        const { data: tasks } = await sb
-          .from("tasks")
-          .select("id, title, status")
-          .eq("user_id", user.id);
-
+        const taskRes = await withTimeout(
+          sb.from("tasks")
+            .select("id, title, status")
+            .eq("user_id", user.id)
+        );
+        if (taskRes.error) throw taskRes.error;
+        const tasks = taskRes.data || [];
         document.getElementById("tasksInfo").textContent =
-          tasks && tasks.length > 0
-            ? tasks.map(t => `${t.title} (${t.status})`).join(", ")
+          tasks.length > 0
+            ? tasks.map(t => t.title + " (" + t.status + ")").join(", ")
             : "No tasks assigned yet.";
       } catch (err) {
         console.error("Data load warning:", err);
+        setMessage(dashMsg, "err", "Some account data could not be loaded. " + friendlyError(err));
       }
     }
 
     async function syncSession() {
       showLoading();
+      if (!sb) {
+        showAuth();
+        setMessage(authMessage, "err", "The app could not load its connection library. Check your internet connection and reload the page.");
+        return;
+      }
       try {
-        const { data: { session }, error } = await sb.auth.getSession();
-        if (error || !session || !session.user) {
+        const res = await withTimeout(sb.auth.getSession(), 10000);
+        const session = res && res.data ? res.data.session : null;
+        if (res.error || !session || !session.user) {
           showAuth();
           return;
         }
-        await loadUserData(session.user);
         showApp();
+        await loadUserData(session.user);
       } catch (err) {
         console.error("Session sync error:", err);
         showAuth();
@@ -217,7 +312,7 @@
     document.getElementById("toggleAuthModeBtn").addEventListener("click", () => {
       isSignUp = !isSignUp;
       authMessage.innerHTML = "";
-      document.getElementById("nameFieldWrap").classList.toggle("hidden", !isSignUp);
+      document.getElementById("signupExtraFields").classList.toggle("hidden", !isSignUp);
       document.getElementById("authTitle").textContent = isSignUp ? "Create account" : "Welcome back";
       document.getElementById("authSubtitle").textContent = isSignUp
         ? "Register your new PrimeCore account."
@@ -230,49 +325,75 @@
 
     document.getElementById("authForm").addEventListener("submit", async (e) => {
       e.preventDefault();
+      if (busy) return;
       authMessage.innerHTML = "";
+
+      if (!sb) {
+        setMessage(authMessage, "err", "The app could not load its connection library. Reload the page and try again.");
+        return;
+      }
+
       const email = document.getElementById("emailInput").value.trim();
       const password = document.getElementById("passwordInput").value;
       const fullName = document.getElementById("fullNameInput").value.trim();
+      const phone = document.getElementById("phoneInput").value.trim();
+      const referral = document.getElementById("referralInput").value.trim();
 
+      if (isSignUp && password.length < 8) {
+        setMessage(authMessage, "err", "Password must be at least 8 characters.");
+        return;
+      }
+
+      busy = true;
       authSubmitBtn.disabled = true;
       const prevLabel = authSubmitBtn.textContent;
       authSubmitBtn.textContent = isSignUp ? "Creating account..." : "Signing in...";
 
       try {
         if (isSignUp) {
-          const { data, error } = await sb.auth.signUp({
+          const res = await withTimeout(sb.auth.signUp({
             email,
             password,
             options: {
-              data: { full_name: fullName || "User" },
-              emailRedirectTo: "https://primecoreuk.vercel.app"
+              data: {
+                full_name: fullName || "User",
+                phone: phone || null,
+                referral_code: referral || null
+              },
+              emailRedirectTo: window.location.origin + window.location.pathname
             }
-          });
-          if (error) {
-            authMessage.innerHTML = `<div class="msg-err">${error.message}</div>`;
+          }), 20000);
+
+          if (res.error) {
+            setMessage(authMessage, "err", friendlyError(res.error));
             return;
           }
-          if (data?.session?.user) {
-            await loadUserData(data.session.user);
+          const user = res.data && res.data.user;
+          if (user && Array.isArray(user.identities) && user.identities.length === 0) {
+            setMessage(authMessage, "err", "An account with this email already exists. Try signing in.");
+            return;
+          }
+          if (res.data && res.data.session && res.data.session.user) {
             showApp();
+            await loadUserData(res.data.session.user);
             return;
           }
-          authMessage.innerHTML = `<div class="msg-ok">Account created! Email confirmation check karein ya sign in karein.</div>`;
+          setMessage(authMessage, "ok", "Account created. Check your email for a confirmation link, then sign in.");
         } else {
-          const { data, error } = await sb.auth.signInWithPassword({ email, password });
-          if (error) {
-            authMessage.innerHTML = `<div class="msg-err">${error.message}</div>`;
+          const res = await withTimeout(sb.auth.signInWithPassword({ email, password }), 20000);
+          if (res.error) {
+            setMessage(authMessage, "err", friendlyError(res.error));
             return;
           }
-          if (data?.user) {
-            await loadUserData(data.user);
+          if (res.data && res.data.user) {
             showApp();
+            await loadUserData(res.data.user);
           }
         }
       } catch (netErr) {
-        authMessage.innerHTML = `<div class="msg-err">Fetch / Network Error: ${netErr?.message || netErr}</div>`;
+        setMessage(authMessage, "err", friendlyError(netErr));
       } finally {
+        busy = false;
         authSubmitBtn.disabled = false;
         authSubmitBtn.textContent = prevLabel;
       }
@@ -281,19 +402,26 @@
     document.getElementById("forgotBtn").addEventListener("click", async () => {
       const email = document.getElementById("emailInput").value.trim();
       if (!email) {
-        authMessage.innerHTML = `<div class="msg-err">Enter your email first to reset password.</div>`;
+        setMessage(authMessage, "err", "Enter your email first to reset password.");
         return;
       }
-      const { error } = await sb.auth.resetPasswordForEmail(email, {
-        redirectTo: "https://primecoreuk.vercel.app"
-      });
-      authMessage.innerHTML = error
-        ? `<div class="msg-err">${error.message}</div>`
-        : `<div class="msg-ok">Password reset link sent to ${email}.</div>`;
+      if (!sb) {
+        setMessage(authMessage, "err", "The app could not load its connection library. Reload the page and try again.");
+        return;
+      }
+      try {
+        const res = await withTimeout(sb.auth.resetPasswordForEmail(email, {
+          redirectTo: window.location.origin + window.location.pathname
+        }), 20000);
+        if (res.error) setMessage(authMessage, "err", friendlyError(res.error));
+        else setMessage(authMessage, "ok", "If an account exists for that email, a reset link has been sent.");
+      } catch (err) {
+        setMessage(authMessage, "err", friendlyError(err));
+      }
     });
 
     signOutBtn.addEventListener("click", async () => {
-      await sb.auth.signOut();
+      try { if (sb) await sb.auth.signOut(); } catch (err) { console.error(err); }
       showAuth();
     });
 
@@ -303,34 +431,54 @@
         btn.classList.add("active");
         const target = btn.getAttribute("data-tab");
         document.querySelectorAll(".tab-panel").forEach((p) => p.classList.add("hidden"));
-        document.getElementById("tab-" + target)?.classList.remove("hidden");
+        const panel = document.getElementById("tab-" + target);
+        if (panel) panel.classList.remove("hidden");
       });
     });
 
-    document.getElementById("claimDailyBtn").addEventListener("click", async () => {
+    document.getElementById("claimDailyBtn").addEventListener("click", async (ev) => {
+      const btn = ev.currentTarget;
       const rewardMsg = document.getElementById("rewardMsg");
       rewardMsg.innerHTML = "";
-      const { data: { user } } = await sb.auth.getUser();
-      if (!user) return;
-      const { error } = await sb.from("daily_rewards").insert({
-        user_id: user.id,
-        reward_amount: 5.00
-      });
-      if (error) {
-        rewardMsg.innerHTML = `<div class="msg-err">${error.message}</div>`;
-        return;
+      if (!sb) return;
+      btn.disabled = true;
+      try {
+        const u = await withTimeout(sb.auth.getUser());
+        const user = u && u.data ? u.data.user : null;
+        if (!user) {
+          setMessage(rewardMsg, "err", "Please sign in again.");
+          return;
+        }
+        const res = await withTimeout(sb.from("daily_rewards").insert({
+          user_id: user.id,
+          reward_amount: 5.00
+        }));
+        if (res.error) {
+          setMessage(rewardMsg, "err", friendlyError(res.error));
+          return;
+        }
+        setMessage(rewardMsg, "ok", "Daily reward request recorded.");
+        await loadUserData(user);
+      } catch (err) {
+        setMessage(rewardMsg, "err", friendlyError(err));
+      } finally {
+        btn.disabled = false;
       }
-      rewardMsg.innerHTML = `<div class="msg-ok">Daily reward of $5.00 recorded!</div>`;
     });
 
-    sb.auth.onAuthStateChange(async (event, session) => {
-      if (event === "SIGNED_OUT" || !session?.user) {
-        showAuth();
-      } else if (event === "SIGNED_IN" || event === "TOKEN_REFRESHED") {
-        await loadUserData(session.user);
-        showApp();
-      }
-    });
+    if (sb) {
+      sb.auth.onAuthStateChange((event, session) => {
+        // Deferred so Supabase calls never run inside the auth callback (avoids a known deadlock).
+        setTimeout(async () => {
+          if (event === "SIGNED_OUT" || !session || !session.user) {
+            if (event === "SIGNED_OUT") showAuth();
+          } else if (event === "SIGNED_IN" || event === "TOKEN_REFRESHED") {
+            showApp();
+            await loadUserData(session.user);
+          }
+        }, 0);
+      });
+    }
 
     syncSession();
   </script>
