@@ -251,14 +251,15 @@
             method: "POST",
             headers: {
               "Content-Type": "application/json",
-              "apikey": SUPABASE_KEY
+              "apikey": SUPABASE_KEY,
+              "Authorization": `Bearer ${SUPABASE_KEY}`
             },
             body: JSON.stringify({ email, password })
           });
           const bodyText = await res.text();
-          authMessage.innerHTML = `<div class="msg-err">SDK Err: ${netErr?.message || netErr} | REST ${res.status}: ${bodyText}</div>`;
+          authMessage.innerHTML = `<div class="msg-err">Main Error: ${netErr?.message || netErr} | Server (${res.status}): ${bodyText}</div>`;
         } catch (directErr) {
-          authMessage.innerHTML = `<div class="msg-err">SDK Err: ${netErr?.message || netErr} | Direct Fetch Err: ${directErr?.message || directErr}</div>`;
+          authMessage.innerHTML = `<div class="msg-err">Main Error: ${netErr?.message || netErr} | Direct Request Blocked: ${directErr?.message || directErr}</div>`;
         }
       }
     });
