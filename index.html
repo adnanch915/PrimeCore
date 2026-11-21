@@ -1,113 +1,773 @@
-# Earn & Invest: Application
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>PrimeCore</title>
+<style>
+:root{--navy:#1b1f3b;--purple:#6d28d9;--purple2:#a78bfa;--bg:#f1f5f9;--text:#0f172a;--muted:#64748b;--card:#fff;--line:#e2e8f0}
+*{box-sizing:border-box}
+body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--text);-webkit-text-size-adjust:100%}
+a{color:var(--purple);text-decoration:none}
+header{background:var(--navy);color:#fff;display:flex;align-items:center;gap:10px;padding:10px 14px;position:sticky;top:0;z-index:10;flex-wrap:wrap}
+.brand{font-weight:800;font-size:18px;margin-right:auto}
+.brand span{color:var(--purple2)}
+nav{display:flex;gap:4px;overflow-x:auto;max-width:100%;-webkit-overflow-scrolling:touch;width:100%}
+nav a{color:#c9cbe6;padding:8px 10px;border-radius:10px;font-size:14px;white-space:nowrap}
+nav a.on,nav a:hover{background:var(--purple);color:#fff}
+main{padding:16px;max-width:1200px;margin:0 auto}
+h1{font-size:22px;margin:6px 0 14px}
+h2{font-size:16px;margin:0 0 10px}
+.muted{color:var(--muted);font-size:13px}
+.two{display:grid;gap:14px;grid-template-columns:1fr 1fr}
+.cols3{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}
+.card{background:var(--card);border-radius:16px;padding:18px;box-shadow:0 2px 10px rgba(15,23,42,.06);border:1px solid var(--line);min-width:0;margin-bottom:14px}
+.stat{color:#fff;border-radius:16px;padding:18px;background:linear-gradient(135deg,var(--purple),#6366f1);min-width:0;margin-bottom:14px}
+.stat.dark{background:linear-gradient(135deg,var(--navy),#3b4a8f)}
+.stat.green{background:linear-gradient(135deg,#059669,#14b8a6)}
+.stat.amber{background:linear-gradient(135deg,#d97706,#f59e0b)}
+.stat small{opacity:.9;font-size:13px}
+.stat b{display:block;font-size:24px;margin-top:6px;word-break:break-word}
+button{background:linear-gradient(90deg,var(--purple),#8b5cf6);color:#fff;border:0;border-radius:12px;padding:11px 16px;font-weight:600;cursor:pointer;font-size:15px;min-height:44px;font-family:inherit}
+button:disabled{opacity:.5;cursor:not-allowed}
+button.ghost{background:#fff;color:var(--purple);border:1px solid var(--purple)}
+button.small{padding:6px 10px;font-size:13px;min-height:34px;margin:2px 4px 2px 0}
+input,select{width:100%;padding:11px 12px;border:1px solid #cbd5e1;border-radius:10px;font-size:16px;margin-top:4px;background:#fff;font-family:inherit}
+label{display:block;font-size:13px;color:#334155;margin-bottom:10px}
+.auth{max-width:440px;margin:24px auto}
+table{width:100%;border-collapse:collapse;font-size:14px}
+.wide{overflow-x:auto}
+th,td{text-align:left;padding:9px 6px;border-bottom:1px solid var(--line);vertical-align:top}
+th{color:var(--muted);font-size:12px;font-weight:600}
+.pill{font-size:12px;border-radius:99px;padding:2px 9px;font-weight:600;white-space:nowrap;display:inline-block}
+.p-ok{background:#d1fae5;color:#059669}.p-wait{background:#fef3c7;color:#b45309}.p-bad{background:#fee2e2;color:#dc2626}.p-off{background:#e2e8f0;color:#475569}
+.msg{padding:10px 12px;border-radius:10px;margin:0 0 14px;font-size:14px}
+.msg.ok{background:#d1fae5;color:#065f46}.msg.err{background:#fee2e2;color:#991b1b}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;justify-content:space-between}
+ul.tree{list-style:none;margin:0;padding-left:16px;border-left:2px solid #ddd6fe}
+ul.tree li{margin:8px 0}
+details summary{cursor:pointer;padding:4px 0}
+.av{display:inline-grid;place-items:center;width:26px;height:26px;border-radius:50%;background:#7c3aed;color:#fff;font-size:12px;vertical-align:middle}
+.notice{background:#fef3c7;color:#92400e;padding:12px 14px;border-radius:12px;margin-bottom:14px;font-size:14px}
+@media (max-width:640px){
+  main{padding:12px}
+  .two{grid-template-columns:1fr}
+  h1{font-size:20px}
+  .brand{width:100%}
+  .stat b{font-size:21px}
+  .row{align-items:flex-start}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="brand">Prime<span>Core</span></div>
+  <button class="ghost" id="logout" style="display:none;min-height:36px;padding:6px 12px;width:auto">Sign out</button>
+  <nav id="nav" aria-label="Main"></nav>
+</header>
+<main id="app"><p class="muted">Loading…</p></main>
 
-React + Vite + TypeScript + Tailwind CSS + Framer Motion, backed by Supabase (Postgres, Auth, RPC).
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script>
+(function () {
+'use strict';
 
-**Status: not compiled or run.** The environment used to write this code had no network or Node runtime. Run `npm install`, `npm run typecheck` and `npm run build` before relying on it, and send me any errors.
+/* ==================== CONFIGURATION ====================
+   Public values only: the project URL and the ANON public key from
+   Supabase > Project Settings > API. Never place the service_role key here. */
+var SUPABASE_URL = 'https://YOUR-PROJECT-REF.supabase.co';
+var SUPABASE_ANON_KEY = 'YOUR-ANON-PUBLIC-KEY';
 
-## What is built
+var CONFIGURED = /^https:\/\/[a-z0-9-]+\.supabase\.co$/.test(SUPABASE_URL) &&
+  SUPABASE_ANON_KEY.length > 40 && SUPABASE_ANON_KEY.indexOf('YOUR-') !== 0;
+var LIB_OK = !!(window.supabase && window.supabase.createClient);
+var sb = (CONFIGURED && LIB_OK) ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+  auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
+}) : null;
 
-- **Auth:** signup with country and phone code, email OTP, login, forgot and reset password, persistent session.
-- **Dashboard:** two-column financial cards (deposits, available balance, verified task rewards, pending holds), recent transactions, analytics of posted credits. Test rows are labelled.
-- **Wallet:** balances from the ledger, deposit and withdrawal requests with a confirmation step, full transaction history. Requests stay pending until an admin verifies them.
-- **Tasks:** start, submit and track task claim requests (Not submitted, Pending, Success, Rejected) with request IDs. Rewards are credited only after admin verification.
-- **Investment:** the five plan names (Junior, Senior, Special, Elite, Universal) as informational categories. No rates, returns or balance ranges. None is open.
-- **Profit:** verified task earnings only. Compounding and investment returns are shown as disabled.
-- **My Team:** referral tree, direct referral registration list (date and ID only), team totals of deposits and investments. Team commission and the Daily Referral Challenge are shown as disabled.
-- **Profile:** edit full name and phone. Username, email and country are fixed.
-- **Help:** how deposits, withdrawals, rewards and claims work.
-- **Admin Panel:** visible to admin and super-admin accounts only. Confirm or reject deposits, approve or reject withdrawals, verify or reject task submissions, view users, and read the audit log. Super admins can change roles. The database checks the role on every action.
+/* ==================== STATE & HELPERS ==================== */
+var S = { ready: false, user: null, profile: null, msg: null, pendingEmail: '', view: 'dashboard' };
+var seq = 0;
+var AUTH = ['login', 'signup', 'verify', 'forgot', 'reset'];
+var NAV = [
+  ['dashboard', 'Dashboard'], ['tasks', 'Tasks'], ['daily', 'Daily Reward'], ['wallet', 'Wallet'],
+  ['investment', 'Investment'], ['team', 'My Team'], ['profit', 'Profit'], ['leaderboard', 'Leaderboard'],
+  ['notifications', 'Notifications'], ['profile', 'Profile'], ['settings', 'Settings'], ['help', 'Help']
+];
+var DIALS = [
+  ['US','United States','+1'],['CA','Canada','+1'],['GB','United Kingdom','+44'],['AU','Australia','+61'],
+  ['DE','Germany','+49'],['FR','France','+33'],['ES','Spain','+34'],['IT','Italy','+39'],['NL','Netherlands','+31'],
+  ['BR','Brazil','+55'],['MX','Mexico','+52'],['NG','Nigeria','+234'],['GH','Ghana','+233'],['KE','Kenya','+254'],
+  ['ZA','South Africa','+27'],['EG','Egypt','+20'],['AE','United Arab Emirates','+971'],['SA','Saudi Arabia','+966'],
+  ['TR','Turkey','+90'],['IN','India','+91'],['PK','Pakistan','+92'],['BD','Bangladesh','+880'],['PH','Philippines','+63'],
+  ['ID','Indonesia','+62'],['MY','Malaysia','+60'],['SG','Singapore','+65'],['TH','Thailand','+66'],['VN','Vietnam','+84'],
+  ['JP','Japan','+81'],['KR','South Korea','+82'],['CN','China','+86']
+];
+var KIND = {
+  deposit_credit: 'Deposit', withdrawal: 'Withdrawal', investment_debit: 'Investment',
+  reward_credit: 'Daily reward', task_credit: 'Task reward', referral_credit: 'Referral', admin_adjustment: 'Adjustment'
+};
+var PILL = {
+  pending: 'p-wait', submitted: 'p-wait', successful: 'p-ok', approved: 'p-ok', paid: 'p-ok', posted: 'p-ok',
+  rejected: 'p-bad', started: 'p-off', active: 'p-ok', completed: 'p-off'
+};
+var CLAIM_LABEL = { started: 'Not submitted', submitted: 'Pending', paid: 'Success', rejected: 'Rejected' };
+var MSG = {
+  insufficient_balance: 'Your available balance is not enough.',
+  invalid_amount: 'Enter an amount of at least $10.',
+  invalid_destination: 'Enter a valid destination.',
+  already_started: 'You have already started this task.',
+  not_submittable: 'This task cannot be submitted right now.',
+  task_unavailable: 'This task is no longer available.',
+  forbidden: 'Admin permission is required.',
+  not_pending: 'This request was already processed.',
+  not_submitted: 'This task is no longer awaiting review.',
+  not_found: 'That record could not be found.',
+  cannot_change_own_role: 'You cannot change your own role.',
+  rewards_disabled_pending_legal_review: 'Rewards are disabled pending legal review.',
+  investments_disabled_pending_legal_review: 'Investments are disabled pending legal review.'
+};
 
-## Disabled, and why
+var $ = function (s) { return document.querySelector(s); };
+var esc = function (v) {
+  return String(v == null ? '' : v).replace(/[&<>"']/g, function (c) {
+    return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+  });
+};
+var money = function (n) {
+  return '$' + Number(n || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+};
+var when = function (d) { return d ? new Date(d).toLocaleString() : '—'; };
+var pill = function (s) { return '<span class="pill ' + (PILL[s] || 'p-off') + '">' + esc(s) + '</span>'; };
+var flag = function (cc) {
+  return String.fromCodePoint.apply(null, cc.toUpperCase().split('').map(function (c) { return 127397 + c.charCodeAt(0); }));
+};
+var friendly = function (e) {
+  var m = String((e && e.message) || e || '').trim();
+  if (MSG[m]) return MSG[m];
+  if (m.indexOf('Invalid login credentials') > -1) return 'Email or password is incorrect.';
+  if (m.indexOf('Email not confirmed') > -1) return 'Verify your email before signing in.';
+  if (m.indexOf('already registered') > -1) return 'An account with this email already exists.';
+  if (m.indexOf('Token has expired') > -1 || m.indexOf('invalid') > -1 && m.indexOf('Token') > -1) return 'That code is invalid or expired. Request a new one.';
+  if (m.indexOf('duplicate') > -1 || m.indexOf('profiles_username') > -1 || m.indexOf('Database error') > -1) {
+    return 'That username may already be taken. Try another.';
+  }
+  return m || 'Something went wrong. Please try again.';
+};
+var setMsg = function (t, m) { S.msg = { t: t, m: m }; };
+var msgHTML = function () {
+  var m = S.msg; S.msg = null;
+  return m ? '<div class="msg ' + m.t + '" role="status">' + esc(m.m) + '</div>' : '';
+};
+var errorBox = function (e) {
+  return '<div class="card"><div class="msg err">' + esc(friendly(e)) + '</div></div>';
+};
+var stat = function (label, value, cls) {
+  return '<div class="' + cls + '"><small>' + esc(label) + '</small><b>' + money(value) + '</b></div>';
+};
+var off = function (title, text) {
+  return '<div class="card"><div class="row"><h2>' + esc(title) + '</h2><span class="pill p-off">Disabled</span></div>' +
+    '<p class="muted">' + esc(text) + '</p></div>';
+};
+var isAdmin = function () {
+  return !!(S.profile && (S.profile.role === 'admin' || S.profile.role === 'super_admin'));
+};
+var sum = function (rows) {
+  return (rows || []).reduce(function (a, r) { return a + Number(r.amount || 0); }, 0);
+};
+var firstError = function (results) {
+  for (var i = 0; i < results.length; i++) if (results[i].error) return results[i].error;
+  return null;
+};
 
-These are switched off in the database (migration 0004), not only hidden in the UI:
+/* ==================== AUTH VIEWS ==================== */
+function authHTML(view) {
+  var dialOpts = DIALS.map(function (c) {
+    return '<option value="' + c[0] + '|' + c[2] + '">' + flag(c[0]) + ' ' + esc(c[1]) + ' (' + c[2] + ')</option>';
+  }).join('');
+  var box = function (title, sub, body) {
+    return '<div class="card auth"><h1>' + title + '</h1><p class="muted">' + sub + '</p>' + body + '</div>';
+  };
+  if (view === 'signup') return box('Create account', 'Takes about a minute. We will email you a 6-digit code.',
+    '<form data-form="signup">' +
+    '<label>Full name<input name="full_name" required minlength="2" maxlength="80" autocomplete="name"></label>' +
+    '<label>Username (3–20 letters, numbers or _)<input name="username" required pattern="[A-Za-z0-9_]{3,20}" autocomplete="username"></label>' +
+    '<label>Email<input type="email" name="email" required autocomplete="email"></label>' +
+    '<label>Country and code<select name="country">' + dialOpts + '</select></label>' +
+    '<label>Phone number (without country code)<input name="phone" inputmode="tel" required></label>' +
+    '<label>Password (8+ characters)<input type="password" name="password" minlength="8" required autocomplete="new-password"></label>' +
+    '<label>Confirm password<input type="password" name="confirm" minlength="8" required autocomplete="new-password"></label>' +
+    '<label>Referrer username (optional)<input name="ref"></label>' +
+    '<button type="submit" style="width:100%">Create account</button></form>' +
+    '<p class="muted">Already registered? <a href="#login">Sign in</a></p>');
+  if (view === 'verify') return box('Verify your email', 'Enter the code sent to your email.',
+    '<form data-form="verify">' +
+    '<label>Email<input type="email" name="email" required value="' + esc(S.pendingEmail) + '"></label>' +
+    '<label>6-digit code<input name="token" inputmode="numeric" pattern="[0-9]{6,8}" required autocomplete="one-time-code"></label>' +
+    '<button type="submit" style="width:100%">Verify and continue</button></form>' +
+    '<form data-form="resend" style="margin-top:12px"><label>Email<input type="email" name="email" required value="' + esc(S.pendingEmail) + '"></label>' +
+    '<button type="submit" class="ghost" style="width:100%">Resend code</button></form>' +
+    '<p class="muted"><a href="#login">Back to sign in</a></p>');
+  if (view === 'forgot') return box('Reset password', 'We will email you a secure link.',
+    '<form data-form="forgot"><label>Email<input type="email" name="email" required autocomplete="email"></label>' +
+    '<button type="submit" style="width:100%">Send reset link</button></form>' +
+    '<p class="muted"><a href="#login">Back to sign in</a></p>');
+  if (view === 'reset') return box('Choose a new password', 'Use at least 8 characters.',
+    '<form data-form="reset"><label>New password<input type="password" name="password" minlength="8" required autocomplete="new-password"></label>' +
+    '<label>Confirm new password<input type="password" name="confirm" minlength="8" required autocomplete="new-password"></label>' +
+    '<button type="submit" style="width:100%">Update password</button></form>');
+  return box('Welcome back', 'Sign in to your PrimeCore account.',
+    '<form data-form="login"><label>Email<input type="email" name="email" required autocomplete="email"></label>' +
+    '<label>Password<input type="password" name="password" required autocomplete="current-password"></label>' +
+    '<button type="submit" style="width:100%">Sign in</button></form>' +
+    '<p class="muted" style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-top:12px">' +
+    '<a href="#forgot">Forgot password?</a><a href="#signup">Create account</a></p>');
+}
 
-- **Fixed-rate daily rewards.** `claim_daily_reward` refuses every request, and `reward_settings` cannot be set to enabled.
-- **Deposit-funded investments.** `create_investment` refuses every request.
+/* ==================== NAVIGATION ==================== */
+function renderNav() {
+  var links = S.user ? NAV.slice() : [];
+  if (S.user && isAdmin()) links.push(['admin', 'Admin']);
+  $('#nav').innerHTML = links.map(function (l) {
+    return '<a href="#' + l[0] + '" class="' + (S.view === l[0] ? 'on' : '') + '">' + esc(l[1]) + '</a>';
+  }).join('');
+  $('#logout').style.display = S.user ? '' : 'none';
+}
 
-These are shown in the UI as disabled pending independent business and legal verification:
+/* ==================== PAGES (signed in) ====================
+   Every query is scoped to the signed-in member with user_id, so that
+   admins viewing member pages see only their own data. Admin data is
+   fetched only on the Admin page. */
+var PAGES = {};
+var UID = function () { return S.user.id; };
 
-- Compounding (Profit page)
-- Investment returns (Profit page)
-- Team commission by referral level (My Team)
-- Daily Referral Challenge milestones (My Team)
+PAGES.dashboard = async function () {
+  var uid = UID();
+  var q = await Promise.all([
+    sb.from('wallet_balances').select('available_balance,pending_hold').eq('user_id', uid).maybeSingle(),
+    sb.from('deposits').select('amount').eq('user_id', uid).eq('status', 'successful'),
+    sb.from('investments').select('amount').eq('user_id', uid).eq('status', 'active'),
+    sb.from('wallet_ledger').select('amount').eq('user_id', uid).eq('kind', 'task_credit').eq('status', 'posted'),
+    sb.from('wallet_ledger').select('kind,amount,status,created_at').eq('user_id', uid).order('created_at', { ascending: false }).limit(8)
+  ]);
+  var err = firstError(q);
+  if (err) return msgHTML() + errorBox(err);
+  var bal = q[0].data || { available_balance: 0, pending_hold: 0 };
+  var recent = (q[4].data || []).map(function (t) {
+    var neg = t.amount < 0;
+    return '<tr><td>' + when(t.created_at) + '</td><td>' + esc(KIND[t.kind] || t.kind) + '</td><td style="color:' +
+      (neg ? '#dc2626' : '#059669') + ';font-weight:600">' + (neg ? '−' : '+') + money(Math.abs(t.amount)) +
+      '</td><td>' + pill(t.status) + '</td></tr>';
+  }).join('');
+  return msgHTML() + '<h1>Dashboard</h1>' +
+    '<div class="two">' +
+      stat('Total Deposits', sum(q[1].data), 'stat') +
+      stat('Active Investment', sum(q[2].data), 'stat dark') +
+      stat('Available Balance', bal.available_balance, 'stat green') +
+      stat('Verified task rewards', sum(q[3].data), 'stat amber') +
+    '</div>' +
+    '<div class="cols3">' +
+      off('Daily Reward', 'Fixed-rate daily rewards are disabled pending independent business and legal verification.') +
+      off('Compounding', 'Compounding is disabled pending independent business and legal verification.') +
+      off('Referral commissions', 'Commissions by referral level are disabled pending independent business and legal verification.') +
+      off('Daily Referral Challenge', 'Referral milestone rewards are disabled pending independent business and legal verification.') +
+    '</div>' +
+    '<div class="card"><h2>Recent transactions</h2><div class="wide">' +
+      (recent ? '<table><tr><th>Date</th><th>Type</th><th>Amount</th><th>Status</th></tr>' + recent + '</table>'
+              : '<p class="muted">No transactions yet.</p>') +
+    '</div></div>';
+};
 
-## Not built
+PAGES.wallet = async function () {
+  var uid = UID();
+  var q = await Promise.all([
+    sb.from('wallet_balances').select('available_balance,pending_hold').eq('user_id', uid).maybeSingle(),
+    sb.from('deposits').select('id,amount,method,reference,status,requested_at').eq('user_id', uid).order('requested_at', { ascending: false }).limit(50),
+    sb.from('withdrawals').select('id,amount,method,destination,status,requested_at').eq('user_id', uid).order('requested_at', { ascending: false }).limit(50)
+  ]);
+  var err = firstError(q);
+  if (err) return msgHTML() + errorBox(err);
+  var bal = q[0].data || { available_balance: 0, pending_hold: 0 };
+  var dep = (q[1].data || []).map(function (d) {
+    return '<tr><td>' + when(d.requested_at) + '</td><td>' + money(d.amount) + '</td><td>' + esc(d.method) + '</td><td>' + pill(d.status) + '</td></tr>';
+  }).join('');
+  var wd = (q[2].data || []).map(function (w) {
+    return '<tr><td>' + when(w.requested_at) + '</td><td>' + money(w.amount) + '</td><td>' + esc(w.destination) + '</td><td>' + pill(w.status) + '</td></tr>';
+  }).join('');
+  var methods = '<option value="bank">Bank transfer</option><option value="crypto">Crypto</option><option value="other">Other</option>';
+  return msgHTML() + '<h1>My Wallet</h1>' +
+    '<div class="two">' + stat('Available Balance', bal.available_balance, 'stat green') + stat('Pending holds', bal.pending_hold, 'stat amber') + '</div>' +
+    '<div class="two">' +
+      '<div class="card"><h2>Request a deposit</h2><form data-form="deposit">' +
+        '<label>Amount (USD)<input type="number" name="amount" min="10" step="0.01" required></label>' +
+        '<label>Method<select name="method">' + methods + '</select></label>' +
+        '<label>Payment reference<input name="reference" required minlength="5"></label>' +
+        '<button type="submit">Submit deposit request</button></form>' +
+        '<p class="muted">Your balance changes only after an admin verifies the transfer.</p></div>' +
+      '<div class="card"><h2>Request a withdrawal</h2><form data-form="withdraw">' +
+        '<label>Amount (USD)<input type="number" name="amount" min="10" step="0.01" required></label>' +
+        '<label>Method<select name="method">' + methods + '</select></label>' +
+        '<label>Destination (account or wallet)<input name="destination" required minlength="5"></label>' +
+        '<button type="submit">Submit withdrawal request</button></form>' +
+        '<p class="muted">The amount is held now and released if the request is rejected.</p></div>' +
+    '</div>' +
+    '<div class="card"><h2>Deposits</h2><div class="wide">' +
+      (dep ? '<table><tr><th>Requested</th><th>Amount</th><th>Method</th><th>Status</th></tr>' + dep + '</table>'
+           : '<p class="muted">No deposit requests yet.</p>') +
+    '</div></div>' +
+    '<div class="card"><h2>Withdrawals</h2><div class="wide">' +
+      (wd ? '<table><tr><th>Requested</th><th>Amount</th><th>Destination</th><th>Status</th></tr>' + wd + '</table>'
+          : '<p class="muted">No withdrawal requests yet.</p>') +
+    '</div></div>';
+};
 
-- **Leaderboard, Notifications, Settings:** still placeholder pages.
-- **Profile picture upload:** needs a Supabase Storage bucket and policies, not yet created.
-- **Plan tiers with rates and balance ranges:** not built. They would pay returns on deposits, which the application does not offer.
+PAGES.tasks = async function () {
+  var uid = UID();
+  var q = await Promise.all([
+    sb.from('tasks').select('id,category,title,description,reward_amount').eq('is_active', true).order('created_at'),
+    sb.from('task_completions').select('id,task_id,status,started_at,submitted_at').eq('user_id', uid).order('started_at', { ascending: false })
+  ]);
+  var err = firstError(q);
+  if (err) return msgHTML() + errorBox(err);
+  var tasks = q[0].data || [], comps = q[1].data || [];
+  var by = {};
+  comps.forEach(function (c) { by[c.task_id] = c; });
+  var cards = tasks.map(function (t) {
+    var c = by[t.id], action = '';
+    if (!c) action = '<button data-act="start" data-id="' + esc(t.id) + '">Start task</button>';
+    else if (c.status === 'started') action = '<button data-act="submit" data-id="' + esc(c.id) + '">Submit for verification</button>';
+    else if (c.status === 'submitted') action = '<span class="muted">Awaiting admin review</span>';
+    else if (c.status === 'paid') action = '<span class="muted">Reward credited</span>';
+    return '<div class="card"><div class="row"><h2>' + esc(t.title) + '</h2><b>' + money(t.reward_amount) + '</b></div>' +
+      '<p class="muted">' + esc(t.description) + '</p><div class="row">' +
+      (c ? pill(c.status) : '<span class="pill p-off">Not started</span>') + action + '</div></div>';
+  }).join('');
+  var reqs = comps.map(function (c) {
+    var t = tasks.filter(function (x) { return x.id === c.task_id; })[0];
+    return '<tr><td style="font-family:monospace">' + esc(c.id.slice(0, 8)) + '</td><td>' + esc(t ? t.title : '—') +
+      '</td><td>' + money(t ? t.reward_amount : 0) + '</td><td>' + when(c.submitted_at) + '</td><td>' +
+      '<span class="pill ' + (PILL[c.status] || 'p-off') + '">' + esc(CLAIM_LABEL[c.status] || c.status) + '</span></td></tr>';
+  }).join('');
+  return msgHTML() + '<h1>Tasks Center</h1><p class="muted">Rewards are credited only after an admin verifies the task.</p>' +
+    (cards || '<div class="card"><p class="muted">No tasks are available right now.</p></div>') +
+    '<div class="card"><h2>Claim requests</h2><div class="wide">' +
+      (reqs ? '<table><tr><th>Request ID</th><th>Task</th><th>Reward</th><th>Submitted</th><th>Status</th></tr>' + reqs + '</table>'
+            : '<p class="muted">No claim requests yet.</p>') +
+    '</div></div>';
+};
 
-## Setup
+PAGES.daily = async function () {
+  return msgHTML() + '<h1>Daily Reward</h1>' +
+    off('Daily Reward', 'Status: disabled. Fixed-rate daily rewards will not be offered until independent business and legal verification is complete. No rewards are being credited.');
+};
 
-Requires Node.js 18.18 or newer.
+PAGES.investment = async function () {
+  var names = ['Junior', 'Senior', 'Special', 'Elite', 'Universal'];
+  var cats = names.map(function (n) {
+    return '<div class="card"><div class="row"><h2>' + n + '</h2><span class="pill p-off">Not open</span></div>' +
+      '<p class="muted">Informational category name. No returns, rates or balance ranges are offered.</p></div>';
+  }).join('');
+  return msgHTML() + '<h1>Investment</h1><p class="muted">Plan categories are for information only. None is open for investment.</p>' +
+    '<div class="cols3">' + cats + '</div>' +
+    off('New investments', 'New investments cannot be created until terms, risk disclosures, fees, lock periods and legal approvals are complete.');
+};
 
-1. **Install and run**
-   ```bash
-   npm install
-   cp .env.example .env.local      # fill in step 2 values
-   npm run typecheck
-   npm run dev                     # http://localhost:5173
-   npm run build
-   ```
-2. **Supabase project.** Create one at supabase.com. Copy the Project URL and anon public key from Project Settings → API into `.env.local`. Never put the service role key in this project.
-3. **Migrations.** Run in the SQL Editor, in this order:
-   1. `supabase/migrations/0001_schema.sql`
-   2. `supabase/migrations/0002_functions.sql`
-   3. `supabase/migrations/0003_seed_testing.sql` (optional, testing tasks only)
-   4. `supabase/migrations/0004_disable_pending_legal_review.sql`
-4. **Auth settings.** Authentication → Providers → Email: enable signup and Confirm email. Authentication → URL Configuration: set Site URL to your app URL and add `<app URL>/reset-password` to the redirect list. Ensure email templates include `{{ .Token }}`.
-5. **First super admin.** Sign up, verify the email, then run once in the SQL Editor:
-   ```sql
-   update public.profiles set role = 'super_admin' where username = 'your_username';
-   ```
-   Later role changes go through the Admin Panel.
-6. **Deploy.** Push to GitHub. In Vercel, import the repository with the Vite preset (build `npm run build`, output `dist`). Add `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY` and `VITE_APP_URL` as environment variables. Add the Vercel URL to Supabase's Site URL and redirect list.
+PAGES.team = async function () {
+  var r = await sb.rpc('team_tree');
+  if (r.error) return msgHTML() + errorBox(r.error);
+  var rows = r.data || [];
+  var me = UID();
+  var direct = rows.filter(function (x) { return x.level === 1; });
+  var totals = {
+    deposits: rows.reduce(function (a, x) { return a + Number(x.deposits || 0); }, 0),
+    investments: rows.reduce(function (a, x) { return a + Number(x.investments || 0); }, 0)
+  };
+  var seen = {};
+  function tree(parent, depth) {
+    if (depth > 10) return '';
+    var kids = rows.filter(function (x) { return x.parent_id === parent && !seen[x.member_id]; });
+    if (!kids.length) return '';
+    return '<ul class="tree">' + kids.map(function (k) {
+      seen[k.member_id] = true;
+      return '<li><details' + (depth < 2 ? ' open' : '') + '><summary><span class="av">' +
+        esc((k.full_name || '?').charAt(0).toUpperCase()) + '</span> <b>' + esc(k.full_name) + '</b> <span class="muted">@' +
+        esc(k.username) + '</span> · Level ' + k.level + ' · Deposits ' + money(k.deposits) + ' · Invested ' + money(k.investments) +
+        '</summary>' + tree(k.member_id, depth + 1) + '</details></li>';
+    }).join('') + '</ul>';
+  }
+  var treeHTML = tree(me, 0);
+  var directRows = direct.map(function (d) {
+    return '<tr><td>' + esc(d.full_name) + ' <span class="muted">@' + esc(d.username) + '</span></td><td style="font-family:monospace">' +
+      esc(d.member_id.slice(0, 8)) + '</td><td>' + when(d.joined_at) + '</td></tr>';
+  }).join('');
+  var uname = S.profile ? S.profile.username : '';
+  return msgHTML() + '<h1>My Team</h1>' +
+    '<div class="two">' + stat('Team deposits', totals.deposits, 'stat') + stat('Team investments', totals.investments, 'stat dark') + '</div>' +
+    '<p class="muted">Team members: ' + rows.length + ' · Direct referrals: ' + direct.length + '</p>' +
+    '<div class="card"><h2>Direct referrals</h2><p class="muted">Registration records only. Referrals do not generate payments.</p><div class="wide">' +
+      (directRows ? '<table><tr><th>Member</th><th>Member ID</th><th>Registered</th></tr>' + directRows + '</table>'
+                  : '<p class="muted">No direct referrals yet. Share your signup link with ?ref=' + esc(uname) + '</p>') +
+    '</div></div>' +
+    '<div class="card"><h2>Referral tree</h2>' + (treeHTML || '<p class="muted">Your referral tree is empty.</p>') + '</div>' +
+    '<div class="cols3">' +
+      off('Team commission', 'Commissions by referral level are disabled pending independent business and legal verification.') +
+      off('Daily Referral Challenge', 'Referral milestone rewards are disabled pending independent business and legal verification.') +
+    '</div>';
+};
 
-## Testing data
+PAGES.profit = async function () {
+  var r = await sb.from('wallet_ledger').select('amount').eq('user_id', UID()).eq('kind', 'task_credit').eq('status', 'posted');
+  if (r.error) return msgHTML() + errorBox(r.error);
+  return msgHTML() + '<h1>Profit</h1><p class="muted">Only verified, posted earnings are shown.</p>' +
+    '<div class="two">' + stat('Verified task earnings', sum(r.data), 'stat amber') + '</div>' +
+    '<div class="cols3">' +
+      off('Compounding', 'Compounding is disabled pending independent business and legal verification. No compounded amount is calculated or shown.') +
+      off('Investment returns', 'Investment returns are not modelled or shown until verified results and legal approvals exist.') +
+    '</div>';
+};
 
-- Test rows have `is_testing = true` and are labelled TEST in the UI.
-- Remove test financial records with `select public.reset_testing_data();` as a super admin. This keeps test user accounts; delete those in Supabase Auth.
-- The migrations seed no balances, deposits, or pool funds.
+PAGES.leaderboard = async function () {
+  return msgHTML() + '<h1>Leaderboard</h1>' +
+    off('Leaderboard', 'Rankings are not published in this version. No ranking is calculated or shown.');
+};
 
-## Compliance boundaries in the code
+PAGES.notifications = async function () {
+  var uid = UID();
+  var q = await Promise.all([
+    sb.from('deposits').select('amount,status,requested_at').eq('user_id', uid).order('requested_at', { ascending: false }).limit(20),
+    sb.from('withdrawals').select('amount,status,requested_at').eq('user_id', uid).order('requested_at', { ascending: false }).limit(20),
+    sb.from('task_completions').select('status,submitted_at,started_at,task:tasks(title)').eq('user_id', uid).order('started_at', { ascending: false }).limit(20)
+  ]);
+  var err = firstError(q);
+  if (err) return msgHTML() + errorBox(err);
+  var items = [];
+  (q[0].data || []).forEach(function (d) {
+    items.push({ at: d.requested_at, text: 'Deposit request of ' + money(d.amount), status: d.status });
+  });
+  (q[1].data || []).forEach(function (w) {
+    items.push({ at: w.requested_at, text: 'Withdrawal request of ' + money(w.amount), status: w.status });
+  });
+  (q[2].data || []).forEach(function (t) {
+    items.push({ at: t.submitted_at || t.started_at, text: 'Task: ' + (t.task ? t.task.title : 'Task'), status: t.status });
+  });
+  items.sort(function (a, b) { return new Date(b.at) - new Date(a.at); });
+  var rows = items.slice(0, 30).map(function (i) {
+    return '<tr><td>' + when(i.at) + '</td><td>' + esc(i.text) + '</td><td>' + pill(i.status) + '</td></tr>';
+  }).join('');
+  return msgHTML() + '<h1>Notifications</h1><p class="muted">Updates on your requests and tasks.</p>' +
+    '<div class="card"><div class="wide">' +
+      (rows ? '<table><tr><th>When</th><th>Update</th><th>Status</th></tr>' + rows + '</table>'
+            : '<p class="muted">No updates yet.</p>') +
+    '</div></div>';
+};
 
-- No payout is made by this application. Withdrawals are held and marked approved, and a person must send the money outside the app.
-- Deposits are credited only when an admin confirms receipt. Confirm against the bank statement, not the member's claim.
-- Member balances held in the app may be regulated as payment services or client money in some jurisdictions. Take advice before accepting deposits from the public.
+PAGES.profile = async function () {
+  var p = S.profile || {};
+  return msgHTML() + '<h1>Profile</h1>' +
+    '<div class="card"><table>' +
+      '<tr><th>Username</th><td>@' + esc(p.username) + '</td></tr>' +
+      '<tr><th>Email</th><td>' + esc(p.email) + '</td></tr>' +
+      '<tr><th>Country code</th><td>' + esc(p.dial_code) + '</td></tr>' +
+      '<tr><th>Role</th><td>' + esc(p.role) + '</td></tr>' +
+      '<tr><th>Member ID</th><td style="font-family:monospace;word-break:break-all">' + esc(S.user.id) + '</td></tr>' +
+    '</table></div>' +
+    '<div class="card"><h2>Edit details</h2><form data-form="profile">' +
+      '<label>Full name<input name="full_name" required minlength="2" maxlength="80" value="' + esc(p.full_name) + '"></label>' +
+      '<label>Phone (without country code)<input name="phone" inputmode="tel" required value="' + esc(p.phone) + '"></label>' +
+      '<button type="submit">Save changes</button></form></div>';
+};
 
-## Known gaps
+PAGES.settings = async function () {
+  return msgHTML() + '<h1>Settings</h1>' +
+    '<div class="card"><h2>Password</h2><p class="muted">We will email a secure link to your registered address.</p>' +
+      '<button type="button" data-act="pwd-reset">Email me a password reset link</button></div>' +
+    '<div class="card"><h2>Sign out</h2><p class="muted">Signs this browser out of PrimeCore.</p>' +
+      '<button type="button" class="ghost" data-act="signout">Sign out</button></div>';
+};
 
-- **Username login:** not built. Login uses email.
-- **Remember me:** Supabase keeps sessions by default. No visible toggle yet.
-- **Username uniqueness:** a duplicate shows a general message, not a specific one.
-- **Country list:** 30 countries. Extend `src/lib/countries.ts` to the full ISO list.
-- **Repeatable tasks:** each task is one-time. Daily and weekly repeats need a period key.
-- **Team privacy:** upline members can see downline deposit and investment totals. Remove these columns if counsel advises.
-- **Admin tasks catalogue:** tasks are created with SQL. There is no UI to add or edit them.
+PAGES.help = async function () {
+  var faq = [
+    ['How do deposits work?', 'Submit a deposit request with your transfer reference. Your balance changes only after the transfer is verified by an admin.'],
+    ['How do withdrawals work?', 'The amount is held when you submit. An admin reviews it. Approved withdrawals are paid outside the app. Rejected requests release the held amount.'],
+    ['Why are rewards and investments disabled?', 'They are switched off until the business evidence and legal approvals are complete. They are not available on any account.'],
+    ['Where do task rewards come from?', 'Task rewards are credited after an admin verifies the completed task. Track each request on the Tasks page.'],
+    ['Contact support', 'Support contact details will be published before launch. Never share your password or verification code with anyone.']
+  ];
+  return msgHTML() + '<h1>Help &amp; Support</h1>' + faq.map(function (f) {
+    return '<div class="card"><h2>' + esc(f[0]) + '</h2><p class="muted">' + esc(f[1]) + '</p></div>';
+  }).join('');
+};
 
-## Single-file build (index.html)
+PAGES.admin = async function () {
+  if (!isAdmin()) return msgHTML() + errorBox(new Error('forbidden'));
+  var q = await Promise.all([
+    sb.from('deposits').select('id,user_id,amount,method,reference,status,requested_at').order('requested_at', { ascending: false }).limit(100),
+    sb.from('withdrawals').select('id,user_id,amount,method,destination,status,requested_at').order('requested_at', { ascending: false }).limit(100),
+    sb.from('task_completions').select('id,user_id,status,submitted_at,task:tasks(title,reward_amount)').eq('status', 'submitted').limit(100),
+    sb.from('audit_log').select('action,target_table,created_at').order('created_at', { ascending: false }).limit(50)
+  ]);
+  var err = firstError(q);
+  if (err) return msgHTML() + errorBox(err);
+  var deps = (q[0].data || []).map(function (d) {
+    var act = d.status === 'pending'
+      ? '<button class="small" data-act="dep-ok" data-id="' + esc(d.id) + '">Confirm</button>' +
+        '<button class="small ghost" data-act="dep-no" data-id="' + esc(d.id) + '">Reject</button>' : '';
+    return '<tr><td>' + when(d.requested_at) + '</td><td style="font-family:monospace">' + esc(d.user_id.slice(0, 8)) +
+      '</td><td>' + money(d.amount) + '</td><td>' + esc(d.method) + ' · ' + esc(d.reference || '—') +
+      '</td><td>' + pill(d.status) + '</td><td>' + act + '</td></tr>';
+  }).join('');
+  var wds = (q[1].data || []).map(function (w) {
+    var act = w.status === 'pending'
+      ? '<button class="small" data-act="wd-ok" data-id="' + esc(w.id) + '">Approve</button>' +
+        '<button class="small ghost" data-act="wd-no" data-id="' + esc(w.id) + '">Reject</button>' : '';
+    return '<tr><td>' + when(w.requested_at) + '</td><td style="font-family:monospace">' + esc(w.user_id.slice(0, 8)) +
+      '</td><td>' + money(w.amount) + '</td><td>' + esc(w.method) + ' · ' + esc(w.destination) +
+      '</td><td>' + pill(w.status) + '</td><td>' + act + '</td></tr>';
+  }).join('');
+  var tasks = (q[2].data || []).map(function (t) {
+    return '<tr><td>' + when(t.submitted_at) + '</td><td style="font-family:monospace">' + esc(t.user_id.slice(0, 8)) +
+      '</td><td>' + esc(t.task ? t.task.title : '—') + '</td><td>' + money(t.task ? t.task.reward_amount : 0) +
+      '</td><td><button class="small" data-act="task-ok" data-id="' + esc(t.id) + '">Verify and pay</button>' +
+      '<button class="small ghost" data-act="task-no" data-id="' + esc(t.id) + '">Reject</button></td></tr>';
+  }).join('');
+  var audit = (q[3].data || []).map(function (a) {
+    return '<tr><td>' + when(a.created_at) + '</td><td>' + esc(a.action) + '</td><td>' + esc(a.target_table || '—') + '</td></tr>';
+  }).join('');
+  var wrap = function (head, rows, empty) {
+    return rows ? '<div class="wide"><table><tr>' + head + '</tr>' + rows + '</table></div>' : '<p class="muted">' + empty + '</p>';
+  };
+  return msgHTML() + '<h1>Admin Panel</h1>' +
+    '<p class="muted">Every action is recorded in the audit log. Verify transfers and payouts independently before approving.</p>' +
+    '<div class="card"><h2>Deposits</h2>' + wrap('<th>Requested</th><th>User</th><th>Amount</th><th>Method · reference</th><th>Status</th><th>Action</th>', deps, 'No deposit requests.') + '</div>' +
+    '<div class="card"><h2>Withdrawals</h2>' + wrap('<th>Requested</th><th>User</th><th>Amount</th><th>Method · destination</th><th>Status</th><th>Action</th>', wds, 'No withdrawal requests.') + '</div>' +
+    '<div class="card"><h2>Task submissions awaiting review</h2>' + wrap('<th>Submitted</th><th>User</th><th>Task</th><th>Reward</th><th>Action</th>', tasks, 'No submissions awaiting review.') + '</div>' +
+    '<div class="card"><h2>Audit log (latest 50)</h2>' + wrap('<th>Time</th><th>Action</th><th>Table</th>', audit, 'No entries yet.') + '</div>';
+};
 
-`npm run build:single` writes **`dist/index.html`**: one self-contained file with all JavaScript and CSS inlined. Upload that file to any static host.
+/* ==================== FORM HANDLERS ==================== */
+var FORMS = {
+  login: async function (d) {
+    var r = await sb.auth.signInWithPassword({ email: d.email.trim(), password: d.password });
+    if (r.error) throw r.error;
+    return { msg: 'Signed in.', go: 'dashboard' };
+  },
+  signup: async function (d) {
+    var un = d.username.trim().toLowerCase();
+    var phone = d.phone.replace(/[\s-]/g, '');
+    var cc = d.country.split('|');
+    if (!/^[a-z0-9_]{3,20}$/.test(un)) throw new Error('Username must be 3–20 characters: letters, numbers or underscore.');
+    if (!/^[0-9]{6,15}$/.test(phone)) throw new Error('Enter your phone number without the country code.');
+    if (d.password.length < 8) throw new Error('Password must be at least 8 characters.');
+    if (d.password !== d.confirm) throw new Error('Passwords do not match.');
+    var r = await sb.auth.signUp({
+      email: d.email.trim(),
+      password: d.password,
+      options: {
+        emailRedirectTo: location.origin + location.pathname,
+        data: {
+          username: un, full_name: d.full_name.trim(), country_code: cc[0], dial_code: cc[1], phone: phone,
+          referrer_username: d.ref.trim().toLowerCase() || null
+        }
+      }
+    });
+    if (r.error) throw r.error;
+    S.pendingEmail = d.email.trim();
+    return { msg: 'Enter the 6-digit code we emailed you.', go: 'verify' };
+  },
+  verify: async function (d) {
+    var r = await sb.auth.verifyOtp({ email: d.email.trim(), token: d.token.trim(), type: 'signup' });
+    if (r.error) throw r.error;
+    return { msg: 'Email verified.', go: 'dashboard' };
+  },
+  resend: async function (d) {
+    var r = await sb.auth.resend({ type: 'signup', email: d.email.trim() });
+    if (r.error) throw r.error;
+    S.pendingEmail = d.email.trim();
+    return { msg: 'A new code was sent.' };
+  },
+  forgot: async function (d) {
+    var r = await sb.auth.resetPasswordForEmail(d.email.trim(), { redirectTo: location.origin + location.pathname });
+    if (r.error) throw r.error;
+    return { msg: 'If an account exists for that email, a reset link has been sent.', go: 'login' };
+  },
+  reset: async function (d) {
+    if (d.password.length < 8) throw new Error('Password must be at least 8 characters.');
+    if (d.password !== d.confirm) throw new Error('Passwords do not match.');
+    var r = await sb.auth.updateUser({ password: d.password });
+    if (r.error) throw r.error;
+    return { msg: 'Password updated.', go: 'dashboard' };
+  },
+  deposit: async function (d) {
+    var amt = parseFloat(d.amount);
+    if (!(amt >= 10)) throw new Error('invalid_amount');
+    if (!window.confirm('Submit a deposit request for ' + money(amt) + '? It stays pending until verified.')) return { skip: true };
+    var r = await sb.rpc('request_deposit', { p_amount: amt, p_method: d.method, p_reference: d.reference.trim() });
+    if (r.error) throw r.error;
+    return { msg: 'Deposit request submitted. It stays pending until verified.', go: 'wallet' };
+  },
+  withdraw: async function (d) {
+    var amt = parseFloat(d.amount);
+    if (!(amt >= 10)) throw new Error('invalid_amount');
+    if (!window.confirm('Request a withdrawal of ' + money(amt) + '? The amount is held until reviewed.')) return { skip: true };
+    var r = await sb.rpc('request_withdrawal', { p_amount: amt, p_method: d.method, p_destination: d.destination.trim() });
+    if (r.error) throw r.error;
+    return { msg: 'Withdrawal request submitted. Funds are held until reviewed.', go: 'wallet' };
+  },
+  profile: async function (d) {
+    var phone = d.phone.replace(/[\s-]/g, '');
+    if (!/^[0-9]{6,15}$/.test(phone)) throw new Error('Enter your phone number without the country code.');
+    var r = await sb.from('profiles').update({ full_name: d.full_name.trim(), phone: phone }).eq('id', UID());
+    if (r.error) throw r.error;
+    await loadProfile();
+    return { msg: 'Profile saved.', go: 'profile' };
+  }
+};
 
-Steps:
-1. `npm install`
-2. Create `.env.local` with the three `VITE_` values (the anon key is public by design; never add the service role key).
-3. `npm run build:single`
-4. Upload `dist/index.html`.
+document.addEventListener('submit', async function (e) {
+  var f = e.target;
+  if (!f.dataset || !f.dataset.form || !FORMS[f.dataset.form]) return;
+  e.preventDefault();
+  var btn = f.querySelector('button[type=submit]');
+  if (btn) btn.disabled = true;
+  var d = {};
+  new FormData(f).forEach(function (v, k) { d[k] = String(v); });
+  try {
+    var out = await FORMS[f.dataset.form](d);
+    if (out.skip) { if (btn) btn.disabled = false; return; }
+    setMsg('ok', out.msg);
+    if (out.go && location.hash !== '#' + out.go) location.hash = '#' + out.go;
+    else await render();
+  } catch (ex) {
+    if (btn) btn.disabled = false;
+    setMsg('err', friendly(ex));
+    await render();
+  }
+});
 
-What differs in the single-file build:
-- Routes use hash paths (`index.html#/dashboard`), because a single file cannot rewrite paths.
-- Configuration values are compiled in at build time. Rebuild after changing `.env.local`.
-- Email links (password reset, email confirmation via link) redirect to `VITE_APP_URL`. With hash routing they may not complete. Use the 6-digit code flow where possible, or host the Vercel build for link-based flows. Add your host to Supabase's redirect allow-list.
-- Everything else works in the file: login, OTP code entry, dashboard, wallet, tasks, team, admin panel, and all Supabase calls.
+/* ==================== ACTIONS (tasks, admin, settings) ==================== */
+var CONFIRM = {
+  'dep-ok': 'Confirm this transfer was received in the company bank account? This credits the member balance.',
+  'wd-ok': 'Approve this withdrawal? Record the payout outside the app.',
+  'task-ok': 'Verify this task and credit the reward?',
+  'signout': 'Sign out of PrimeCore on this browser?'
+};
+var OK_TEXT = {
+  start: 'Task started.', submit: 'Task submitted for verification.',
+  'dep-ok': 'Deposit confirmed.', 'dep-no': 'Deposit rejected.',
+  'wd-ok': 'Withdrawal approved.', 'wd-no': 'Withdrawal rejected.',
+  'task-ok': 'Task verified and reward credited.', 'task-no': 'Task rejected.',
+  'pwd-reset': 'If an account exists for your email, a reset link has been sent.'
+};
 
-What still needs separate backend setup and cannot live in the HTML file:
-- The database, Row Level Security, functions and migrations (run in Supabase, not in the file).
-- Email delivery (configure SMTP in Supabase).
-- Bank and payment-provider integration, and payout execution (outside the app).
-- Profile picture storage (needs a Supabase Storage bucket).
-- The first super admin (SQL in the Supabase editor).
+document.addEventListener('click', async function (e) {
+  var b = e.target.closest && e.target.closest('[data-act]');
+  if (!b || b.disabled) return;
+  var a = b.dataset.act, id = b.dataset.id;
+  if (CONFIRM[a] && !window.confirm(CONFIRM[a])) return;
 
-Security note: never place the Supabase service role key or any secret in the HTML or the browser code. The anon key is safe to ship because Row Level Security protects the data.
+  if (a === 'signout') { await signOut(); return; }
 
-Single-file builds have not been run in this environment. Test the output on a staging Supabase project before publishing.
+  var call = {
+    'start': function () { return sb.rpc('start_task', { p_task: id }); },
+    'submit': function () { return sb.rpc('submit_task', { p_completion: id }); },
+    'dep-ok': function () { return sb.rpc('confirm_deposit', { p_id: id }); },
+    'dep-no': function () { return sb.rpc('reject_deposit', { p_id: id, p_reason: 'Rejected by admin' }); },
+    'wd-ok': function () { return sb.rpc('review_withdrawal', { p_id: id, p_approve: true }); },
+    'wd-no': function () { return sb.rpc('review_withdrawal', { p_id: id, p_approve: false }); },
+    'task-ok': function () { return sb.rpc('review_task', { p_completion: id, p_approve: true }); },
+    'task-no': function () { return sb.rpc('review_task', { p_completion: id, p_approve: false }); },
+    'pwd-reset': function () {
+      return sb.auth.resetPasswordForEmail(S.profile.email, { redirectTo: location.origin + location.pathname });
+    }
+  }[a];
+  if (!call) return;
+
+  b.disabled = true;
+  var r = await call();
+  if (r.error) setMsg('err', friendly(r.error));
+  else setMsg('ok', OK_TEXT[a]);
+  await render();
+});
+
+async function signOut() {
+  if (sb) await sb.auth.signOut();
+  S.user = null; S.profile = null;
+  setMsg('ok', 'Signed out.');
+  if (location.hash !== '#login') location.hash = '#login'; else await render();
+}
+
+$('#logout').addEventListener('click', function () { signOut(); });
+
+/* ==================== SESSION & ROUTING ==================== */
+async function loadProfile() {
+  if (!S.user || !sb) { S.profile = null; return; }
+  var r = await sb.from('profiles').select('*').eq('id', S.user.id).maybeSingle();
+  S.profile = r.data || null;
+}
+
+async function render() {
+  var my = ++seq;
+
+  if (!LIB_OK) {
+    $('#nav').innerHTML = '';
+    $('#app').innerHTML = '<div class="card"><h1>Could not load</h1><p class="muted">The Supabase library did not load. Check your internet connection and reload.</p></div>';
+    return;
+  }
+  if (!CONFIGURED) {
+    $('#nav').innerHTML = '';
+    $('#app').innerHTML = '<div class="notice"><b>Setup needed.</b> Replace SUPABASE_URL and SUPABASE_ANON_KEY near the top of this file with your project\'s public values from Supabase &gt; Project Settings &gt; API.</div>';
+    return;
+  }
+  if (!S.ready) { $('#app').innerHTML = '<p class="muted">Loading…</p>'; return; }
+
+  var hash = location.hash || '';
+  var view = (hash.indexOf('access_token') > -1 || hash.indexOf('type=recovery') > -1) ? 'dashboard' : (hash.slice(1) || 'dashboard');
+
+  if (!S.user) {
+    if (AUTH.indexOf(view) < 0 || view === 'reset') view = 'login';
+    S.view = view;
+    renderNav();
+    $('#app').innerHTML = msgHTML() + authHTML(view);
+    return;
+  }
+
+  if (view === 'reset') {
+    S.view = 'reset';
+    renderNav();
+    $('#app').innerHTML = msgHTML() + authHTML('reset');
+    return;
+  }
+  if (AUTH.indexOf(view) > -1) { location.hash = '#dashboard'; return; }
+  if (!PAGES[view]) view = 'dashboard';
+
+  S.view = view;
+  renderNav();
+  $('#app').innerHTML = '<p class="muted">Loading…</p>';
+  var html = await PAGES[view]();
+  if (my !== seq) return;
+  $('#app').innerHTML = html;
+}
+
+window.addEventListener('hashchange', function () { render(); });
+
+if (CONFIGURED && LIB_OK) {
+  sb.auth.onAuthStateChange(function (event, session) {
+    // Defer so Supabase calls never run inside the auth callback.
+    setTimeout(async function () {
+      if (event === 'PASSWORD_RECOVERY') location.hash = '#reset';
+      S.user = session ? session.user : null;
+      await loadProfile();
+      S.ready = true;
+      await render();
+    }, 0);
+  });
+} else {
+  S.ready = true;
+  render();
+}
+
+})();
+</script>
+</body>
+</html>
