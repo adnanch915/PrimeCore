@@ -1,0 +1,873 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<meta name="theme-color" content="#1e1b4b" />
+<title>PrimeCore — Member Portal</title>
+<style>
+:root{
+  --navy:#1e1b4b;--indigo:#312e81;--violet:#7c3aed;--violet2:#8b5cf6;--lav:#ede9fe;
+  --bg:#f4f6fb;--card:#ffffff;--line:#e6e8f2;--text:#0f172a;--muted:#64748b;
+  --ok:#047857;--okbg:#d1fae5;--warn:#b45309;--warnbg:#fef3c7;--bad:#b91c1c;--badbg:#fee2e2;--neutral:#475569;--neutralbg:#e2e8f0;
+  --shadow:0 1px 2px rgba(15,23,42,.04),0 10px 30px rgba(30,27,75,.07);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;line-height:1.45}
+button,input,select{font-family:inherit}
+.hidden{display:none!important}
+.muted{color:var(--muted);font-size:13px}
+.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:12px}
+
+/* ---------- Boot ---------- */
+.boot{display:grid;place-items:center;min-height:100vh;color:var(--muted);gap:14px;text-align:center}
+.spinner{width:34px;height:34px;border-radius:50%;border:3px solid #ddd6fe;border-top-color:var(--violet);animation:spin .8s linear infinite;margin:0 auto}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ---------- Auth ---------- */
+.auth-shell{min-height:100vh;display:grid;grid-template-columns:1.05fr .95fr}
+.auth-hero{position:relative;overflow:hidden;color:#fff;padding:48px 52px;display:flex;flex-direction:column;justify-content:space-between;background:linear-gradient(150deg,#1e1b4b 0%,#312e81 55%,#4c1d95 100%)}
+.blob{position:absolute;border-radius:50%;filter:blur(64px);opacity:.5;animation:float 14s ease-in-out infinite;pointer-events:none}
+.blob.b1{width:340px;height:340px;background:#7c3aed;top:-90px;right:-70px}
+.blob.b2{width:300px;height:300px;background:#4f46e5;bottom:-80px;left:-60px;animation-delay:-6s}
+@keyframes float{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(26px,-30px) scale(1.08)}}
+.logo{display:flex;align-items:center;gap:12px;position:relative;z-index:1}
+.logo-mark{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;font-weight:800;font-size:20px;background:linear-gradient(135deg,#8b5cf6,#6d28d9);box-shadow:0 6px 18px rgba(124,58,237,.45)}
+.logo-name{font-size:21px;font-weight:800;letter-spacing:.2px}
+.hero-body{position:relative;z-index:1;max-width:460px}
+.hero-body h1{font-size:34px;line-height:1.15;font-weight:800;letter-spacing:-.4px;margin-bottom:14px}
+.hero-body p{color:#c7d2fe;font-size:15px;margin-bottom:22px}
+.points{list-style:none;display:grid;gap:12px}
+.points li{display:flex;gap:12px;align-items:center;font-size:14px;color:#e0e7ff}
+.points .dot{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;background:rgba(255,255,255,.14);flex:none}
+.hero-foot{position:relative;z-index:1;font-size:12px;color:#a5b4fc}
+.auth-panel{display:grid;place-items:center;padding:32px 20px}
+.auth-card{width:100%;max-width:430px;background:#fff;border:1px solid var(--line);border-radius:20px;padding:30px;box-shadow:var(--shadow);animation:rise .45s ease both}
+.auth-card h2{font-size:25px;font-weight:800;letter-spacing:-.3px;margin-bottom:4px}
+.auth-card .sub{color:var(--muted);font-size:14px;margin-bottom:22px}
+.field{margin-bottom:14px}
+.field label{display:block;font-size:12.5px;font-weight:700;color:#334155;margin-bottom:6px}
+.field input,.field select{width:100%;padding:12px 13px;border:1px solid #cbd5e1;border-radius:11px;background:#f8fafc;font-size:15px;color:var(--text);transition:border-color .15s,box-shadow .15s,background .15s}
+.field input:focus,.field select:focus{outline:none;border-color:var(--violet);background:#fff;box-shadow:0 0 0 4px rgba(124,58,237,.12)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:0;border-radius:11px;padding:12px 18px;font-size:15px;font-weight:700;color:#fff;cursor:pointer;background:linear-gradient(90deg,#7c3aed,#8b5cf6);box-shadow:0 6px 16px rgba(124,58,237,.28);transition:transform .15s,box-shadow .15s,opacity .15s}
+.btn:hover{transform:translateY(-1px);box-shadow:0 10px 22px rgba(124,58,237,.34)}
+.btn:active{transform:translateY(0)}
+.btn:disabled{opacity:.6;cursor:not-allowed;transform:none}
+.btn.block{width:100%}
+.btn.ghost{background:#fff;color:var(--violet);border:1px solid #d8c9fb;box-shadow:none}
+.btn.ghost:hover{background:#faf7ff}
+.btn.sm{padding:8px 13px;font-size:13px;border-radius:9px}
+.links{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-top:16px}
+.link{background:none;border:0;color:#6d28d9;font-weight:700;font-size:14px;cursor:pointer}
+.link:hover{text-decoration:underline}
+.alert{padding:11px 13px;border-radius:11px;font-size:13.5px;margin-top:14px;word-break:break-word;animation:rise .25s ease both}
+.alert.err{background:var(--badbg);color:var(--bad);border:1px solid #fecaca}
+.alert.ok{background:#ecfdf5;color:var(--ok);border:1px solid #a7f3d0}
+.alert.info{background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe}
+.status-line{display:flex;align-items:center;gap:8px;margin-top:18px;padding-top:14px;border-top:1px dashed var(--line);font-size:12px;color:var(--muted)}
+.status-dot{width:9px;height:9px;border-radius:50%;background:#cbd5e1;flex:none}
+.status-dot.ok{background:#10b981;box-shadow:0 0 0 4px rgba(16,185,129,.15)}
+.status-dot.bad{background:#ef4444;box-shadow:0 0 0 4px rgba(239,68,68,.15)}
+.status-dot.wait{background:#f59e0b;animation:pulse 1.2s infinite}
+@keyframes pulse{50%{opacity:.35}}
+.build{margin-top:8px;font-size:11px;color:#94a3b8}
+.debug{margin-top:12px;padding:12px;background:#f8fafc;border:1px solid var(--line);border-radius:10px;font-family:ui-monospace,Menlo,monospace;font-size:11.5px;white-space:pre-wrap;word-break:break-all;color:#334155}
+
+/* ---------- App shell ---------- */
+.topbar{position:sticky;top:0;z-index:20;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 18px;color:#fff;background:linear-gradient(135deg,#1e1b4b 0%,#312e81 100%);box-shadow:0 2px 14px rgba(15,23,42,.18)}
+.topbar .logo-mark{width:34px;height:34px;font-size:17px;border-radius:10px}
+.topbar .logo-name{font-size:18px}
+.chip-badge{background:rgba(167,139,250,.22);color:#ede9fe;border:1px solid rgba(196,181,253,.35);font-size:10.5px;font-weight:800;padding:3px 9px;border-radius:999px;letter-spacing:.4px}
+.top-right{display:flex;align-items:center;gap:10px}
+.avatar{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;font-weight:800;font-size:14px;background:linear-gradient(135deg,#8b5cf6,#6d28d9);color:#fff;flex:none}
+.who{font-size:13px;color:#e0e7ff;max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.btn-out{background:#fff;color:var(--navy);border:0;border-radius:9px;padding:8px 13px;font-weight:700;font-size:13px;cursor:pointer}
+.btn-out:hover{background:#f1f5f9}
+.tabs{position:sticky;top:58px;z-index:15;display:flex;gap:8px;overflow-x:auto;padding:10px 18px 12px;background:#1e1b4b;border-bottom:1px solid rgba(255,255,255,.08);-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab{display:inline-flex;align-items:center;gap:7px;border:0;cursor:pointer;white-space:nowrap;padding:8px 14px;border-radius:999px;font-size:13px;font-weight:700;color:#cbd5e1;background:rgba(255,255,255,.07);transition:background .15s,color .15s,transform .15s}
+.tab:hover{background:rgba(255,255,255,.14);color:#fff}
+.tab.on{background:#8b5cf6;color:#fff;box-shadow:0 4px 12px rgba(139,92,246,.4)}
+.container{max-width:980px;margin:0 auto;padding:22px 16px 60px}
+.view{animation:rise .35s ease both}
+@keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.page-title{font-size:24px;font-weight:800;letter-spacing:-.3px;margin-bottom:4px}
+.page-sub{color:var(--muted);font-size:14px;margin-bottom:18px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:20px;box-shadow:var(--shadow);margin-bottom:16px}
+.card h3{font-size:16px;font-weight:800;margin-bottom:4px}
+.card .hint{color:var(--muted);font-size:13px;margin-bottom:14px}
+.row{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.hero-card{position:relative;overflow:hidden;color:#fff;border-radius:18px;padding:24px;margin-bottom:16px;background:linear-gradient(135deg,#312e81 0%,#6d28d9 100%);box-shadow:0 14px 34px rgba(76,29,149,.28)}
+.hero-card::after{content:"";position:absolute;right:-60px;top:-60px;width:220px;height:220px;border-radius:50%;background:rgba(255,255,255,.08)}
+.hero-card small{color:#ddd6fe;font-weight:600;font-size:13px}
+.hero-card .big{font-size:36px;font-weight:800;letter-spacing:-.8px;margin:6px 0 10px}
+.hero-card .sub2{color:#ddd6fe;font-size:13px}
+.grid{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(215px,1fr));margin-bottom:16px}
+.grid.two{grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
+.stat{display:flex;gap:14px;align-items:center;background:#fff;border:1px solid var(--line);border-radius:16px;padding:16px;box-shadow:var(--shadow);transition:transform .2s,box-shadow .2s}
+.stat:hover{transform:translateY(-2px);box-shadow:0 14px 34px rgba(30,27,75,.12)}
+.stat .ico{width:42px;height:42px;border-radius:12px;display:grid;place-items:center;flex:none;background:var(--lav);color:var(--violet)}
+.stat .ico.g{background:#d1fae5;color:#047857}.stat .ico.a{background:#fef3c7;color:#b45309}.stat .ico.b{background:#dbeafe;color:#1d4ed8}
+.stat .lbl{font-size:11.5px;font-weight:800;text-transform:uppercase;letter-spacing:.4px;color:var(--muted)}
+.stat .val{font-size:22px;font-weight:800;letter-spacing:-.4px;color:var(--navy)}
+.pill{display:inline-block;font-size:11px;font-weight:800;letter-spacing:.3px;padding:3px 9px;border-radius:999px;white-space:nowrap}
+.pill.ok{background:var(--okbg);color:var(--ok)}.pill.warn{background:var(--warnbg);color:var(--warn)}.pill.bad{background:var(--badbg);color:var(--bad)}.pill.neutral{background:var(--neutralbg);color:var(--neutral)}
+.scroll{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th,td{text-align:left;padding:11px 8px;border-bottom:1px solid var(--line);vertical-align:middle}
+th{font-size:11.5px;font-weight:800;text-transform:uppercase;letter-spacing:.4px;color:var(--muted);white-space:nowrap}
+tr:last-child td{border-bottom:0}
+.empty{text-align:center;color:var(--muted);font-size:14px;padding:22px 8px}
+.list{display:grid}
+.item{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--line)}
+.item:last-child{border-bottom:0}
+.item .ico{width:36px;height:36px;border-radius:10px;display:grid;place-items:center;background:var(--lav);color:var(--violet);flex:none}
+.item .t{font-weight:700;font-size:14px}
+.item .grow{flex:1;min-width:0}
+.amt{font-weight:800;font-size:14px;white-space:nowrap}.amt.pos{color:#047857}.amt.neg{color:#b91c1c}
+.plan{position:relative;background:#fff;border:1px solid var(--line);border-radius:16px;padding:18px;box-shadow:var(--shadow);transition:transform .2s,box-shadow .2s}
+.plan:hover{transform:translateY(-3px);box-shadow:0 16px 36px rgba(30,27,75,.13)}
+.plan .nm{font-size:17px;font-weight:800;color:var(--navy);margin-bottom:6px}
+.plan .rg{font-size:24px;font-weight:800;letter-spacing:-.4px;margin:6px 0 12px}
+.plan .bar{height:5px;border-radius:99px;background:linear-gradient(90deg,#c4b5fd,#7c3aed);opacity:.7}
+.form-grid{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
+.sk{border-radius:12px;background:linear-gradient(90deg,#eef0f7 25%,#f7f8fc 37%,#eef0f7 63%);background-size:400% 100%;animation:shimmer 1.4s infinite}
+@keyframes shimmer{0%{background-position:100% 50%}100%{background-position:0 50%}}
+#toasts{position:fixed;left:0;right:0;bottom:18px;display:grid;justify-items:center;gap:8px;z-index:50;pointer-events:none;padding:0 14px}
+.toast{pointer-events:auto;max-width:440px;padding:12px 16px;border-radius:12px;font-size:14px;font-weight:600;color:#fff;background:#1e1b4b;box-shadow:0 12px 30px rgba(15,23,42,.3);animation:rise .25s ease both}
+.toast.ok{background:#047857}.toast.err{background:#b91c1c}
+@media (max-width:860px){
+  .auth-shell{grid-template-columns:1fr}
+  .auth-hero{padding:26px 22px 28px;gap:16px}
+  .hero-body h1{font-size:24px}
+  .hero-body p{margin-bottom:0}
+  .points,.hero-foot{display:none}
+  .auth-panel{padding:20px 14px 40px;margin-top:-10px}
+}
+@media (max-width:560px){
+  .who{display:none}
+  .page-title{font-size:21px}
+  .hero-card .big{font-size:30px}
+  .container{padding:16px 12px 60px}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div id="root"><div class="boot"><div><div class="spinner"></div><p style="margin-top:14px">Loading PrimeCore…</p></div></div></div>
+<div id="toasts" aria-live="polite"></div>
+<noscript><p style="padding:24px">PrimeCore needs JavaScript enabled to run.</p></noscript>
+
+<script>
+(function () {
+'use strict';
+
+var BUILD = '2026-11-21.4';
+
+/* Project URL: base address only, no /rest/v1/ on the end. */
+var SUPABASE_URL = 'https://qufxjfntdqjhympultbx.supabase.co';
+var SUPABASE_KEY = 'sb_publishable_639f9uEApKsGgOtQW_J9Jg_M-nnwtnB';
+
+var CDNS = [
+  'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js',
+  'https://unpkg.com/@supabase/supabase-js@2/dist/umd/supabase.js'
+];
+function loadScript(src) {
+  return new Promise(function (res, rej) {
+    var s = document.createElement('script');
+    s.src = src; s.async = true;
+    s.onload = res; s.onerror = function () { rej(new Error('load failed ' + src)); };
+    document.head.appendChild(s);
+  });
+}
+function boot(i) {
+  if (window.supabase && window.supabase.createClient) return Promise.resolve();
+  if (i >= CDNS.length) return Promise.resolve();
+  return loadScript(CDNS[i]).catch(function () {}).then(function () { return boot(i + 1); });
+}
+boot(0).then(startApp);
+
+function startApp() {
+
+/* ================= Setup ================= */
+var sb = null;
+var libOk = !!(window.supabase && window.supabase.createClient);
+if (libOk) {
+  try {
+    sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
+      auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
+    });
+  } catch (e) { console.error('Supabase init failed', e); }
+}
+
+var DEFAULT_PLANS = [
+  { name: 'Junior', min: 30, max: 500 },
+  { name: 'Senior', min: 501, max: 1500 },
+  { name: 'Special', min: 1501, max: 5000 },
+  { name: 'Elite', min: 5001, max: 20000 },
+  { name: 'Universal', min: 20001, max: 50000 }
+];
+var TABS = [
+  ['dashboard', 'Dashboard', 'dashboard'], ['tasks', 'Tasks', 'tasks'], ['rewards', 'Daily Reward', 'gift'],
+  ['wallet', 'Wallet', 'wallet'], ['invest', 'Invest', 'invest'], ['team', 'Team', 'team'], ['profile', 'Profile', 'user']
+];
+var ICONS = {
+  dashboard: '<rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>',
+  tasks: '<polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>',
+  gift: '<polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/>',
+  wallet: '<path d="M20 12V8H6a2 2 0 0 1 0-4h12v4"/><path d="M4 6v12a2 2 0 0 0 2 2h14v-4"/><path d="M18 12a2 2 0 0 0 0 4h4v-4z"/>',
+  invest: '<polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/>',
+  team: '<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>',
+  user: '<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>',
+  check: '<polyline points="20 6 9 17 4 12"/>',
+  clock: '<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>',
+  down: '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>',
+  up: '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>',
+  award: '<circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/>',
+  shield: '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>',
+  lock: '<rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>'
+};
+function ic(n, s) {
+  s = s || 18;
+  return '<svg viewBox="0 0 24 24" width="' + s + '" height="' + s + '" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + (ICONS[n] || '') + '</svg>';
+}
+
+var MSG = {
+  insufficient_balance: 'Your available balance is not enough.',
+  invalid_amount: 'Enter an amount within the allowed limits.',
+  invalid_method: 'Choose a valid method.',
+  invalid_reference: 'Enter a valid payment reference (5+ characters).',
+  invalid_destination: 'Enter a valid destination (5+ characters).',
+  duplicate_reference: 'This payment reference was already submitted.',
+  already_claimed_today: "You have already requested today's reward. Come back tomorrow.",
+  already_started: 'You have already started this task.',
+  not_submittable: 'This task cannot be submitted right now.',
+  task_unavailable: 'This task is no longer available.',
+  deposits_disabled: 'Deposit requests are currently unavailable.',
+  withdrawals_disabled: 'Withdrawal requests are currently unavailable.',
+  not_authenticated: 'Please sign in again.'
+};
+var KIND = {
+  deposit_request: 'Deposit request', deposit_credit: 'Deposit', withdrawal_hold: 'Withdrawal request',
+  withdrawal: 'Withdrawal', task_credit: 'Task reward', reward_credit: 'Daily reward', adjustment: 'Adjustment'
+};
+var PILLS = { pending: 'warn', submitted: 'warn', started: 'neutral', successful: 'ok', success: 'ok', approved: 'ok', paid: 'ok', posted: 'ok', rejected: 'bad', cancelled: 'bad' };
+var LABELS = { paid: 'SUCCESS', successful: 'SUCCESS', success: 'SUCCESS', started: 'NOT SUBMITTED', submitted: 'PENDING', pending: 'PENDING', rejected: 'REJECTED' };
+
+/* ================= Helpers ================= */
+var $ = function (s, r) { return (r || document).querySelector(s); };
+var esc = function (v) {
+  return String(v == null ? '' : v).replace(/[&<>"']/g, function (c) {
+    return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+  });
+};
+var num = function (v) { var n = Number(v); return isFinite(n) ? n : 0; };
+var money = function (n) { return '$' + num(n).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); };
+var fmt = function (d) {
+  if (!d) return '—';
+  var x = new Date(d);
+  return isNaN(x) ? '—' : x.toLocaleString(undefined, { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+};
+var fmtDay = function (d) {
+  if (!d) return '—';
+  var x = new Date(d);
+  return isNaN(x) ? '—' : x.toLocaleDateString(undefined, { day: '2-digit', month: 'short', year: 'numeric' });
+};
+var sid = function (id) { return String(id || '').slice(0, 8).toUpperCase(); };
+var sumOf = function (rows, key) { return (rows || []).reduce(function (a, r) { return a + num(r[key || 'amount']); }, 0); };
+function pill(s) {
+  var k = String(s || '').toLowerCase();
+  return '<span class="pill ' + (PILLS[k] || 'neutral') + '">' + esc(LABELS[k] || k.toUpperCase()) + '</span>';
+}
+function withTimeout(p, ms) {
+  var t;
+  return Promise.race([
+    p,
+    new Promise(function (_, rej) { t = setTimeout(function () { rej(new Error('Request timed out')); }, ms || 15000); })
+  ]).then(function (v) { clearTimeout(t); return v; }, function (e) { clearTimeout(t); throw e; });
+}
+function isNetErr(m) { return /failed to fetch|networkerror|load failed|network request failed/i.test(m); }
+function friendlyError(err) {
+  var m = String((err && err.message) || err || '').trim();
+  for (var k in MSG) { if (m.indexOf(k) > -1) return MSG[k]; }
+  if (isNetErr(m)) return 'Cannot reach the server (' + m + '). Check the connection status below the form.';
+  if (/timed out/i.test(m)) return 'The server took too long to respond. Please try again.';
+  if (/invalid login credentials/i.test(m)) return 'Email or password is incorrect.';
+  if (/email not confirmed/i.test(m)) return 'Please confirm your email first, using the link we sent you.';
+  if (/already registered|already been registered/i.test(m)) return 'An account with this email already exists. Try signing in.';
+  if (/rate limit|too many/i.test(m)) return 'Too many attempts. Please wait a minute and try again.';
+  if (/password/i.test(m) && /(short|least|weak)/i.test(m)) return 'Password is too weak. Use at least 8 characters.';
+  if (/database error/i.test(m)) return 'Could not create the account. Please try again or contact support.';
+  return m || 'Something went wrong. Please try again.';
+}
+function toast(type, text) {
+  var box = $('#toasts');
+  var d = document.createElement('div');
+  d.className = 'toast ' + (type === 'err' ? 'err' : 'ok');
+  d.textContent = text;
+  box.appendChild(d);
+  setTimeout(function () { if (d.parentNode) d.parentNode.removeChild(d); }, 3800);
+}
+function alertHTML(type, text) { return text ? '<div class="alert ' + type + '" role="status">' + esc(text) + '</div>' : ''; }
+function animateCounts(root) {
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  Array.prototype.forEach.call((root || document).querySelectorAll('[data-count]'), function (el) {
+    var to = num(el.getAttribute('data-count'));
+    if (reduce || to === 0) { el.textContent = money(to); return; }
+    var start = performance.now(), dur = 700;
+    (function tick(t) {
+      var p = Math.min(1, (t - start) / dur), e = 1 - Math.pow(1 - p, 3);
+      el.textContent = money(to * e);
+      if (p < 1) requestAnimationFrame(tick);
+    })(start);
+  });
+}
+
+/* ================= State ================= */
+var S = { user: null, tab: 'dashboard', entering: false };
+var A = { mode: 'signin', email: '', busy: false };
+var D = emptyData();
+function emptyData() {
+  return { wallet: { available_balance: 0, pending_balance: 0 }, deposits: [], withdrawals: [], ledger: [], tasks: [], completions: [],
+    rewards: [], team: [], profile: null, settings: {}, errors: [], loaded: false };
+}
+
+/* ================= Server check ================= */
+function setServerStatus(kind, text) {
+  var dot = $('#srvDot'), t = $('#srvText');
+  if (!dot || !t) return;
+  dot.className = 'status-dot ' + kind;
+  t.textContent = text;
+}
+async function checkServer() {
+  setServerStatus('wait', 'Checking connection…');
+  if (!sb) { setServerStatus('bad', 'Connection library did not load. Check your internet and reload.'); return false; }
+  try {
+    await withTimeout(fetch(SUPABASE_URL + '/auth/v1/health', { headers: { apikey: SUPABASE_KEY } }), 10000);
+    setServerStatus('ok', 'Secure connection ready');
+    return true;
+  } catch (e) {
+    var host = SUPABASE_URL.replace('https://', '');
+    setServerStatus('bad', 'Cannot reach ' + host + ' (' + ((e && e.message) || e) + '). Possible causes: project paused, wrong address, network block, or an old cached page.');
+    return false;
+  }
+}
+async function runDiagnostics() {
+  var box = $('#debugBox'); if (!box) return;
+  box.classList.remove('hidden');
+  var lines = [];
+  var log = function (t) { lines.push(t); box.textContent = lines.join('\n'); };
+  log('Build: ' + BUILD);
+  log('Server: ' + SUPABASE_URL);
+  log('Key: ' + SUPABASE_KEY.slice(0, 16) + '…');
+  log('Library loaded: ' + libOk);
+  log('Browser online: ' + navigator.onLine);
+  try { await withTimeout(fetch('https://www.google.com/generate_204', { mode: 'no-cors' }), 10000); log('General internet: OK'); }
+  catch (e) { log('General internet: FAILED (' + ((e && e.message) || e) + ')'); }
+  try { var r = await withTimeout(fetch(SUPABASE_URL + '/auth/v1/health', { headers: { apikey: SUPABASE_KEY } }), 12000); log('Auth health: HTTP ' + r.status); }
+  catch (e) { log('Auth health: FAILED (' + ((e && e.message) || e) + ')'); }
+  try { var r2 = await withTimeout(fetch(SUPABASE_URL + '/rest/v1/', { headers: { apikey: SUPABASE_KEY } }), 12000); log('REST: HTTP ' + r2.status); }
+  catch (e) { log('REST: FAILED (' + ((e && e.message) || e) + ')'); }
+  log('Done.');
+}
+
+/* ================= Auth screens ================= */
+function authHTML() {
+  var m = A.mode;
+  var title = m === 'signup' ? 'Create your account' : m === 'reset' ? 'Choose a new password' : 'Welcome back';
+  var sub = m === 'signup' ? 'Register your PrimeCore member account.' : m === 'reset' ? 'Use at least 8 characters.' : 'Sign in to your PrimeCore account.';
+  var refParam = '';
+  try { refParam = new URLSearchParams(location.search).get('ref') || ''; } catch (e) {}
+  var fields = '';
+  if (m === 'signup') {
+    fields += '<div class="field"><label for="f_name">Full name</label><input id="f_name" name="full_name" type="text" autocomplete="name" required minlength="2" maxlength="80" placeholder="Muhammad Adnan"></div>' +
+      '<div class="field"><label for="f_phone">Phone / WhatsApp (optional)</label><input id="f_phone" name="phone" type="tel" autocomplete="tel" placeholder="+92 300 0000000"></div>' +
+      '<div class="field"><label for="f_ref">Referral code (optional)</label><input id="f_ref" name="referral" type="text" value="' + esc(refParam) + '" placeholder="PC1A2B3C"></div>';
+  }
+  if (m !== 'reset') {
+    fields += '<div class="field"><label for="f_email">Email</label><input id="f_email" name="email" type="email" autocomplete="email" required value="' + esc(A.email) + '" placeholder="you@example.com"></div>' +
+      '<div class="field"><label for="f_pass">Password</label><input id="f_pass" name="password" type="password" required autocomplete="' + (m === 'signup' ? 'new-password' : 'current-password') + '" placeholder="••••••••"></div>';
+  } else {
+    fields += '<div class="field"><label for="f_pass">New password</label><input id="f_pass" name="password" type="password" required minlength="8" autocomplete="new-password"></div>' +
+      '<div class="field"><label for="f_pass2">Confirm new password</label><input id="f_pass2" name="confirm" type="password" required minlength="8" autocomplete="new-password"></div>';
+  }
+  var btn = m === 'signup' ? 'Create account' : m === 'reset' ? 'Update password' : 'Sign in';
+  var links = m === 'reset' ? '' :
+    '<div class="links"><button class="link" type="button" data-act="forgot">Forgot password?</button>' +
+    '<button class="link" type="button" data-act="mode" data-mode="' + (m === 'signup' ? 'signin' : 'signup') + '">' + (m === 'signup' ? 'Already have an account? Sign in' : 'Create account') + '</button></div>';
+  var debug = /[?&]debug=1/.test(location.search) ? '<pre id="debugBox" class="debug hidden"></pre>' : '';
+  return '<div class="auth-shell">' +
+    '<section class="auth-hero"><span class="blob b1"></span><span class="blob b2"></span>' +
+      '<div class="logo"><div class="logo-mark">P</div><div class="logo-name">PrimeCore</div></div>' +
+      '<div class="hero-body"><h1>Your business account, in one secure place.</h1>' +
+      '<p>Track your wallet, requests and activity through a clear, verified member portal.</p>' +
+      '<ul class="points">' +
+        '<li><span class="dot">' + ic('check', 14) + '</span>Clear wallet and transaction history</li>' +
+        '<li><span class="dot">' + ic('check', 14) + '</span>Every request reviewed and verified</li>' +
+        '<li><span class="dot">' + ic('check', 14) + '</span>Email-verified secure sign-in</li></ul></div>' +
+      '<div class="hero-foot">© PrimeCore. All rights reserved.</div></section>' +
+    '<section class="auth-panel"><div class="auth-card">' +
+      '<h2>' + title + '</h2><p class="sub">' + sub + '</p>' +
+      '<form data-form="auth" novalidate>' + fields + '<button id="authBtn" class="btn block" type="submit">' + btn + '</button></form>' +
+      links + '<div id="authMsg"></div>' +
+      '<div class="status-line"><span id="srvDot" class="status-dot wait"></span><span id="srvText">Checking connection…</span></div>' +
+      '<div class="build">Build ' + BUILD + '</div>' + debug +
+    '</div></section></div>';
+}
+function showAuth(mode, msg) {
+  S.user = null; S.entering = false; D = emptyData();
+  if (mode) A.mode = mode;
+  $('#root').innerHTML = authHTML();
+  if (msg) $('#authMsg').innerHTML = alertHTML(msg.t, msg.m);
+  checkServer();
+  runDiagnostics();
+}
+
+/* ================= App shell ================= */
+function initials(name) {
+  var p = String(name || '?').trim().split(/\s+/);
+  return ((p[0] || '?').charAt(0) + (p.length > 1 ? p[p.length - 1].charAt(0) : '')).toUpperCase();
+}
+function displayName() {
+  var n = (D.profile && D.profile.full_name) || (S.user && S.user.user_metadata && S.user.user_metadata.full_name) || '';
+  return n || (S.user && S.user.email ? S.user.email.split('@')[0] : 'Member');
+}
+function renderShell() {
+  var nm = displayName();
+  $('#root').innerHTML =
+    '<header class="topbar"><div class="logo"><div class="logo-mark">P</div><div class="logo-name">PrimeCore</div><span class="chip-badge">PRO PORTAL</span></div>' +
+    '<div class="top-right"><span class="avatar" id="avatar">' + esc(initials(nm)) + '</span><span class="who" id="who">' + esc(nm) + '</span>' +
+    '<button class="btn-out" type="button" data-act="signout">Sign out</button></div></header>' +
+    '<nav class="tabs" id="tabs" aria-label="Main"></nav><main class="container"><div id="view" class="view"></div></main>';
+  renderTabs();
+}
+function renderTabs() {
+  $('#tabs').innerHTML = TABS.map(function (t) {
+    return '<button type="button" class="tab' + (S.tab === t[0] ? ' on' : '') + '" data-tab="' + t[0] + '">' + ic(t[2], 16) + t[1] + '</button>';
+  }).join('');
+}
+function renderView() {
+  var v = $('#view'); if (!v) return;
+  var fn = V[S.tab] || V.dashboard;
+  v.className = 'view';
+  void v.offsetWidth;
+  v.innerHTML = fn();
+  animateCounts(v);
+  var av = $('#avatar'), who = $('#who');
+  if (av) av.textContent = initials(displayName());
+  if (who) who.textContent = displayName();
+}
+function skeleton() {
+  $('#view').innerHTML = '<div class="sk" style="height:34px;width:200px;margin-bottom:16px"></div><div class="sk" style="height:130px;margin-bottom:16px"></div>' +
+    '<div class="grid"><div class="sk" style="height:76px"></div><div class="sk" style="height:76px"></div><div class="sk" style="height:76px"></div></div>';
+}
+
+/* ================= Data ================= */
+async function q(name, p) {
+  try {
+    var r = await withTimeout(p, 15000);
+    if (r.error) { D.errors.push(name); console.warn(name, r.error); return null; }
+    return r.data;
+  } catch (e) { D.errors.push(name); console.warn(name, e); return null; }
+}
+async function loadData() {
+  var uid = S.user.id;
+  D.errors = [];
+  var r = await Promise.all([
+    q('wallet', sb.from('wallet_balances').select('available_balance,pending_balance').eq('user_id', uid).maybeSingle()),
+    q('deposits', sb.from('deposits').select('id,amount,method,reference,status,requested_at').eq('user_id', uid).order('requested_at', { ascending: false }).limit(50)),
+    q('withdrawals', sb.from('withdrawals').select('id,amount,method,destination,status,requested_at').eq('user_id', uid).order('requested_at', { ascending: false }).limit(50)),
+    q('ledger', sb.from('wallet_ledger').select('id,kind,amount,status,created_at').eq('user_id', uid).order('created_at', { ascending: false }).limit(15)),
+    q('tasks', sb.from('tasks').select('id,title,description,reward_amount').eq('is_active', true).order('created_at')),
+    q('completions', sb.from('task_completions').select('id,task_id,status,started_at,submitted_at').eq('user_id', uid).order('started_at', { ascending: false })),
+    q('rewards', sb.from('daily_rewards').select('id,reward_amount,reward_date,status,created_at').eq('user_id', uid).order('created_at', { ascending: false }).limit(60)),
+    q('team', sb.rpc('my_referrals')),
+    q('profile', sb.from('profiles').select('full_name,phone,email,referral_code,created_at').eq('id', uid).maybeSingle()),
+    q('settings', sb.from('app_settings').select('key,value'))
+  ]);
+  D.wallet = r[0] || { available_balance: 0, pending_balance: 0 };
+  D.deposits = r[1] || []; D.withdrawals = r[2] || []; D.ledger = r[3] || [];
+  D.tasks = r[4] || []; D.completions = r[5] || []; D.rewards = r[6] || [];
+  D.team = r[7] || []; D.profile = r[8] || null;
+  D.settings = {};
+  (r[9] || []).forEach(function (s) { D.settings[s.key] = s.value; });
+  D.loaded = true;
+}
+function plans() {
+  var p = D.settings.plan_categories;
+  return (Array.isArray(p) && p.length) ? p : DEFAULT_PLANS;
+}
+function dailyAmount() { return D.settings.daily_reward_amount != null ? num(D.settings.daily_reward_amount) : 5; }
+function taskReward(id) {
+  var t = D.tasks.filter(function (x) { return x.id === id; })[0];
+  return t ? num(t.reward_amount) : 0;
+}
+function derived() {
+  var paidTasks = D.completions.filter(function (c) { return c.status === 'paid'; });
+  var successRewards = D.rewards.filter(function (r) { return r.status === 'success'; });
+  return {
+    deposits: sumOf(D.deposits.filter(function (d) { return d.status === 'successful'; })),
+    pendingWd: sumOf(D.withdrawals.filter(function (w) { return w.status === 'pending'; })),
+    pendingClaims: D.completions.filter(function (c) { return c.status === 'submitted'; }).length +
+      D.rewards.filter(function (r) { return r.status === 'pending'; }).length,
+    successful: paidTasks.reduce(function (a, c) { return a + taskReward(c.task_id); }, 0) + sumOf(successRewards, 'reward_amount')
+  };
+}
+function setupNotice() {
+  return D.errors.length
+    ? '<div class="alert info">Some sections could not be loaded (' + esc(D.errors.join(', ')) + '). If this is a new setup, run the database schema file in Supabase first.</div>'
+    : '';
+}
+async function refresh() { await loadData(); renderView(); }
+
+/* ================= Views ================= */
+var V = {};
+function statCard(icon, cls, label, value, isMoney) {
+  return '<div class="stat"><span class="ico ' + cls + '">' + ic(icon, 20) + '</span><div><div class="lbl">' + esc(label) + '</div><div class="val"' +
+    (isMoney ? ' data-count="' + num(value) + '">' + money(0) : '>' + esc(value)) + '</div></div></div>';
+}
+function greeting() {
+  var h = new Date().getHours();
+  return h < 12 ? 'Good morning' : h < 18 ? 'Good afternoon' : 'Good evening';
+}
+
+V.dashboard = function () {
+  var d = derived();
+  var first = displayName().split(' ')[0];
+  var act = D.ledger.slice(0, 8).map(function (t) {
+    var amt = num(t.amount), neg = amt < 0;
+    return '<div class="item"><span class="ico">' + ic(neg ? 'up' : 'down') + '</span><div class="grow"><div class="t">' + esc(KIND[t.kind] || t.kind) +
+      '</div><div class="muted">' + fmt(t.created_at) + '</div></div><div style="text-align:right"><div class="amt ' + (neg ? 'neg' : 'pos') + '">' +
+      (neg ? '−' : '+') + money(Math.abs(amt)) + '</div>' + pill(t.status) + '</div></div>';
+  }).join('');
+  return '<h1 class="page-title">' + greeting() + ', ' + esc(first) + '</h1><p class="page-sub">Here is your account overview.</p>' + setupNotice() +
+    '<div class="hero-card"><small>Valid balance</small><div class="big" data-count="' + num(D.wallet.available_balance) + '">' + money(0) + '</div>' +
+    '<div class="sub2">Pending: ' + money(D.wallet.pending_balance) + ' · Balances change only after verification.</div></div>' +
+    '<div class="grid">' +
+      statCard('down', '', 'Total deposits', d.deposits, true) +
+      statCard('award', 'g', 'Successful rewards', d.successful, true) +
+      statCard('up', 'a', 'Pending withdrawals', d.pendingWd, true) +
+      statCard('clock', 'a', 'Pending claims', d.pendingClaims, false) +
+      statCard('team', 'b', 'Direct registrations', D.team.length, false) +
+      statCard('shield', '', 'Current plan', 'Not enrolled', false) +
+    '</div>' +
+    '<div class="grid two"><div class="card"><div class="row"><h3>Recent activity</h3><button class="btn ghost sm" data-go="wallet">View wallet</button></div>' +
+    '<div class="list">' + (act || '<div class="empty">No transactions yet.</div>') + '</div></div>' +
+    '<div class="card"><h3>Quick actions</h3><p class="hint">Jump to the most common tasks.</p>' +
+    '<div style="display:grid;gap:10px"><button class="btn" data-go="rewards">Request daily reward</button>' +
+    '<button class="btn ghost" data-go="tasks">Open tasks</button><button class="btn ghost" data-go="wallet">Deposit or withdraw</button></div></div></div>';
+};
+
+V.tasks = function () {
+  var by = {};
+  D.completions.forEach(function (c) { by[c.task_id] = c; });
+  var cards = D.tasks.map(function (t) {
+    var c = by[t.id], action = '';
+    if (!c) action = '<button class="btn sm" data-act="start-task" data-id="' + esc(t.id) + '">Start task</button>';
+    else if (c.status === 'started') action = '<button class="btn sm" data-act="submit-task" data-id="' + esc(c.id) + '">Submit for verification</button>';
+    else if (c.status === 'submitted') action = '<span class="muted">Awaiting review</span>';
+    else if (c.status === 'paid') action = '<span class="muted">Reward credited</span>';
+    return '<div class="card"><div class="row"><h3>' + esc(t.title) + '</h3><b>' + money(t.reward_amount) + '</b></div>' +
+      '<p class="hint" style="margin-bottom:12px">' + esc(t.description || '') + '</p><div class="row">' +
+      (c ? pill(c.status) : '<span class="pill neutral">NOT STARTED</span>') + action + '</div></div>';
+  }).join('');
+  var hist = D.completions.map(function (c) {
+    var t = D.tasks.filter(function (x) { return x.id === c.task_id; })[0];
+    return '<tr><td class="mono">' + esc(sid(c.id)) + '</td><td>' + esc(t ? t.title : '—') + '</td><td>' + money(t ? t.reward_amount : 0) +
+      '</td><td>' + fmt(c.submitted_at || c.started_at) + '</td><td>' + pill(c.status) + '</td></tr>';
+  }).join('');
+  return '<h1 class="page-title">Tasks</h1><p class="page-sub">Rewards are credited only after the company verifies the completed task.</p>' + setupNotice() +
+    (cards || '<div class="card"><div class="empty">No tasks are available right now.</div></div>') +
+    '<div class="card"><h3>Task claim history</h3><p class="hint">Request ID, task, reward, date and status.</p><div class="scroll">' +
+    (hist ? '<table><tr><th>Request ID</th><th>Task</th><th>Amount</th><th>Date</th><th>Status</th></tr>' + hist + '</table>' : '<div class="empty">No claim requests yet.</div>') +
+    '</div></div>';
+};
+
+V.rewards = function () {
+  var today = new Date().toISOString().slice(0, 10);
+  var done = D.rewards.some(function (r) { return r.reward_date === today; });
+  var rows = D.rewards.map(function (r) {
+    return '<tr><td class="mono">' + esc(sid(r.id)) + '</td><td>Daily reward</td><td>' + money(r.reward_amount) + '</td><td>' + fmt(r.created_at) + '</td><td>' + pill(r.status) + '</td></tr>';
+  }).join('');
+  return '<h1 class="page-title">Daily Reward</h1><p class="page-sub">Request your daily check-in reward once per day.</p>' + setupNotice() +
+    '<div class="card"><div class="row"><div><h3>Today\'s reward</h3><p class="hint" style="margin:0">Amount: ' + money(dailyAmount()) +
+    '. Each request starts as PENDING and becomes SUCCESS only after the reward is verified and credited. Resets at 00:00 UTC.</p></div>' +
+    '<button class="btn" data-act="claim-daily"' + (done ? ' disabled' : '') + '>' + (done ? 'Requested today' : 'Request today\'s reward') + '</button></div></div>' +
+    '<div class="card"><h3>Daily reward history</h3><p class="hint">Request ID, category, amount, date and status.</p><div class="scroll">' +
+    (rows ? '<table><tr><th>Request ID</th><th>Category</th><th>Amount</th><th>Date</th><th>Status</th></tr>' + rows + '</table>' : '<div class="empty">No daily reward requests yet.</div>') +
+    '</div></div>';
+};
+
+V.wallet = function () {
+  var methods = '<option value="bank">Bank transfer</option><option value="crypto">Crypto</option><option value="other">Other</option>';
+  var dep = D.deposits.map(function (d) {
+    return '<tr><td class="mono">' + esc(sid(d.id)) + '</td><td>' + money(d.amount) + '</td><td>' + esc(d.method) + '</td><td>' + fmt(d.requested_at) + '</td><td>' + pill(d.status) + '</td></tr>';
+  }).join('');
+  var wd = D.withdrawals.map(function (w) {
+    return '<tr><td class="mono">' + esc(sid(w.id)) + '</td><td>' + money(w.amount) + '</td><td>' + esc(w.method) + '</td><td>' + fmt(w.requested_at) + '</td><td>' + pill(w.status) + '</td></tr>';
+  }).join('');
+  var led = D.ledger.map(function (t) {
+    var amt = num(t.amount), neg = amt < 0;
+    return '<tr><td>' + fmt(t.created_at) + '</td><td>' + esc(KIND[t.kind] || t.kind) + '</td><td class="amt ' + (neg ? 'neg' : 'pos') + '">' + (neg ? '−' : '+') + money(Math.abs(amt)) + '</td><td>' + pill(t.status) + '</td></tr>';
+  }).join('');
+  return '<h1 class="page-title">Wallet</h1><p class="page-sub">Balances change only after a request is verified.</p>' + setupNotice() +
+    '<div class="grid two"><div class="stat"><span class="ico g">' + ic('wallet', 20) + '</span><div><div class="lbl">Available balance</div><div class="val" data-count="' + num(D.wallet.available_balance) + '">' + money(0) + '</div></div></div>' +
+    '<div class="stat"><span class="ico a">' + ic('clock', 20) + '</span><div><div class="lbl">Pending holds</div><div class="val" data-count="' + num(D.wallet.pending_balance) + '">' + money(0) + '</div></div></div></div>' +
+    '<div class="form-grid">' +
+    '<div class="card"><h3>Request a deposit</h3><p class="hint">Stays PENDING until the transfer is verified.</p><form data-form="deposit">' +
+      '<div class="field"><label>Amount (USD)</label><input name="amount" type="number" min="10" step="0.01" required></div>' +
+      '<div class="field"><label>Method</label><select name="method">' + methods + '</select></div>' +
+      '<div class="field"><label>Payment reference</label><input name="reference" required minlength="5"></div>' +
+      '<button class="btn block" type="submit">Submit deposit request</button></form></div>' +
+    '<div class="card"><h3>Request a withdrawal</h3><p class="hint">The amount is held now and released if rejected. Payouts are made outside the app after review.</p><form data-form="withdraw">' +
+      '<div class="field"><label>Amount (USD)</label><input name="amount" type="number" min="10" step="0.01" required></div>' +
+      '<div class="field"><label>Method</label><select name="method">' + methods + '</select></div>' +
+      '<div class="field"><label>Destination (account or wallet)</label><input name="destination" required minlength="5"></div>' +
+      '<button class="btn block" type="submit">Submit withdrawal request</button></form></div></div>' +
+    '<div class="card"><h3>Deposit history</h3><div class="scroll">' + (dep ? '<table><tr><th>Request ID</th><th>Amount</th><th>Method</th><th>Date</th><th>Status</th></tr>' + dep + '</table>' : '<div class="empty">No deposit requests yet.</div>') + '</div></div>' +
+    '<div class="card"><h3>Withdrawal requests</h3><div class="scroll">' + (wd ? '<table><tr><th>Request ID</th><th>Amount</th><th>Method</th><th>Date</th><th>Status</th></tr>' + wd + '</table>' : '<div class="empty">No withdrawal requests yet.</div>') + '</div></div>' +
+    '<div class="card"><h3>Transaction history</h3><div class="scroll">' + (led ? '<table><tr><th>Date</th><th>Type</th><th>Amount</th><th>Status</th></tr>' + led + '</table>' : '<div class="empty">No transactions yet.</div>') + '</div></div>';
+};
+
+V.invest = function () {
+  var cards = plans().map(function (p) {
+    return '<div class="plan"><div class="row"><div class="nm">' + esc(p.name) + '</div><span class="pill neutral">NOT OPEN</span></div>' +
+      '<div class="rg">' + money(p.min).replace('.00', '') + ' – ' + money(p.max).replace('.00', '') + '</div><div class="bar"></div></div>';
+  }).join('');
+  return '<h1 class="page-title">Invest</h1><p class="page-sub">Membership categories and balance ranges, shown for information only.</p>' +
+    '<div class="grid">' + cards + '</div>' +
+    '<div class="card"><div class="row" style="justify-content:flex-start;gap:12px"><span class="ico" style="width:40px;height:40px;border-radius:12px;display:grid;place-items:center;background:var(--lav);color:var(--violet)">' + ic('lock', 20) + '</span>' +
+    '<div><h3>No plan is open yet</h3><p class="hint" style="margin:0">No returns are promised or shown. Terms, risk disclosures and approvals will be published here before any category opens.</p></div></div></div>';
+};
+
+V.team = function () {
+  var code = (D.profile && D.profile.referral_code) || '';
+  var link = location.origin + location.pathname + (code ? '?ref=' + encodeURIComponent(code) : '');
+  var rows = D.team.map(function (m) {
+    return '<tr><td>' + esc(m.full_name || 'Member') + '</td><td>' + fmtDay(m.joined_at) + '</td></tr>';
+  }).join('');
+  return '<h1 class="page-title">Team</h1><p class="page-sub">People who registered with your referral code.</p>' + setupNotice() +
+    '<div class="grid two"><div class="stat"><span class="ico b">' + ic('team', 20) + '</span><div><div class="lbl">Direct registrations</div><div class="val">' + D.team.length + '</div></div></div>' +
+    '<div class="stat"><span class="ico">' + ic('award', 20) + '</span><div><div class="lbl">Your referral code</div><div class="val mono" style="font-size:18px">' + esc(code || '—') + '</div></div></div></div>' +
+    '<div class="card"><h3>Invite link</h3><p class="hint">Registration records only. Referrals do not generate payments.</p>' +
+    '<div class="row"><span class="mono" style="word-break:break-all">' + esc(link) + '</span><button class="btn ghost sm" data-act="copy-ref" data-link="' + esc(link) + '">Copy link</button></div></div>' +
+    '<div class="card"><h3>Direct registrations</h3><div class="scroll">' +
+    (rows ? '<table><tr><th>Member</th><th>Registered</th></tr>' + rows + '</table>' : '<div class="empty">No registrations yet.</div>') + '</div></div>';
+};
+
+V.profile = function () {
+  var p = D.profile || {};
+  return '<h1 class="page-title">Profile</h1><p class="page-sub">Your account details.</p>' + setupNotice() +
+    '<div class="card"><table>' +
+    '<tr><th>Email</th><td>' + esc(p.email || (S.user && S.user.email) || '—') + '</td></tr>' +
+    '<tr><th>Member since</th><td>' + fmtDay(p.created_at || (S.user && S.user.created_at)) + '</td></tr>' +
+    '<tr><th>Member ID</th><td class="mono" style="word-break:break-all">' + esc(S.user ? S.user.id : '') + '</td></tr></table></div>' +
+    '<div class="form-grid"><div class="card"><h3>Edit details</h3><form data-form="profile">' +
+    '<div class="field"><label>Full name</label><input name="full_name" required minlength="2" maxlength="80" value="' + esc(p.full_name || '') + '"></div>' +
+    '<div class="field"><label>Phone</label><input name="phone" type="tel" value="' + esc(p.phone || '') + '"></div>' +
+    '<button class="btn block" type="submit">Save changes</button></form></div>' +
+    '<div class="card"><h3>Password</h3><p class="hint">We will email a secure reset link to your registered address.</p>' +
+    '<button class="btn ghost block" data-act="pwd-reset">Email me a reset link</button></div></div>';
+};
+
+/* ================= Actions ================= */
+async function rpc(name, args, okMsg, busyBtn) {
+  if (busyBtn) busyBtn.disabled = true;
+  try {
+    var r = await withTimeout(sb.rpc(name, args || {}), 20000);
+    if (r.error) throw r.error;
+    toast('ok', okMsg);
+    await refresh();
+  } catch (e) {
+    toast('err', friendlyError(e));
+    if (busyBtn) busyBtn.disabled = false;
+  }
+}
+function formData(f) { var d = {}; new FormData(f).forEach(function (v, k) { d[k] = String(v); }); return d; }
+
+var FORMS = {
+  deposit: async function (d, btn) {
+    var amt = parseFloat(d.amount);
+    if (!(amt >= 10)) throw new Error('invalid_amount');
+    if (!window.confirm('Submit a deposit request for ' + money(amt) + '? It stays pending until verified.')) return;
+    await rpc('request_deposit', { p_amount: amt, p_method: d.method, p_reference: (d.reference || '').trim() }, 'Deposit request submitted. Status: PENDING.', btn);
+  },
+  withdraw: async function (d, btn) {
+    var amt = parseFloat(d.amount);
+    if (!(amt >= 10)) throw new Error('invalid_amount');
+    if (!window.confirm('Request a withdrawal of ' + money(amt) + '? The amount is held until reviewed.')) return;
+    await rpc('request_withdrawal', { p_amount: amt, p_method: d.method, p_destination: (d.destination || '').trim() }, 'Withdrawal request submitted. Funds are held until reviewed.', btn);
+  },
+  profile: async function (d) {
+    var r = await withTimeout(sb.from('profiles').update({ full_name: (d.full_name || '').trim(), phone: (d.phone || '').trim() || null }).eq('id', S.user.id));
+    if (r.error) throw r.error;
+    toast('ok', 'Profile saved.');
+    await refresh();
+  }
+};
+
+async function onAuth(f) {
+  var d = formData(f);
+  var msg = $('#authMsg'), btn = $('#authBtn');
+  msg.innerHTML = '';
+  if (!sb) { msg.innerHTML = alertHTML('err', 'The connection library did not load. Check your internet and reload the page.'); return; }
+  if (A.busy) return;
+  var label = btn.textContent;
+  A.busy = true; btn.disabled = true;
+  btn.textContent = A.mode === 'signup' ? 'Creating account…' : A.mode === 'reset' ? 'Updating…' : 'Signing in…';
+  try {
+    if (A.mode === 'reset') {
+      if ((d.password || '').length < 8) throw new Error('Password must be at least 8 characters.');
+      if (d.password !== d.confirm) throw new Error('Passwords do not match.');
+      var ru = await withTimeout(sb.auth.updateUser({ password: d.password }), 20000);
+      if (ru.error) throw ru.error;
+      A.mode = 'signin';
+      toast('ok', 'Password updated.');
+      var s0 = await sb.auth.getSession();
+      if (s0.data && s0.data.session) await enterApp(s0.data.session.user); else showAuth('signin');
+      return;
+    }
+    var email = (d.email || '').trim();
+    A.email = email;
+    if (A.mode === 'signup') {
+      if ((d.password || '').length < 8) throw new Error('Password must be at least 8 characters.');
+      var r = await withTimeout(sb.auth.signUp({
+        email: email, password: d.password,
+        options: {
+          data: { full_name: (d.full_name || '').trim() || 'User', phone: (d.phone || '').trim() || null, referral_code: (d.referral || '').trim() || null },
+          emailRedirectTo: location.origin + location.pathname
+        }
+      }), 25000);
+      if (r.error) throw r.error;
+      var u = r.data && r.data.user;
+      if (u && Array.isArray(u.identities) && u.identities.length === 0) throw new Error('already registered');
+      if (r.data && r.data.session && r.data.session.user) { await enterApp(r.data.session.user); return; }
+      msg.innerHTML = alertHTML('ok', 'Account created. Check your email for a confirmation link, then sign in.');
+    } else {
+      var s = await withTimeout(sb.auth.signInWithPassword({ email: email, password: d.password }), 25000);
+      if (s.error) throw s.error;
+      if (s.data && s.data.user) { await enterApp(s.data.user); return; }
+    }
+  } catch (e) {
+    msg.innerHTML = alertHTML('err', friendlyError(e));
+    if (isNetErr(String((e && e.message) || e)) || /timed out/i.test(String((e && e.message) || e))) checkServer();
+  } finally {
+    A.busy = false;
+    var b = $('#authBtn');
+    if (b) { b.disabled = false; b.textContent = label; }
+  }
+}
+
+async function onForgot() {
+  var el = $('#f_email'); var msg = $('#authMsg');
+  var email = el ? el.value.trim() : '';
+  if (!email) { msg.innerHTML = alertHTML('err', 'Enter your email first, then tap "Forgot password?".'); return; }
+  if (!sb) { msg.innerHTML = alertHTML('err', 'The connection library did not load. Reload the page.'); return; }
+  try {
+    var r = await withTimeout(sb.auth.resetPasswordForEmail(email, { redirectTo: location.origin + location.pathname }), 20000);
+    if (r.error) throw r.error;
+    msg.innerHTML = alertHTML('ok', 'If an account exists for that email, a reset link has been sent.');
+  } catch (e) { msg.innerHTML = alertHTML('err', friendlyError(e)); }
+}
+
+async function signOut() {
+  try { if (sb) await sb.auth.signOut(); } catch (e) { console.error(e); }
+  A.mode = 'signin';
+  showAuth('signin');
+}
+
+async function enterApp(user) {
+  if (S.entering) return;
+  S.entering = true;
+  S.user = user;
+  S.tab = 'dashboard';
+  D = emptyData();
+  renderShell();
+  skeleton();
+  try { await loadData(); } catch (e) { console.error(e); }
+  S.entering = false;
+  renderView();
+}
+
+/* ================= Events ================= */
+document.addEventListener('submit', async function (e) {
+  var f = e.target;
+  if (!f.dataset || !f.dataset.form) return;
+  e.preventDefault();
+  if (f.dataset.form === 'auth') { onAuth(f); return; }
+  var fn = FORMS[f.dataset.form]; if (!fn) return;
+  var btn = f.querySelector('button[type=submit]');
+  if (btn) btn.disabled = true;
+  try { await fn(formData(f), btn); }
+  catch (ex) { toast('err', friendlyError(ex)); }
+  finally { if (btn && document.body.contains(btn)) btn.disabled = false; }
+});
+
+document.addEventListener('click', async function (e) {
+  var t = e.target.closest && e.target.closest('[data-tab],[data-go],[data-act]');
+  if (!t) return;
+  var go = t.getAttribute('data-tab') || t.getAttribute('data-go');
+  if (go) {
+    S.tab = go; renderTabs(); renderView(); window.scrollTo({ top: 0, behavior: 'smooth' });
+    return;
+  }
+  var a = t.getAttribute('data-act'), id = t.getAttribute('data-id');
+  if (a === 'mode') { var el = $('#f_email'); if (el) A.email = el.value; A.mode = t.getAttribute('data-mode'); showAuth(); return; }
+  if (a === 'forgot') { onForgot(); return; }
+  if (a === 'signout') { if (window.confirm('Sign out of PrimeCore on this device?')) signOut(); return; }
+  if (!sb) return;
+  if (a === 'start-task') { rpc('start_task', { p_task: id }, 'Task started.', t); return; }
+  if (a === 'submit-task') { rpc('submit_task', { p_completion: id }, 'Submitted. Status: PENDING review.', t); return; }
+  if (a === 'claim-daily') { rpc('claim_daily_reward', {}, 'Daily reward requested. Status: PENDING.', t); return; }
+  if (a === 'copy-ref') {
+    var link = t.getAttribute('data-link');
+    try { await navigator.clipboard.writeText(link); toast('ok', 'Invite link copied.'); }
+    catch (er) { window.prompt('Copy your invite link:', link); }
+    return;
+  }
+  if (a === 'pwd-reset') {
+    try {
+      var email = (D.profile && D.profile.email) || (S.user && S.user.email);
+      var r = await withTimeout(sb.auth.resetPasswordForEmail(email, { redirectTo: location.origin + location.pathname }), 20000);
+      if (r.error) throw r.error;
+      toast('ok', 'If an account exists for your email, a reset link has been sent.');
+    } catch (ex) { toast('err', friendlyError(ex)); }
+  }
+});
+
+/* ================= Session ================= */
+if (sb) {
+  sb.auth.onAuthStateChange(function (event, session) {
+    // Deferred so Supabase calls never run inside the auth callback.
+    setTimeout(function () {
+      if (event === 'PASSWORD_RECOVERY') { showAuth('reset'); return; }
+      if (event === 'SIGNED_OUT') { if (S.user) showAuth('signin'); return; }
+      if ((event === 'SIGNED_IN' || event === 'INITIAL_SESSION') && session && session.user) {
+        if (!S.user || S.user.id !== session.user.id) enterApp(session.user);
+      }
+    }, 0);
+  });
+}
+
+(async function init() {
+  if (!sb) { showAuth('signin'); return; }
+  try {
+    var res = await withTimeout(sb.auth.getSession(), 10000);
+    var session = res && res.data ? res.data.session : null;
+    if (session && session.user && A.mode !== 'reset') {
+      if (!S.user) await enterApp(session.user);
+    } else if (!S.user && A.mode !== 'reset') {
+      showAuth('signin');
+    }
+  } catch (e) {
+    console.error('Session error', e);
+    if (!S.user) showAuth('signin');
+  }
+})();
+
+} // startApp
+})();
+</script>
+</body>
+</html>
