@@ -1,0 +1,113 @@
+# Earn & Invest: Application
+
+React + Vite + TypeScript + Tailwind CSS + Framer Motion, backed by Supabase (Postgres, Auth, RPC).
+
+**Status: not compiled or run.** The environment used to write this code had no network or Node runtime. Run `npm install`, `npm run typecheck` and `npm run build` before relying on it, and send me any errors.
+
+## What is built
+
+- **Auth:** signup with country and phone code, email OTP, login, forgot and reset password, persistent session.
+- **Dashboard:** two-column financial cards (deposits, available balance, verified task rewards, pending holds), recent transactions, analytics of posted credits. Test rows are labelled.
+- **Wallet:** balances from the ledger, deposit and withdrawal requests with a confirmation step, full transaction history. Requests stay pending until an admin verifies them.
+- **Tasks:** start, submit and track task claim requests (Not submitted, Pending, Success, Rejected) with request IDs. Rewards are credited only after admin verification.
+- **Investment:** the five plan names (Junior, Senior, Special, Elite, Universal) as informational categories. No rates, returns or balance ranges. None is open.
+- **Profit:** verified task earnings only. Compounding and investment returns are shown as disabled.
+- **My Team:** referral tree, direct referral registration list (date and ID only), team totals of deposits and investments. Team commission and the Daily Referral Challenge are shown as disabled.
+- **Profile:** edit full name and phone. Username, email and country are fixed.
+- **Help:** how deposits, withdrawals, rewards and claims work.
+- **Admin Panel:** visible to admin and super-admin accounts only. Confirm or reject deposits, approve or reject withdrawals, verify or reject task submissions, view users, and read the audit log. Super admins can change roles. The database checks the role on every action.
+
+## Disabled, and why
+
+These are switched off in the database (migration 0004), not only hidden in the UI:
+
+- **Fixed-rate daily rewards.** `claim_daily_reward` refuses every request, and `reward_settings` cannot be set to enabled.
+- **Deposit-funded investments.** `create_investment` refuses every request.
+
+These are shown in the UI as disabled pending independent business and legal verification:
+
+- Compounding (Profit page)
+- Investment returns (Profit page)
+- Team commission by referral level (My Team)
+- Daily Referral Challenge milestones (My Team)
+
+## Not built
+
+- **Leaderboard, Notifications, Settings:** still placeholder pages.
+- **Profile picture upload:** needs a Supabase Storage bucket and policies, not yet created.
+- **Plan tiers with rates and balance ranges:** not built. They would pay returns on deposits, which the application does not offer.
+
+## Setup
+
+Requires Node.js 18.18 or newer.
+
+1. **Install and run**
+   ```bash
+   npm install
+   cp .env.example .env.local      # fill in step 2 values
+   npm run typecheck
+   npm run dev                     # http://localhost:5173
+   npm run build
+   ```
+2. **Supabase project.** Create one at supabase.com. Copy the Project URL and anon public key from Project Settings → API into `.env.local`. Never put the service role key in this project.
+3. **Migrations.** Run in the SQL Editor, in this order:
+   1. `supabase/migrations/0001_schema.sql`
+   2. `supabase/migrations/0002_functions.sql`
+   3. `supabase/migrations/0003_seed_testing.sql` (optional, testing tasks only)
+   4. `supabase/migrations/0004_disable_pending_legal_review.sql`
+4. **Auth settings.** Authentication → Providers → Email: enable signup and Confirm email. Authentication → URL Configuration: set Site URL to your app URL and add `<app URL>/reset-password` to the redirect list. Ensure email templates include `{{ .Token }}`.
+5. **First super admin.** Sign up, verify the email, then run once in the SQL Editor:
+   ```sql
+   update public.profiles set role = 'super_admin' where username = 'your_username';
+   ```
+   Later role changes go through the Admin Panel.
+6. **Deploy.** Push to GitHub. In Vercel, import the repository with the Vite preset (build `npm run build`, output `dist`). Add `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY` and `VITE_APP_URL` as environment variables. Add the Vercel URL to Supabase's Site URL and redirect list.
+
+## Testing data
+
+- Test rows have `is_testing = true` and are labelled TEST in the UI.
+- Remove test financial records with `select public.reset_testing_data();` as a super admin. This keeps test user accounts; delete those in Supabase Auth.
+- The migrations seed no balances, deposits, or pool funds.
+
+## Compliance boundaries in the code
+
+- No payout is made by this application. Withdrawals are held and marked approved, and a person must send the money outside the app.
+- Deposits are credited only when an admin confirms receipt. Confirm against the bank statement, not the member's claim.
+- Member balances held in the app may be regulated as payment services or client money in some jurisdictions. Take advice before accepting deposits from the public.
+
+## Known gaps
+
+- **Username login:** not built. Login uses email.
+- **Remember me:** Supabase keeps sessions by default. No visible toggle yet.
+- **Username uniqueness:** a duplicate shows a general message, not a specific one.
+- **Country list:** 30 countries. Extend `src/lib/countries.ts` to the full ISO list.
+- **Repeatable tasks:** each task is one-time. Daily and weekly repeats need a period key.
+- **Team privacy:** upline members can see downline deposit and investment totals. Remove these columns if counsel advises.
+- **Admin tasks catalogue:** tasks are created with SQL. There is no UI to add or edit them.
+
+## Single-file build (index.html)
+
+`npm run build:single` writes **`dist/index.html`**: one self-contained file with all JavaScript and CSS inlined. Upload that file to any static host.
+
+Steps:
+1. `npm install`
+2. Create `.env.local` with the three `VITE_` values (the anon key is public by design; never add the service role key).
+3. `npm run build:single`
+4. Upload `dist/index.html`.
+
+What differs in the single-file build:
+- Routes use hash paths (`index.html#/dashboard`), because a single file cannot rewrite paths.
+- Configuration values are compiled in at build time. Rebuild after changing `.env.local`.
+- Email links (password reset, email confirmation via link) redirect to `VITE_APP_URL`. With hash routing they may not complete. Use the 6-digit code flow where possible, or host the Vercel build for link-based flows. Add your host to Supabase's redirect allow-list.
+- Everything else works in the file: login, OTP code entry, dashboard, wallet, tasks, team, admin panel, and all Supabase calls.
+
+What still needs separate backend setup and cannot live in the HTML file:
+- The database, Row Level Security, functions and migrations (run in Supabase, not in the file).
+- Email delivery (configure SMTP in Supabase).
+- Bank and payment-provider integration, and payout execution (outside the app).
+- Profile picture storage (needs a Supabase Storage bucket).
+- The first super admin (SQL in the Supabase editor).
+
+Security note: never place the Supabase service role key or any secret in the HTML or the browser code. The anon key is safe to ship because Row Level Security protects the data.
+
+Single-file builds have not been run in this environment. Test the output on a staging Supabase project before publishing.
