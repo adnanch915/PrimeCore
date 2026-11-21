@@ -222,27 +222,31 @@
       const password = document.getElementById("passwordInput").value;
       const fullName = document.getElementById("fullNameInput").value.trim();
 
-      if (isSignUp) {
-        const { error } = await sb.auth.signUp({
-          email,
-          password,
-          options: { data: { full_name: fullName || "User" } }
-        });
-        if (error) {
-          authMessage.innerHTML = `<div class="msg-err">${error.message}</div>`;
-          return;
+      try {
+        if (isSignUp) {
+          const { error } = await sb.auth.signUp({
+            email,
+            password,
+            options: { data: { full_name: fullName || "User" } }
+          });
+          if (error) {
+            authMessage.innerHTML = `<div class="msg-err">${error.message}</div>`;
+            return;
+          }
+          authMessage.innerHTML = `<div class="msg-ok">Account created! Please check your email if confirmation is enabled, or sign in.</div>`;
+        } else {
+          const { data, error } = await sb.auth.signInWithPassword({ email, password });
+          if (error) {
+            authMessage.innerHTML = `<div class="msg-err">${error.message}</div>`;
+            return;
+          }
+          if (data?.user) {
+            await loadUserData(data.user);
+            showApp();
+          }
         }
-        authMessage.innerHTML = `<div class="msg-ok">Account created! Please check your email if confirmation is enabled, or sign in.</div>`;
-      } else {
-        const { data, error } = await sb.auth.signInWithPassword({ email, password });
-        if (error) {
-          authMessage.innerHTML = `<div class="msg-err">${error.message}</div>`;
-          return;
-        }
-        if (data?.user) {
-          await loadUserData(data.user);
-          showApp();
-        }
+      } catch (netErr) {
+        authMessage.innerHTML = `<div class="msg-err">Network/Fetch Error: ${netErr?.message || netErr}</div>`;
       }
     });
 
