@@ -1,645 +1,366 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>PrimeCore</title>
-<style>
-:root{--navy:#1b1f3b;--purple:#6d28d9;--purple2:#a78bfa;--bg:#f1f5f9;--text:#0f172a;--muted:#64748b;--card:#fff;--line:#e2e8f0}
-*{box-sizing:border-box}
-body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--text);-webkit-text-size-adjust:100%}
-a{color:var(--purple);text-decoration:none}
-header{background:var(--navy);color:#fff;display:flex;align-items:center;gap:10px;padding:10px 14px;position:sticky;top:0;z-index:10;flex-wrap:wrap}
-.brand{font-weight:800;font-size:18px;margin-right:auto}
-.brand span{color:var(--purple2)}
-nav{display:flex;gap:4px;overflow-x:auto;max-width:100%;-webkit-overflow-scrolling:touch}
-nav a{color:#c9cbe6;padding:8px 10px;border-radius:10px;font-size:14px;white-space:nowrap}
-nav a.on,nav a:hover{background:var(--purple);color:#fff}
-main{padding:16px;max-width:1200px;margin:0 auto}
-h1{font-size:22px;margin:6px 0 14px}
-h2{font-size:16px;margin:0 0 10px}
-.muted{color:var(--muted);font-size:13px}
-.two{display:grid;gap:14px;grid-template-columns:1fr 1fr}
-.cols3{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}
-.card{background:var(--card);border-radius:16px;padding:18px;box-shadow:0 2px 10px rgba(15,23,42,.06);border:1px solid var(--line);min-width:0;margin-bottom:14px}
-.stat{color:#fff;border-radius:16px;padding:18px;background:linear-gradient(135deg,var(--purple),#6366f1);min-width:0}
-.stat.dark{background:linear-gradient(135deg,var(--navy),#3b4a8f)}
-.stat.green{background:linear-gradient(135deg,#059669,#14b8a6)}
-.stat.amber{background:linear-gradient(135deg,#d97706,#f59e0b)}
-.stat small{opacity:.9;font-size:13px}
-.stat b{display:block;font-size:24px;margin-top:6px;word-break:break-word}
-button{background:linear-gradient(90deg,var(--purple),#8b5cf6);color:#fff;border:0;border-radius:12px;padding:11px 16px;font-weight:600;cursor:pointer;font-size:15px;min-height:44px}
-button:disabled{opacity:.5;cursor:not-allowed}
-button.ghost{background:#fff;color:var(--purple);border:1px solid var(--purple)}
-button.small{padding:6px 10px;font-size:13px;min-height:34px;margin-right:4px}
-input,select{width:100%;padding:11px 12px;border:1px solid #cbd5e1;border-radius:10px;font-size:16px;margin-top:4px;background:#fff}
-label{display:block;font-size:13px;color:#334155;margin-bottom:10px}
-.auth{max-width:440px;margin:24px auto}
-table{width:100%;border-collapse:collapse;font-size:14px}
-.wide{overflow-x:auto}
-th,td{text-align:left;padding:9px 6px;border-bottom:1px solid var(--line);vertical-align:top}
-th{color:var(--muted);font-size:12px;font-weight:600}
-.pill{font-size:12px;border-radius:99px;padding:2px 9px;font-weight:600;white-space:nowrap;display:inline-block}
-.p-ok{background:#d1fae5;color:#059669}.p-wait{background:#fef3c7;color:#b45309}.p-bad{background:#fee2e2;color:#dc2626}.p-off{background:#e2e8f0;color:#475569}
-.msg{padding:10px 12px;border-radius:10px;margin:0 0 14px;font-size:14px}
-.msg.ok{background:#d1fae5;color:#065f46}.msg.err{background:#fee2e2;color:#991b1b}
-.banner{background:#fef3c7;color:#92400e;padding:10px 14px;border-radius:12px;margin-bottom:14px;font-size:14px}
-.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;justify-content:space-between}
-ul.tree{list-style:none;margin:0;padding-left:16px;border-left:2px solid #ddd6fe}
-ul.tree li{margin:8px 0}
-details summary{cursor:pointer;padding:4px 0}
-.av{display:inline-grid;place-items:center;width:26px;height:26px;border-radius:50%;background:#7c3aed;color:#fff;font-size:12px;vertical-align:middle}
-@media (max-width:640px){
-  main{padding:12px}
-  .two{grid-template-columns:1fr}
-  h1{font-size:20px}
-  .brand{width:100%}
-  .stat b{font-size:21px}
-}
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PrimeCore — Fintech & Asset Portal</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+    body { background: #f1f5f9; color: #0f172a; min-height: 100vh; }
+    .topbar { background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%); color: #ffffff; padding: 15px 20px; display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; box-shadow: 0 2px 12px rgba(15, 23, 42, 0.14); }
+    .brand-wrap { display: flex; align-items: center; gap: 10px; }
+    .brand { font-size: 20px; font-weight: 800; letter-spacing: 0.3px; }
+    .badge { background: rgba(167, 139, 250, 0.22); color: #ede9fe; border: 1px solid rgba(196, 181, 253, 0.35); font-size: 11px; font-weight: 700; padding: 3px 9px; border-radius: 999px; }
+    .btn { background: #7c3aed; color: #ffffff; border: none; border-radius: 9px; padding: 10px 15px; font-weight: 600; cursor: pointer; transition: background 0.15s ease, opacity 0.15s ease; }
+    .btn:hover { background: #6d28d9; }
+    .btn:disabled { opacity: 0.65; cursor: not-allowed; }
+    .btn-light { background: #ffffff; color: #1e1b4b; }
+    .btn-light:hover { background: #f8fafc; }
+    .tabs { background: #1e1b4b; padding: 0 20px 13px; display: flex; gap: 8px; overflow-x: auto; border-bottom: 1px solid rgba(255, 255, 255, 0.08); }
+    .tab { background: rgba(255, 255, 255, 0.06); color: #cbd5e1; border: none; padding: 8px 15px; border-radius: 999px; cursor: pointer; font-weight: 600; font-size: 13px; white-space: nowrap; }
+    .tab.active { background: #8b5cf6; color: #ffffff; }
+    .container { max-width: 780px; margin: 26px auto; padding: 0 16px; }
+    .card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 16px; padding: 22px; box-shadow: 0 8px 24px rgba(15, 23, 42, 0.05); margin-bottom: 16px; }
+    .card-title { font-size: 22px; font-weight: 700; color: #0f172a; margin-bottom: 6px; }
+    .card-sub { color: #64748b; font-size: 14px; margin-bottom: 18px; }
+    .field { margin-bottom: 14px; }
+    .field label { display: block; font-size: 13px; font-weight: 700; color: #334155; margin-bottom: 6px; }
+    .field input { width: 100%; padding: 11px 13px; border: 1px solid #cbd5e1; border-radius: 9px; background: #f8fafc; font-size: 15px; color: #0f172a; }
+    .field input:focus { outline: none; border-color: #7c3aed; background: #ffffff; box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.12); }
+    .full-btn { width: 100%; padding: 12px; font-size: 15px; margin-top: 4px; }
+    .row-links { display: flex; justify-content: space-between; align-items: center; margin-top: 15px; font-size: 14px; gap: 10px; flex-wrap: wrap; }
+    .link-btn { background: none; border: none; color: #6d28d9; font-weight: 600; cursor: pointer; font-size: 14px; }
+    .link-btn:hover { text-decoration: underline; }
+    .grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 14px; }
+    .stat-box { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 16px; }
+    .stat-label { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.4px; color: #64748b; }
+    .stat-val { font-size: 24px; font-weight: 800; color: #1e1b4b; margin-top: 6px; }
+    .msg-err { background: #fef2f2; border: 1px solid #fecaca; color: #b91c1c; font-size: 13px; padding: 10px 12px; border-radius: 9px; margin-top: 12px; word-break: break-word; }
+    .msg-ok { background: #f0fdf4; border: 1px solid #bbf7d0; color: #15803d; font-size: 13px; padding: 10px 12px; border-radius: 9px; margin-top: 12px; word-break: break-word; }
+    .hidden { display: none !important; }
+  </style>
 </head>
 <body>
-<header>
-  <div class="brand">Prime<span>Core</span></div>
-  <nav id="nav"></nav>
-  <button class="ghost" id="logout" style="display:none;min-height:36px;padding:6px 12px">Sign out</button>
-</header>
-<main id="app"><p class="muted">Loading…</p></main>
+  <header class="topbar">
+    <div class="brand-wrap">
+      <div class="brand">PrimeCore</div>
+      <span class="badge">PRO PORTAL</span>
+    </div>
+    <button id="signOutBtn" class="btn btn-light hidden" type="button">Sign out</button>
+  </header>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
-<script>
-(function () {
-'use strict';
+  <nav id="navTabs" class="tabs hidden">
+    <button class="tab active" data-tab="dashboard" type="button">Dashboard</button>
+    <button class="tab" data-tab="tasks" type="button">Tasks</button>
+    <button class="tab" data-tab="daily-reward" type="button">Daily Reward</button>
+    <button class="tab" data-tab="wallet" type="button">Wallet</button>
+    <button class="tab" data-tab="invest" type="button">Invest</button>
+  </nav>
 
-/* ================= CONFIGURATION =================
-   Public values only. Use the project URL and the anon public key from
-   Supabase > Project Settings > API. NEVER put the service_role key here. */
-var SUPABASE_URL = 'https://YOUR-PROJECT-REF.supabase.co';
-var SUPABASE_ANON_KEY = 'YOUR-ANON-PUBLIC-KEY';
+  <main class="container">
+    <div id="loadingView" class="card">Loading PrimeCore workspace...</div>
 
-var CONFIGURED = /^https:\/\/[a-z0-9-]+\.supabase\.co$/.test(SUPABASE_URL)
-  && SUPABASE_ANON_KEY.length > 40 && SUPABASE_ANON_KEY.indexOf('YOUR-') !== 0
-  && !!window.supabase;
-var sb = CONFIGURED ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
+    <section id="authView" class="card hidden">
+      <h2 id="authTitle" class="card-title">Welcome back</h2>
+      <p id="authSubtitle" class="card-sub">Sign in to your PrimeCore account.</p>
 
-/* ================= STATE & HELPERS ================= */
-var S = { ready: false, user: null, profile: null, msg: null, pendingEmail: '' };
-var seq = 0;
-var AUTH = ['login', 'signup', 'verify', 'forgot', 'reset'];
-var VIEWS = {
-  dashboard: 'Dashboard', wallet: 'Wallet', tasks: 'Tasks', daily: 'Daily Reward',
-  investment: 'Investment', team: 'My Team', profit: 'Profit', leaderboard: 'Leaderboard',
-  profile: 'Profile', help: 'Help & Support', admin: 'Admin Panel'
-};
-var DIALS = [
-  ['US','United States','+1'],['CA','Canada','+1'],['GB','United Kingdom','+44'],['AU','Australia','+61'],
-  ['DE','Germany','+49'],['FR','France','+33'],['ES','Spain','+34'],['IT','Italy','+39'],['NL','Netherlands','+31'],
-  ['BR','Brazil','+55'],['MX','Mexico','+52'],['NG','Nigeria','+234'],['GH','Ghana','+233'],['KE','Kenya','+254'],
-  ['ZA','South Africa','+27'],['EG','Egypt','+20'],['AE','United Arab Emirates','+971'],['SA','Saudi Arabia','+966'],
-  ['TR','Turkey','+90'],['IN','India','+91'],['PK','Pakistan','+92'],['BD','Bangladesh','+880'],['PH','Philippines','+63'],
-  ['ID','Indonesia','+62'],['MY','Malaysia','+60'],['SG','Singapore','+65'],['TH','Thailand','+66'],['VN','Vietnam','+84'],
-  ['JP','Japan','+81'],['KR','South Korea','+82'],['CN','China','+86']
-];
-var KIND = {
-  deposit_credit: 'Deposit', withdrawal: 'Withdrawal', investment_debit: 'Investment',
-  reward_credit: 'Daily reward', task_credit: 'Task reward', referral_credit: 'Referral', admin_adjustment: 'Adjustment'
-};
-var PILL = { pending:'p-wait', submitted:'p-wait', successful:'p-ok', approved:'p-ok', paid:'p-ok', posted:'p-ok',
-  rejected:'p-bad', started:'p-off', active:'p-ok', completed:'p-off' };
-var MSG = {
-  insufficient_balance: 'Your available balance is not enough.',
-  invalid_amount: 'Enter an amount of at least $10.',
-  invalid_destination: 'Enter a valid destination.',
-  already_started: 'You have already started this task.',
-  not_submittable: 'This task cannot be submitted right now.',
-  forbidden: 'Admin permission is required.',
-  not_pending: 'This request was already processed.',
-  cannot_change_own_role: 'You cannot change your own role.'
-};
+      <form id="authForm">
+        <div id="signupExtraFields" class="hidden">
+          <div class="field">
+            <label for="fullNameInput">Full Name</label>
+            <input id="fullNameInput" type="text" placeholder="MUHAMMAD ADNAN" />
+          </div>
+          <div class="field">
+            <label for="phoneInput">Phone / WhatsApp (Optional)</label>
+            <input id="phoneInput" type="text" placeholder="+92 300 0000000" />
+          </div>
+          <div class="field">
+            <label for="referralInput">Referral Code (Optional)</label>
+            <input id="referralInput" type="text" placeholder="PRIME-REF" />
+          </div>
+        </div>
+        <div class="field">
+          <label for="emailInput">Email</label>
+          <input id="emailInput" type="email" required placeholder="you@example.com" />
+        </div>
+        <div class="field">
+          <label for="passwordInput">Password</label>
+          <input id="passwordInput" type="password" required placeholder="••••••••" />
+        </div>
+        <button id="authSubmitBtn" class="btn full-btn" type="submit">Sign in</button>
+      </form>
 
-var $ = function (s) { return document.querySelector(s); };
-var esc = function (v) {
-  return String(v == null ? '' : v).replace(/[&<>"']/g, function (c) {
-    return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
-  });
-};
-var money = function (n) { return '$' + Number(n || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); };
-var when = function (d) { return d ? new Date(d).toLocaleString() : '—'; };
-var pill = function (s) { return '<span class="pill ' + (PILL[s] || 'p-off') + '">' + esc(s) + '</span>'; };
-var flag = function (cc) {
-  return String.fromCodePoint.apply(null, cc.toUpperCase().split('').map(function (c) { return 127397 + c.charCodeAt(0); }));
-};
-var friendly = function (e) {
-  var m = String((e && e.message) || e || '').trim();
-  if (MSG[m]) return MSG[m];
-  if (m.indexOf('Invalid login credentials') > -1) return 'Email or password is incorrect.';
-  if (m.indexOf('Email not confirmed') > -1) return 'Verify your email before signing in.';
-  if (m.indexOf('already registered') > -1) return 'An account with this email already exists.';
-  return m || 'Something went wrong. Please try again.';
-};
-var setMsg = function (t, m) { S.msg = { t: t, m: m }; };
-var msgHTML = function () {
-  var m = S.msg; S.msg = null;
-  return m ? '<div class="msg ' + m.t + '">' + esc(m.m) + '</div>' : '';
-};
-var errorBox = function (e) { return '<div class="card"><div class="msg err">' + esc(friendly(e)) + '</div></div>'; };
-var stat = function (label, value, cls) {
-  return '<div class="' + cls + '"><small>' + esc(label) + '</small><b>' + money(value) + '</b></div>';
-};
-var off = function (title, text) {
-  return '<div class="card"><div class="row"><h2>' + esc(title) + '</h2><span class="pill p-off">Disabled</span></div>' +
-    '<p class="muted">' + esc(text) + '</p></div>';
-};
-var isAdmin = function () { return !!(S.profile && (S.profile.role === 'admin' || S.profile.role === 'super_admin')); };
-var sum = function (rows) { return (rows || []).reduce(function (a, r) { return a + Number(r.amount); }, 0); };
+      <div class="row-links">
+        <button id="forgotBtn" class="link-btn" type="button">Forgot password?</button>
+        <button id="toggleAuthModeBtn" class="link-btn" type="button">Create account</button>
+      </div>
+      <div id="authMessage"></div>
+    </section>
 
-/* ================= AUTH VIEWS ================= */
-function authHTML(view) {
-  var dialOpts = DIALS.map(function (c) {
-    return '<option value="' + c[0] + '|' + c[2] + '">' + flag(c[0]) + ' ' + esc(c[1]) + ' (' + c[2] + ')</option>';
-  }).join('');
-  var box = function (title, sub, body) {
-    return '<div class="card auth"><h1>' + title + '</h1><p class="muted">' + sub + '</p>' + body + '</div>';
-  };
-  if (view === 'signup') return box('Create account', 'Takes about a minute. We will email you a 6-digit code.',
-    '<form data-form="signup">' +
-    '<label>Full name<input name="full_name" required minlength="2"></label>' +
-    '<label>Username (3–20 letters, numbers or _)<input name="username" required pattern="[A-Za-z0-9_]{3,20}"></label>' +
-    '<label>Email<input type="email" name="email" required></label>' +
-    '<label>Country and code<select name="country">' + dialOpts + '</select></label>' +
-    '<label>Phone number (without country code)<input name="phone" inputmode="tel" required></label>' +
-    '<label>Password (8+ characters)<input type="password" name="password" minlength="8" required></label>' +
-    '<label>Confirm password<input type="password" name="confirm" minlength="8" required></label>' +
-    '<label>Referrer username (optional)<input name="ref"></label>' +
-    '<button type="submit" style="width:100%">Create account</button></form>' +
-    '<p class="muted">Already registered? <a href="#login">Sign in</a></p>');
-  if (view === 'verify') return box('Verify your email', 'Enter the code sent to your email.',
-    '<form data-form="verify">' +
-    '<label>Email<input type="email" name="email" required value="' + esc(S.pendingEmail) + '"></label>' +
-    '<label>6-digit code<input name="token" inputmode="numeric" pattern="[0-9]{6,8}" required autocomplete="one-time-code"></label>' +
-    '<button type="submit" style="width:100%">Verify and continue</button></form>' +
-    '<form data-form="resend" style="margin-top:12px"><input type="hidden" name="email" value="' + esc(S.pendingEmail) + '">' +
-    '<button type="submit" class="ghost" style="width:100%">Resend code</button></form>');
-  if (view === 'forgot') return box('Reset password', 'We will email you a secure link.',
-    '<form data-form="forgot"><label>Email<input type="email" name="email" required></label>' +
-    '<button type="submit" style="width:100%">Send reset link</button></form>' +
-    '<p class="muted"><a href="#login">Back to sign in</a></p>');
-  if (view === 'reset') return box('Choose a new password', 'Use at least 8 characters.',
-    '<form data-form="reset"><label>New password<input type="password" name="password" minlength="8" required></label>' +
-    '<label>Confirm new password<input type="password" name="confirm" minlength="8" required></label>' +
-    '<button type="submit" style="width:100%">Update password</button></form>');
-  return box('Welcome back', 'Sign in to your PrimeCore account.',
-    '<form data-form="login"><label>Email<input type="email" name="email" required autocomplete="email"></label>' +
-    '<label>Password<input type="password" name="password" required autocomplete="current-password"></label>' +
-    '<button type="submit" style="width:100%">Sign in</button></form>' +
-    '<p class="muted" style="display:flex;justify-content:space-between;margin-top:12px">' +
-    '<a href="#forgot">Forgot password?</a><a href="#signup">Create account</a></p>');
-}
+    <section id="appView" class="hidden">
+      <div id="tab-dashboard" class="card tab-panel">
+        <h2 class="card-title" style="font-size: 20px;">Dashboard</h2>
+        <p id="userEmailText" class="card-sub"></p>
+        <div class="grid-2">
+          <div class="stat-box">
+            <div class="stat-label">Available Balance</div>
+            <div id="availBalText" class="stat-val">$0.00</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-label">Pending Balance</div>
+            <div id="pendBalText" class="stat-val">$0.00</div>
+          </div>
+        </div>
+      </div>
 
-/* ================= NAV ================= */
-function renderNav() {
-  var links = S.user ? [
-    ['dashboard', 'Dashboard'], ['tasks', 'Tasks'], ['daily', 'Daily Reward'], ['wallet', 'Wallet'],
-    ['investment', 'Investment'], ['team', 'My Team'], ['profit', 'Profit'], ['leaderboard', 'Leaderboard'],
-    ['profile', 'Profile'], ['help', 'Help']
-  ] : [];
-  if (isAdmin()) links.push(['admin', 'Admin']);
-  $('#nav').innerHTML = links.map(function (l) {
-    return '<a href="#' + l[0] + '" class="' + (S.view === l[0] ? 'on' : '') + '">' + l[1] + '</a>';
-  }).join('');
-  $('#logout').style.display = S.user ? '' : 'none';
-}
+      <div id="tab-tasks" class="card tab-panel hidden">
+        <h2 class="card-title" style="font-size: 20px;">Tasks</h2>
+        <p id="tasksInfo" style="color: #475569;">No tasks assigned yet.</p>
+      </div>
 
-/* ================= PAGES (signed in) ================= */
-var PAGES = {};
+      <div id="tab-daily-reward" class="card tab-panel hidden">
+        <h2 class="card-title" style="font-size: 20px;">Daily Reward</h2>
+        <p class="card-sub">Claim your daily check-in reward.</p>
+        <button id="claimDailyBtn" class="btn" type="button">Claim Daily Reward ($5.00)</button>
+        <div id="rewardMsg"></div>
+      </div>
 
-PAGES.dashboard = async function () {
-  var uid = S.user.id;
-  var q = await Promise.all([
-    sb.from('wallet_balances').select('available_balance,pending_hold').eq('user_id', uid).maybeSingle(),
-    sb.from('deposits').select('amount').eq('status', 'successful'),
-    sb.from('investments').select('amount').eq('status', 'active'),
-    sb.from('wallet_ledger').select('amount').eq('kind', 'task_credit').eq('status', 'posted'),
-    sb.from('wallet_ledger').select('kind,amount,status,created_at').order('created_at', { ascending: false }).limit(8)
-  ]);
-  var bad = q.filter(function (r) { return r.error; })[0];
-  if (bad) return errorBox(bad.error);
-  var bal = q[0].data || { available_balance: 0, pending_hold: 0 };
-  var recent = (q[4].data || []).map(function (t) {
-    return '<tr><td>' + when(t.created_at) + '</td><td>' + esc(KIND[t.kind] || t.kind) + '</td><td style="color:' +
-      (t.amount < 0 ? '#dc2626' : '#059669') + ';font-weight:600">' + (t.amount < 0 ? '−' : '+') + money(Math.abs(t.amount)) +
-      '</td><td>' + pill(t.status) + '</td></tr>';
-  }).join('');
-  return msgHTML() + '<h1>Dashboard</h1>' +
-    '<div class="two">' +
-      stat('Total Deposits', sum(q[1].data), 'stat') +
-      stat('Active Investment', sum(q[2].data), 'stat dark') +
-      stat('Available Balance', bal.available_balance, 'stat green') +
-      stat('Total Profit (verified task rewards)', sum(q[3].data), 'stat amber') +
-    '</div><div style="height:14px"></div>' +
-    '<div class="cols3">' +
-      off('Daily Reward', 'Fixed-rate daily rewards are disabled pending independent business and legal verification.') +
-      off('Compounding', 'Compounding is disabled pending independent business and legal verification.') +
-      off('Referral commissions', 'Commissions by referral level are disabled pending independent business and legal verification.') +
-      off('Daily Referral Challenge', 'Referral milestone rewards are disabled pending independent business and legal verification.') +
-    '</div>' +
-    '<div class="card"><h2>Recent transactions</h2><div class="wide">' +
-      (recent ? '<table><tr><th>Date</th><th>Type</th><th>Amount</th><th>Status</th></tr>' + recent + '</table>' : '<p class="muted">No transactions yet.</p>') +
-    '</div></div>';
-};
+      <div id="tab-wallet" class="card tab-panel hidden">
+        <h2 class="card-title" style="font-size: 20px;">Wallet</h2>
+        <p id="walletDetailText" style="color: #475569; font-weight: 600;">Available: $0.00 | Pending: $0.00</p>
+      </div>
 
-PAGES.wallet = async function () {
-  var uid = S.user.id;
-  var q = await Promise.all([
-    sb.from('wallet_balances').select('available_balance,pending_hold').eq('user_id', uid).maybeSingle(),
-    sb.from('deposits').select('id,amount,method,reference,status,requested_at').order('requested_at', { ascending: false }).limit(50),
-    sb.from('withdrawals').select('id,amount,method,destination,status,requested_at').order('requested_at', { ascending: false }).limit(50)
-  ]);
-  var bad = q.filter(function (r) { return r.error; })[0];
-  if (bad) return errorBox(bad.error);
-  var bal = q[0].data || { available_balance: 0, pending_hold: 0 };
-  var dep = (q[1].data || []).map(function (d) {
-    return '<tr><td>' + when(d.requested_at) + '</td><td>' + money(d.amount) + '</td><td>' + esc(d.method) + '</td><td>' + pill(d.status) + '</td></tr>';
-  }).join('');
-  var wd = (q[2].data || []).map(function (w) {
-    return '<tr><td>' + when(w.requested_at) + '</td><td>' + money(w.amount) + '</td><td>' + esc(w.destination) + '</td><td>' + pill(w.status) + '</td></tr>';
-  }).join('');
-  var methods = '<option value="bank">Bank transfer</option><option value="crypto">Crypto</option><option value="other">Other</option>';
-  return msgHTML() + '<h1>My Wallet</h1>' +
-    '<div class="two">' + stat('Available Balance', bal.available_balance, 'stat green') + stat('Pending holds', bal.pending_hold, 'stat amber') + '</div>' +
-    '<div style="height:14px"></div><div class="two">' +
-      '<div class="card"><h2>Request a deposit</h2><form data-form="deposit">' +
-        '<label>Amount (USD)<input type="number" name="amount" min="10" step="0.01" required></label>' +
-        '<label>Method<select name="method">' + methods + '</select></label>' +
-        '<label>Payment reference<input name="reference" required minlength="5"></label>' +
-        '<button type="submit">Submit deposit request</button></form>' +
-        '<p class="muted">Your balance changes only after an admin verifies the transfer.</p></div>' +
-      '<div class="card"><h2>Request a withdrawal</h2><form data-form="withdraw">' +
-        '<label>Amount (USD)<input type="number" name="amount" min="10" step="0.01" required></label>' +
-        '<label>Method<select name="method">' + methods + '</select></label>' +
-        '<label>Destination (account or wallet)<input name="destination" required minlength="5"></label>' +
-        '<button type="submit">Submit withdrawal request</button></form>' +
-        '<p class="muted">The amount is held now and released if the request is rejected.</p></div>' +
-    '</div>' +
-    '<div class="card"><h2>Deposits</h2><div class="wide">' + (dep ? '<table><tr><th>Requested</th><th>Amount</th><th>Method</th><th>Status</th></tr>' + dep + '</table>' : '<p class="muted">No deposit requests yet.</p>') + '</div></div>' +
-    '<div class="card"><h2>Withdrawals</h2><div class="wide">' + (wd ? '<table><tr><th>Requested</th><th>Amount</th><th>Destination</th><th>Status</th></tr>' + wd + '</table>' : '<p class="muted">No withdrawal requests yet.</p>') + '</div></div>';
-};
+      <div id="tab-invest" class="card tab-panel hidden">
+        <h2 class="card-title" style="font-size: 20px;">Invest</h2>
+        <p style="color: #475569;">Starter and growth investment plans will appear here.</p>
+      </div>
+    </section>
+  </main>
 
-PAGES.tasks = async function () {
-  var q = await Promise.all([
-    sb.from('tasks').select('id,category,title,description,reward_amount').eq('is_active', true).order('created_at'),
-    sb.from('task_completions').select('id,task_id,status,started_at,submitted_at').order('started_at', { ascending: false })
-  ]);
-  var bad = q.filter(function (r) { return r.error; })[0];
-  if (bad) return errorBox(bad.error);
-  var tasks = q[0].data || [], comps = q[1].data || [];
-  var by = {};
-  comps.forEach(function (c) { by[c.task_id] = c; });
-  var cards = tasks.map(function (t) {
-    var c = by[t.id];
-    var action = '';
-    if (!c) action = '<button data-act="start" data-id="' + esc(t.id) + '">Start task</button>';
-    else if (c.status === 'started') action = '<button data-act="submit" data-id="' + esc(c.id) + '">Submit for verification</button>';
-    else if (c.status === 'submitted') action = '<span class="muted">Awaiting admin review</span>';
-    else if (c.status === 'paid') action = '<span class="muted">Reward credited</span>';
-    return '<div class="card"><div class="row"><h2>' + esc(t.title) + '</h2><b>' + money(t.reward_amount) + '</b></div>' +
-      '<p class="muted">' + esc(t.description) + '</p><div class="row">' +
-      (c ? pill(c.status) : '<span class="pill p-off">Not started</span>') + action + '</div></div>';
-  }).join('');
-  var label = { started: 'Not submitted', submitted: 'Pending', paid: 'Success', rejected: 'Rejected' };
-  var reqs = comps.map(function (c) {
-    var t = tasks.filter(function (x) { return x.id === c.task_id; })[0];
-    return '<tr><td style="font-family:monospace">' + esc(c.id.slice(0, 8)) + '</td><td>' + esc(t ? t.title : '—') +
-      '</td><td>' + money(t ? t.reward_amount : 0) + '</td><td>' + when(c.submitted_at) + '</td><td>' + pill(label[c.status] || c.status) + '</td></tr>';
-  }).join('');
-  return msgHTML() + '<h1>Tasks Center</h1><p class="muted">Rewards are credited only after an admin verifies the task.</p>' +
-    (cards || '<div class="card"><p class="muted">No tasks are available right now.</p></div>') +
-    '<div class="card"><h2>Claim requests</h2><div class="wide">' +
-      (reqs ? '<table><tr><th>Request ID</th><th>Task</th><th>Reward</th><th>Submitted</th><th>Status</th></tr>' + reqs + '</table>' : '<p class="muted">No claim requests yet.</p>') +
-    '</div></div>';
-};
+  <script>
+    const SUPABASE_URL = "https://qufxjfntdqhympultbx.supabase.co";
+    const SUPABASE_KEY = "sb_publishable_639f9uEApKsGgOtQW_J9Jg_M-nnwtnB";
+    const sb = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY) : null;
 
-PAGES.daily = async function () {
-  return msgHTML() + '<h1>Daily Reward</h1>' +
-    off('Daily Reward', 'Status: disabled. Fixed-rate daily rewards will not be offered until independent business and legal verification is complete. No rewards are being credited.');
-};
+    let isSignUp = false;
 
-PAGES.investment = async function () {
-  var names = ['Junior', 'Senior', 'Special', 'Elite', 'Universal'];
-  var cats = names.map(function (n) {
-    return '<div class="card"><div class="row"><h2>' + n + '</h2><span class="pill p-off">Not open</span></div>' +
-      '<p class="muted">Informational category name. No returns, rates or balance ranges are offered.</p></div>';
-  }).join('');
-  return msgHTML() + '<h1>Investment</h1><p class="muted">Plan categories are for information only. None is open for investment.</p>' +
-    '<div class="cols3">' + cats + '</div>' +
-    off('New investments', 'New investments cannot be created until terms, risk disclosures, fees, lock periods and legal approvals are complete.');
-};
+    const loadingView = document.getElementById("loadingView");
+    const authView = document.getElementById("authView");
+    const appView = document.getElementById("appView");
+    const navTabs = document.getElementById("navTabs");
+    const signOutBtn = document.getElementById("signOutBtn");
+    const authMessage = document.getElementById("authMessage");
+    const authSubmitBtn = document.getElementById("authSubmitBtn");
 
-PAGES.team = async function () {
-  var r = await sb.rpc('team_tree');
-  if (r.error) return errorBox(r.error);
-  var rows = r.data || [];
-  var me = S.user.id;
-  var direct = rows.filter(function (x) { return x.level === 1; });
-  var totals = {
-    members: rows.length,
-    deposits: rows.reduce(function (a, x) { return a + Number(x.deposits); }, 0),
-    investments: rows.reduce(function (a, x) { return a + Number(x.investments); }, 0)
-  };
-  function tree(parent, depth) {
-    var kids = rows.filter(function (x) { return x.parent_id === parent; });
-    if (!kids.length) return '';
-    return '<ul class="tree">' + kids.map(function (k) {
-      return '<li><details' + (depth < 2 ? ' open' : '') + '><summary><span class="av">' + esc((k.full_name || '?').charAt(0).toUpperCase()) +
-        '</span> <b>' + esc(k.full_name) + '</b> <span class="muted">@' + esc(k.username) + '</span> · L' + k.level +
-        ' · Dep ' + money(k.deposits) + ' · Inv ' + money(k.investments) + '</summary>' + tree(k.member_id, depth + 1) + '</details></li>';
-    }).join('') + '</ul>';
-  }
-  var directRows = direct.map(function (d) {
-    return '<tr><td>' + esc(d.full_name) + ' <span class="muted">@' + esc(d.username) + '</span></td><td style="font-family:monospace">' +
-      esc(d.member_id.slice(0, 8)) + '</td><td>' + when(d.joined_at) + '</td></tr>';
-  }).join('');
-  return msgHTML() + '<h1>My Team</h1>' +
-    '<div class="two">' + stat('Team deposits', totals.deposits, 'stat') + stat('Team investments', totals.investments, 'stat dark') + '</div>' +
-    '<p class="muted">Team members: ' + totals.members + ' · Direct referrals: ' + direct.length + '</p>' +
-    '<div class="card"><h2>Direct referrals</h2><p class="muted">Registration records only. Referrals do not generate payments.</p><div class="wide">' +
-      (directRows ? '<table><tr><th>Member</th><th>Member ID</th><th>Registered</th></tr>' + directRows + '</table>' : '<p class="muted">No direct referrals yet. Share your link with ?ref=' + esc(S.profile ? S.profile.username : '') + '</p>') +
-    '</div></div>' +
-    '<div class="card"><h2>Referral tree</h2>' + (rows.length ? tree(me, 0) : '<p class="muted">Your referral tree is empty.</p>') + '</div>' +
-    '<div class="cols3">' +
-      off('Team commission', 'Commissions by referral level are disabled pending independent business and legal verification.') +
-      off('Daily Referral Challenge', 'Referral milestone rewards are disabled pending independent business and legal verification.') +
-    '</div>';
-};
+    function showLoading() {
+      loadingView.classList.remove("hidden");
+      authView.classList.add("hidden");
+      appView.classList.add("hidden");
+      navTabs.classList.add("hidden");
+      signOutBtn.classList.add("hidden");
+    }
 
-PAGES.profit = async function () {
-  var r = await sb.from('wallet_ledger').select('amount').eq('kind', 'task_credit').eq('status', 'posted');
-  if (r.error) return errorBox(r.error);
-  return msgHTML() + '<h1>Profit</h1><p class="muted">Only verified, posted earnings are shown.</p>' +
-    '<div class="two">' + stat('Verified task earnings', sum(r.data), 'stat amber') + '</div><div style="height:14px"></div>' +
-    '<div class="cols3">' +
-      off('Compounding', 'Compounding is disabled pending independent business and legal verification. No compounded amount is calculated or shown.') +
-      off('Investment returns', 'Investment returns are not modelled or shown until verified results and legal approvals exist.') +
-    '</div>';
-};
+    function showAuth() {
+      loadingView.classList.add("hidden");
+      appView.classList.add("hidden");
+      navTabs.classList.add("hidden");
+      signOutBtn.classList.add("hidden");
+      authView.classList.remove("hidden");
+    }
 
-PAGES.leaderboard = async function () {
-  return msgHTML() + '<h1>Leaderboard</h1>' + off('Leaderboard', 'Not available in this version.');
-};
+    function showApp() {
+      loadingView.classList.add("hidden");
+      authView.classList.add("hidden");
+      appView.classList.remove("hidden");
+      navTabs.classList.remove("hidden");
+      signOutBtn.classList.remove("hidden");
+    }
 
-PAGES.profile = async function () {
-  var p = S.profile || {};
-  return msgHTML() + '<h1>Profile</h1>' +
-    '<div class="card"><table>' +
-      '<tr><th>Username</th><td>@' + esc(p.username) + '</td></tr>' +
-      '<tr><th>Email</th><td>' + esc(p.email) + '</td></tr>' +
-      '<tr><th>Country code</th><td>' + esc(p.dial_code) + '</td></tr>' +
-      '<tr><th>Role</th><td>' + esc(p.role) + '</td></tr>' +
-      '<tr><th>Member ID</th><td style="font-family:monospace;word-break:break-all">' + esc(S.user.id) + '</td></tr>' +
-    '</table></div>' +
-    '<div class="card"><h2>Edit details</h2><form data-form="profile">' +
-      '<label>Full name<input name="full_name" required minlength="2" maxlength="80" value="' + esc(p.full_name) + '"></label>' +
-      '<label>Phone (without country code)<input name="phone" inputmode="tel" required value="' + esc(p.phone) + '"></label>' +
-      '<button type="submit">Save changes</button></form></div>';
-};
+    async function loadUserData(user) {
+      document.getElementById("userEmailText").textContent = "Signed in as: " + (user.email || "");
+      if (!sb) return;
+      try {
+        const { data: wallet } = await sb
+          .from("wallet_balances")
+          .select("available_balance, pending_balance")
+          .eq("user_id", user.id)
+          .maybeSingle();
 
-PAGES.help = async function () {
-  var faq = [
-    ['How do deposits work?', 'Submit a deposit request with your transfer reference. Your balance changes only after the transfer is verified by an admin.'],
-    ['How do withdrawals work?', 'The amount is held when you submit. An admin reviews it. Approved withdrawals are paid outside the app. Rejected requests release the held amount.'],
-    ['Why are rewards and investments disabled?', 'They are switched off until the business evidence and legal approvals are complete. They are not available on any account.'],
-    ['Where do task rewards come from?', 'Task rewards are credited after an admin verifies the completed task. Track each request on the Tasks page.'],
-    ['Contact support', 'Support contact details will be published before launch. Never share your password or verification code with anyone.']
-  ];
-  return msgHTML() + '<h1>Help &amp; Support</h1>' + faq.map(function (f) {
-    return '<div class="card"><h2>' + esc(f[0]) + '</h2><p class="muted">' + esc(f[1]) + '</p></div>';
-  }).join('');
-};
+        const avail = Number(wallet?.available_balance ?? 0).toFixed(2);
+        const pend = Number(wallet?.pending_balance ?? 0).toFixed(2);
 
-PAGES.admin = async function () {
-  if (!isAdmin()) return errorBox(new Error('forbidden'));
-  var q = await Promise.all([
-    sb.from('deposits').select('id,user_id,amount,method,reference,status,requested_at').order('requested_at', { ascending: false }).limit(100),
-    sb.from('withdrawals').select('id,user_id,amount,method,destination,status,requested_at').order('requested_at', { ascending: false }).limit(100),
-    sb.from('task_completions').select('id,user_id,status,submitted_at,task:tasks(title,reward_amount)').eq('status', 'submitted').limit(100),
-    sb.from('audit_log').select('action,target_table,created_at').order('created_at', { ascending: false }).limit(50)
-  ]);
-  var bad = q.filter(function (r) { return r.error; })[0];
-  if (bad) return errorBox(bad.error);
-  var deps = (q[0].data || []).map(function (d) {
-    var act = d.status === 'pending'
-      ? '<button class="small" data-act="dep-ok" data-id="' + esc(d.id) + '">Confirm</button><button class="small ghost" data-act="dep-no" data-id="' + esc(d.id) + '">Reject</button>' : '';
-    return '<tr><td>' + when(d.requested_at) + '</td><td style="font-family:monospace">' + esc(d.user_id.slice(0, 8)) + '</td><td>' + money(d.amount) +
-      '</td><td>' + esc(d.method) + ' · ' + esc(d.reference || '—') + '</td><td>' + pill(d.status) + '</td><td>' + act + '</td></tr>';
-  }).join('');
-  var wds = (q[1].data || []).map(function (w) {
-    var act = w.status === 'pending'
-      ? '<button class="small" data-act="wd-ok" data-id="' + esc(w.id) + '">Approve</button><button class="small ghost" data-act="wd-no" data-id="' + esc(w.id) + '">Reject</button>' : '';
-    return '<tr><td>' + when(w.requested_at) + '</td><td style="font-family:monospace">' + esc(w.user_id.slice(0, 8)) + '</td><td>' + money(w.amount) +
-      '</td><td>' + esc(w.method) + ' · ' + esc(w.destination) + '</td><td>' + pill(w.status) + '</td><td>' + act + '</td></tr>';
-  }).join('');
-  var tasks = (q[2].data || []).map(function (t) {
-    return '<tr><td>' + when(t.submitted_at) + '</td><td style="font-family:monospace">' + esc(t.user_id.slice(0, 8)) + '</td><td>' +
-      esc(t.task ? t.task.title : '—') + '</td><td>' + money(t.task ? t.task.reward_amount : 0) + '</td><td>' +
-      '<button class="small" data-act="task-ok" data-id="' + esc(t.id) + '">Verify and pay</button>' +
-      '<button class="small ghost" data-act="task-no" data-id="' + esc(t.id) + '">Reject</button></td></tr>';
-  }).join('');
-  var audit = (q[3].data || []).map(function (a) {
-    return '<tr><td>' + when(a.created_at) + '</td><td>' + esc(a.action) + '</td><td>' + esc(a.target_table || '—') + '</td></tr>';
-  }).join('');
-  var wrap = function (head, rows, empty) {
-    return rows ? '<div class="wide"><table><tr>' + head + '</tr>' + rows + '</table></div>' : '<p class="muted">' + empty + '</p>';
-  };
-  return msgHTML() + '<h1>Admin Panel</h1><p class="muted">Every action is recorded in the audit log. Verify transfers and payouts independently.</p>' +
-    '<div class="card"><h2>Deposits</h2>' + wrap('<th>Requested</th><th>User</th><th>Amount</th><th>Method · reference</th><th>Status</th><th>Action</th>', deps, 'No deposit requests.') + '</div>' +
-    '<div class="card"><h2>Withdrawals</h2>' + wrap('<th>Requested</th><th>User</th><th>Amount</th><th>Method · destination</th><th>Status</th><th>Action</th>', wds, 'No withdrawal requests.') + '</div>' +
-    '<div class="card"><h2>Task submissions awaiting review</h2>' + wrap('<th>Submitted</th><th>User</th><th>Task</th><th>Reward</th><th>Action</th>', tasks, 'No submissions awaiting review.') + '</div>' +
-    '<div class="card"><h2>Audit log (latest 50)</h2>' + wrap('<th>Time</th><th>Action</th><th>Table</th>', audit, 'No entries yet.') + '</div>';
-};
+        document.getElementById("availBalText").textContent = "$" + avail;
+        document.getElementById("pendBalText").textContent = "$" + pend;
+        document.getElementById("walletDetailText").textContent =
+          "Available: $" + avail + " | Pending: $" + pend;
 
-/* ================= FORM HANDLERS ================= */
-var FORMS = {
-  login: async function (d) {
-    var r = await sb.auth.signInWithPassword({ email: d.email.trim(), password: d.password });
-    if (r.error) throw r.error;
-    return { msg: 'Signed in.', go: 'dashboard' };
-  },
-  signup: async function (d) {
-    var un = d.username.trim().toLowerCase();
-    var phone = d.phone.replace(/[\s-]/g, '');
-    var cc = d.country.split('|');
-    if (!/^[a-z0-9_]{3,20}$/.test(un)) throw new Error('Username must be 3–20 characters: letters, numbers or underscore.');
-    if (!/^[0-9]{6,15}$/.test(phone)) throw new Error('Enter your phone number without the country code.');
-    if (d.password.length < 8) throw new Error('Password must be at least 8 characters.');
-    if (d.password !== d.confirm) throw new Error('Passwords do not match.');
-    var r = await sb.auth.signUp({
-      email: d.email.trim(), password: d.password,
-      options: { data: {
-        username: un, full_name: d.full_name.trim(), country_code: cc[0], dial_code: cc[1], phone: phone,
-        referrer_username: d.ref.trim().toLowerCase() || null
-      } }
+        const { data: tasks } = await sb
+          .from("tasks")
+          .select("id, title, status")
+          .eq("user_id", user.id);
+
+        document.getElementById("tasksInfo").textContent =
+          tasks && tasks.length > 0
+            ? tasks.map(t => `${t.title} (${t.status})`).join(", ")
+            : "No tasks assigned yet.";
+      } catch (err) {
+        console.error("Data load warning:", err);
+      }
+    }
+
+    async function syncSession() {
+      showLoading();
+      if (!sb) {
+        showAuth();
+        return;
+      }
+      try {
+        const { data: { session }, error } = await sb.auth.getSession();
+        if (error || !session || !session.user) {
+          showAuth();
+          return;
+        }
+        await loadUserData(session.user);
+        showApp();
+      } catch (err) {
+        console.error("Session sync error:", err);
+        showAuth();
+      }
+    }
+
+    document.getElementById("toggleAuthModeBtn").addEventListener("click", () => {
+      isSignUp = !isSignUp;
+      authMessage.innerHTML = "";
+      document.getElementById("signupExtraFields").classList.toggle("hidden", !isSignUp);
+      document.getElementById("authTitle").textContent = isSignUp ? "Create account" : "Welcome back";
+      document.getElementById("authSubtitle").textContent = isSignUp
+        ? "Register your new PrimeCore account."
+        : "Sign in to your PrimeCore account.";
+      authSubmitBtn.textContent = isSignUp ? "Create account" : "Sign in";
+      document.getElementById("toggleAuthModeBtn").textContent = isSignUp
+        ? "Already have an account? Sign in"
+        : "Create account";
     });
-    if (r.error) throw r.error;
-    S.pendingEmail = d.email.trim();
-    return { msg: 'Enter the 6-digit code we emailed you.', go: 'verify' };
-  },
-  verify: async function (d) {
-    var r = await sb.auth.verifyOtp({ email: d.email.trim(), token: d.token.trim(), type: 'signup' });
-    if (r.error) throw r.error;
-    return { msg: 'Email verified.', go: 'dashboard' };
-  },
-  resend: async function (d) {
-    var r = await sb.auth.resend({ type: 'signup', email: d.email.trim() });
-    if (r.error) throw r.error;
-    return { msg: 'A new code was sent.' };
-  },
-  forgot: async function (d) {
-    await sb.auth.resetPasswordForEmail(d.email.trim(), { redirectTo: location.origin + location.pathname });
-    return { msg: 'If an account exists for that email, a reset link has been sent.', go: 'login' };
-  },
-  reset: async function (d) {
-    if (d.password !== d.confirm) throw new Error('Passwords do not match.');
-    if (d.password.length < 8) throw new Error('Password must be at least 8 characters.');
-    var r = await sb.auth.updateUser({ password: d.password });
-    if (r.error) throw r.error;
-    return { msg: 'Password updated.', go: 'dashboard' };
-  },
-  deposit: async function (d) {
-    var amt = parseFloat(d.amount);
-    if (!(amt >= 10)) throw new Error('invalid_amount');
-    if (!window.confirm('Submit a deposit request for ' + money(amt) + '? It stays pending until verified.')) return { skip: true };
-    var r = await sb.rpc('request_deposit', { p_amount: amt, p_method: d.method, p_reference: d.reference.trim() });
-    if (r.error) throw r.error;
-    return { msg: 'Deposit request submitted. It stays pending until verified.', go: 'wallet' };
-  },
-  withdraw: async function (d) {
-    var amt = parseFloat(d.amount);
-    if (!(amt >= 10)) throw new Error('invalid_amount');
-    if (!window.confirm('Request a withdrawal of ' + money(amt) + '? The amount is held until reviewed.')) return { skip: true };
-    var r = await sb.rpc('request_withdrawal', { p_amount: amt, p_method: d.method, p_destination: d.destination.trim() });
-    if (r.error) throw r.error;
-    return { msg: 'Withdrawal request submitted. Funds are held until reviewed.', go: 'wallet' };
-  },
-  profile: async function (d) {
-    var phone = d.phone.replace(/[\s-]/g, '');
-    if (!/^[0-9]{6,15}$/.test(phone)) throw new Error('Enter your phone number without the country code.');
-    var r = await sb.from('profiles').update({ full_name: d.full_name.trim(), phone: phone }).eq('id', S.user.id);
-    if (r.error) throw r.error;
-    await loadProfile();
-    return { msg: 'Profile saved.', go: 'profile' };
-  }
-};
 
-document.addEventListener('submit', async function (e) {
-  var f = e.target;
-  if (!f.dataset || !f.dataset.form) return;
-  e.preventDefault();
-  var btn = f.querySelector('button[type=submit]');
-  if (btn) btn.disabled = true;
-  var d = {};
-  new FormData(f).forEach(function (v, k) { d[k] = String(v); });
-  try {
-    var out = await FORMS[f.dataset.form](d);
-    if (out.skip) { if (btn) btn.disabled = false; return; }
-    setMsg('ok', out.msg);
-    if (out.go && location.hash !== '#' + out.go) location.hash = '#' + out.go;
-    else await render();
-  } catch (ex) {
-    setMsg('err', friendly(ex));
-    await render();
-  }
-});
+    document.getElementById("authForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      authMessage.innerHTML = "";
+      const email = document.getElementById("emailInput").value.trim();
+      const password = document.getElementById("passwordInput").value;
+      const fullName = document.getElementById("fullNameInput").value.trim();
+      const phone = document.getElementById("phoneInput").value.trim();
+      const referral = document.getElementById("referralInput").value.trim();
 
-/* ================= ADMIN & TASK ACTIONS ================= */
-var CONFIRM = {
-  'dep-ok': 'Confirm this transfer was received in the company bank account? This credits the member balance.',
-  'wd-ok': 'Approve this withdrawal? Record the payout outside the app.',
-  'task-ok': 'Verify this task and credit the reward?'
-};
-var OK_TEXT = { start: 'Task started.', submit: 'Task submitted for verification.', 'dep-ok': 'Deposit confirmed.',
-  'dep-no': 'Deposit rejected.', 'wd-ok': 'Withdrawal approved.', 'wd-no': 'Withdrawal rejected.',
-  'task-ok': 'Task verified and reward credited.', 'task-no': 'Task rejected.' };
+      authSubmitBtn.disabled = true;
+      const prevLabel = authSubmitBtn.textContent;
+      authSubmitBtn.textContent = isSignUp ? "Creating account..." : "Signing in...";
 
-document.addEventListener('click', async function (e) {
-  var b = e.target.closest && e.target.closest('[data-act]');
-  if (!b || b.disabled) return;
-  var a = b.dataset.act, id = b.dataset.id;
-  var calls = {
-    'start': function () { return sb.rpc('start_task', { p_task: id }); },
-    'submit': function () { return sb.rpc('submit_task', { p_completion: id }); },
-    'dep-ok': function () { return sb.rpc('confirm_deposit', { p_id: id }); },
-    'dep-no': function () { return sb.rpc('reject_deposit', { p_id: id, p_reason: 'Rejected by admin' }); },
-    'wd-ok': function () { return sb.rpc('review_withdrawal', { p_id: id, p_approve: true }); },
-    'wd-no': function () { return sb.rpc('review_withdrawal', { p_id: id, p_approve: false }); },
-    'task-ok': function () { return sb.rpc('review_task', { p_completion: id, p_approve: true }); },
-    'task-no': function () { return sb.rpc('review_task', { p_completion: id, p_approve: false }); }
-  };
-  if (!calls[a]) return;
-  if (CONFIRM[a] && !window.confirm(CONFIRM[a])) return;
-  b.disabled = true;
-  var r = await calls[a]();
-  if (r.error) setMsg('err', friendly(r.error)); else setMsg('ok', OK_TEXT[a]);
-  await render();
-});
+      try {
+        if (isSignUp) {
+          const { data, error } = await sb.auth.signUp({
+            email,
+            password,
+            options: {
+              data: {
+                full_name: fullName || "User",
+                phone: phone || null,
+                referral_code: referral || null
+              },
+              emailRedirectTo: "https://primecoreuk.vercel.app"
+            }
+          });
+          if (error) {
+            authMessage.innerHTML = `<div class="msg-err">${error.message}</div>`;
+            return;
+          }
+          if (data?.session?.user) {
+            await loadUserData(data.session.user);
+            showApp();
+            return;
+          }
+          authMessage.innerHTML = `<div class="msg-ok">Account created! Aap ab sign in kar sakte hain.</div>`;
+        } else {
+          const { data, error } = await sb.auth.signInWithPassword({ email, password });
+          if (error) {
+            authMessage.innerHTML = `<div class="msg-err">${error.message}</div>`;
+            return;
+          }
+          if (data?.user) {
+            await loadUserData(data.user);
+            showApp();
+          }
+        }
+      } catch (netErr) {
+        authMessage.innerHTML = `<div class="msg-err">Connection Error: ${netErr?.message || netErr}</div>`;
+      } finally {
+        authSubmitBtn.disabled = false;
+        authSubmitBtn.textContent = prevLabel;
+      }
+    });
 
-/* ================= SESSION & ROUTING ================= */
-async function loadProfile() {
-  if (!S.user) { S.profile = null; return; }
-  var r = await sb.from('profiles').select('*').eq('id', S.user.id).maybeSingle();
-  S.profile = r.data || null;
-}
+    document.getElementById("forgotBtn").addEventListener("click", async () => {
+      const email = document.getElementById("emailInput").value.trim();
+      if (!email) {
+        authMessage.innerHTML = `<div class="msg-err">Enter your email first to reset password.</div>`;
+        return;
+      }
+      try {
+        const { error } = await sb.auth.resetPasswordForEmail(email, {
+          redirectTo: "https://primecoreuk.vercel.app"
+        });
+        authMessage.innerHTML = error
+          ? `<div class="msg-err">${error.message}</div>`
+          : `<div class="msg-ok">Password reset link sent to ${email}.</div>`;
+      } catch (err) {
+        authMessage.innerHTML = `<div class="msg-err">Connection Error: ${err?.message || err}</div>`;
+      }
+    });
 
-async function render() {
-  var my = ++seq;
-  if (!CONFIGURED) {
-    $('#nav').innerHTML = '';
-    $('#app').innerHTML = '<div class="card"><h1>Setup needed</h1><p>Open index.html and set SUPABASE_URL and SUPABASE_ANON_KEY (public values from Supabase &gt; Project Settings &gt; API).</p></div>';
-    return;
-  }
-  if (!S.ready) { $('#app').innerHTML = '<p class="muted">Loading…</p>'; return; }
+    signOutBtn.addEventListener("click", async () => {
+      if (sb) await sb.auth.signOut();
+      showAuth();
+    });
 
-  var h = location.hash.indexOf('access_token') > -1 ? '' : location.hash.slice(1);
-  var view = h || 'dashboard';
-  S.view = view;
+    document.querySelectorAll(".tab").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll(".tab").forEach((t) => t.classList.remove("active"));
+        btn.classList.add("active");
+        const target = btn.getAttribute("data-tab");
+        document.querySelectorAll(".tab-panel").forEach((p) => p.classList.add("hidden"));
+        document.getElementById("tab-" + target)?.classList.remove("hidden");
+      });
+    });
 
-  if (!S.user || view === 'reset') {
-    if (!S.user && AUTH.indexOf(view) < 0) view = 'login';
-    S.view = view;
-    renderNav();
-    $('#app').innerHTML = msgHTML() + authHTML(view);
-    return;
-  }
-  if (AUTH.indexOf(view) > -1) { location.hash = '#dashboard'; return; }
-  if (!PAGES[view]) { view = 'dashboard'; S.view = view; }
+    document.getElementById("claimDailyBtn").addEventListener("click", async () => {
+      const rewardMsg = document.getElementById("rewardMsg");
+      rewardMsg.innerHTML = "";
+      if (!sb) return;
+      const { data: { user } } = await sb.auth.getUser();
+      if (!user) return;
+      const { error } = await sb.from("daily_rewards").insert({
+        user_id: user.id,
+        reward_amount: 5.00
+      });
+      if (error) {
+        rewardMsg.innerHTML = `<div class="msg-err">${error.message}</div>`;
+        return;
+      }
+      rewardMsg.innerHTML = `<div class="msg-ok">Daily reward of $5.00 recorded!</div>`;
+    });
 
-  renderNav();
-  $('#app').innerHTML = '<p class="muted">Loading…</p>';
-  var html = await PAGES[view]();
-  if (my !== seq) return;
-  $('#app').innerHTML = html;
-}
+    if (sb) {
+      sb.auth.onAuthStateChange(async (event, session) => {
+        if (event === "SIGNED_OUT" || !session?.user) {
+          showAuth();
+        } else if (event === "SIGNED_IN" || event === "TOKEN_REFRESHED") {
+          await loadUserData(session.user);
+          showApp();
+        }
+      });
+    }
 
-$('#logout').addEventListener('click', async function () {
-  if (sb) await sb.auth.signOut();
-  setMsg('ok', 'Signed out.');
-  location.hash = '#login';
-});
-
-window.addEventListener('hashchange', function () { render(); });
-
-if (CONFIGURED) {
-  sb.auth.onAuthStateChange(async function (event, session) {
-    if (event === 'PASSWORD_RECOVERY') { location.hash = '#reset'; }
-    S.user = session ? session.user : null;
-    await loadProfile();
-    S.ready = true;
-    render();
-  });
-} else {
-  render();
-}
-
-})();
-</script>
+    syncSession();
+  </script>
 </body>
 </html>
