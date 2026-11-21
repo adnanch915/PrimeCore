@@ -1,882 +1,306 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="robots" content="noindex">
-<title>PrimeCore</title>
-<style>
-:root{--navy:#1b1f3b;--purple:#6d28d9;--purple2:#a78bfa;--bg:#f1f5f9;--text:#0f172a;--muted:#64748b;--card:#fff;--line:#e2e8f0}
-*{box-sizing:border-box}
-body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--text);-webkit-text-size-adjust:100%}
-a{color:var(--purple);text-decoration:none}
-header{background:var(--navy);color:#fff;display:flex;align-items:center;gap:10px;padding:10px 14px;position:sticky;top:0;z-index:10;flex-wrap:wrap}
-.brand{font-weight:800;font-size:18px;margin-right:auto}
-.brand span{color:var(--purple2)}
-nav{display:flex;gap:4px;overflow-x:auto;max-width:100%;-webkit-overflow-scrolling:touch;width:100%}
-nav a{color:#c9cbe6;padding:8px 10px;border-radius:10px;font-size:14px;white-space:nowrap}
-nav a.on,nav a:hover{background:var(--purple);color:#fff}
-main{padding:16px;max-width:1200px;margin:0 auto}
-h1{font-size:22px;margin:6px 0 14px}
-h2{font-size:16px;margin:0 0 10px}
-h3{font-size:14px;margin:0 0 8px}
-.muted{color:var(--muted);font-size:13px}
-.two{display:grid;gap:14px;grid-template-columns:1fr 1fr}
-.cols3{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}
-.cols4{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(210px,1fr))}
-.card{background:var(--card);border-radius:16px;padding:18px;box-shadow:0 2px 10px rgba(15,23,42,.06);border:1px solid var(--line);min-width:0;margin-bottom:14px;transition:transform .15s ease,box-shadow .15s ease}
-.stat{color:#fff;border-radius:16px;padding:18px;background:linear-gradient(135deg,var(--purple),#6366f1);min-width:0;margin-bottom:14px}
-.stat.dark{background:linear-gradient(135deg,var(--navy),#3b4a8f)}
-.stat.green{background:linear-gradient(135deg,#059669,#14b8a6)}
-.stat.amber{background:linear-gradient(135deg,#d97706,#f59e0b)}
-.stat small{opacity:.9;font-size:13px}
-.stat b{display:block;font-size:24px;margin-top:6px;word-break:break-word}
-button{background:linear-gradient(90deg,var(--purple),#8b5cf6);color:#fff;border:0;border-radius:12px;padding:11px 16px;font-weight:600;cursor:pointer;font-size:15px;min-height:44px;font-family:inherit}
-button:disabled{opacity:.5;cursor:not-allowed}
-button.ghost{background:#fff;color:var(--purple);border:1px solid var(--purple)}
-button.small{padding:6px 10px;font-size:13px;min-height:34px;margin:2px 4px 2px 0}
-input,select,textarea{width:100%;padding:11px 12px;border:1px solid #cbd5e1;border-radius:10px;font-size:16px;margin-top:4px;background:#fff;font-family:inherit}
-label{display:block;font-size:13px;color:#334155;margin-bottom:10px}
-.auth{max-width:440px;margin:24px auto}
-table{width:100%;border-collapse:collapse;font-size:14px}
-.wide{overflow-x:auto}
-th,td{text-align:left;padding:9px 6px;border-bottom:1px solid var(--line);vertical-align:top}
-th{color:var(--muted);font-size:12px;font-weight:600}
-.pill{font-size:12px;border-radius:99px;padding:2px 9px;font-weight:600;white-space:nowrap;display:inline-block}
-.p-ok{background:#d1fae5;color:#059669}.p-wait{background:#fef3c7;color:#b45309}.p-bad{background:#fee2e2;color:#dc2626}.p-off{background:#e2e8f0;color:#475569}.p-info{background:#ede9fe;color:#5b21b6}
-.msg{padding:10px 12px;border-radius:10px;margin:0 0 14px;font-size:14px}
-.msg.ok{background:#d1fae5;color:#065f46}.msg.err{background:#fee2e2;color:#991b1b}
-.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;justify-content:space-between}
-ul.tree{list-style:none;margin:0;padding-left:16px;border-left:2px solid #ddd6fe}
-ul.tree li{margin:8px 0}
-details summary{cursor:pointer;padding:4px 0}
-.av{display:inline-grid;place-items:center;width:26px;height:26px;border-radius:50%;background:#7c3aed;color:#fff;font-size:12px;vertical-align:middle}
-.notice{background:#fef3c7;color:#92400e;padding:12px 14px;border-radius:12px;margin-bottom:14px;font-size:14px}
-.prog{height:8px;background:#e2e8f0;border-radius:99px;overflow:hidden;margin:8px 0}
-.prog > i{display:block;height:100%;background:linear-gradient(90deg,var(--purple),#14b8a6);border-radius:99px}
-.kpi{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px dashed var(--line);font-size:14px}
-.kpi:last-child{border-bottom:0}
-.plan-active{border:2px solid var(--purple);box-shadow:0 4px 16px rgba(109,40,217,.14)}
-@media (max-width:640px){
-  main{padding:12px}
-  .two{grid-template-columns:1fr}
-  h1{font-size:20px}
-  .brand{width:100%}
-  .stat b{font-size:21px}
-  .row{align-items:flex-start}
-}
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PrimeCore</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
+    body { background: #f8fafc; color: #0f172a; }
+    .topbar { background: #1e1b4b; color: #ffffff; padding: 14px 18px; display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+    .brand { font-size: 20px; font-weight: 700; }
+    .btn { background: #8b5cf6; color: #ffffff; border: none; border-radius: 8px; padding: 9px 14px; font-weight: 600; cursor: pointer; }
+    .btn-light { background: #ffffff; color: #1e1b4b; }
+    .tabs { background: #1e1b4b; padding: 0 18px 12px; display: flex; gap: 8px; overflow-x: auto; }
+    .tab { background: transparent; color: #cbd5e1; border: none; padding: 8px 14px; border-radius: 999px; cursor: pointer; font-weight: 600; white-space: nowrap; }
+    .tab.active { background: #8b5cf6; color: #ffffff; }
+    .container { max-width: 720px; margin: 24px auto; padding: 0 16px; }
+    .card { background: #ffffff; border-radius: 14px; padding: 20px; box-shadow: 0 4px 18px rgba(15, 23, 42, 0.06); margin-bottom: 16px; }
+    .field { margin-bottom: 14px; }
+    .field label { display: block; font-size: 14px; font-weight: 600; margin-bottom: 6px; }
+    .field input { width: 100%; padding: 11px 12px; border: 1px solid #cbd5e1; border-radius: 8px; background: #f1f5f9; font-size: 15px; }
+    .full-btn { width: 100%; padding: 12px; font-size: 15px; }
+    .row-links { display: flex; justify-content: space-between; margin-top: 14px; font-size: 14px; }
+    .link-btn { background: none; border: none; color: #6d28d9; font-weight: 600; cursor: pointer; }
+    .grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; }
+    .stat-box { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 14px; }
+    .stat-label { font-size: 13px; color: #64748b; }
+    .stat-val { font-size: 22px; font-weight: 700; margin-top: 4px; }
+    .msg-err { color: #b91c1c; font-size: 13px; margin-top: 10px; }
+    .msg-ok { color: #15803d; font-size: 13px; margin-top: 10px; }
+    .hidden { display: none !important; }
+  </style>
 </head>
 <body>
-<header>
-  <div class="brand">Prime<span>Core</span></div>
-  <button class="ghost" id="logout" style="display:none;min-height:36px;padding:6px 12px;width:auto">Sign out</button>
-  <nav id="nav" aria-label="Main"></nav>
-</header>
-<main id="app"><p class="muted">Loading…</p></main>
+  <header class="topbar">
+    <div class="brand">PrimeCore</div>
+    <button id="signOutBtn" class="btn btn-light hidden" type="button">Sign out</button>
+  </header>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
-<script>
-(function () {
-'use strict';
+  <nav id="navTabs" class="tabs hidden">
+    <button class="tab active" data-tab="dashboard" type="button">Dashboard</button>
+    <button class="tab" data-tab="tasks" type="button">Tasks</button>
+    <button class="tab" data-tab="daily-reward" type="button">Daily Reward</button>
+    <button class="tab" data-tab="wallet" type="button">Wallet</button>
+    <button class="tab" data-tab="invest" type="button">Invest</button>
+  </nav>
 
-/* ==================== CONFIGURATION ====================
-   Public values only: the project URL and the ANON public key from
-   Supabase > Project Settings > API. Never place the service_role key here. */
-var SUPABASE_URL = 'https://qufxjfntdqjhympultbx.supabase.co';
-var SUPABASE_ANON_KEY = 'sb_publishable_639f9uEApKsGgOtQW_J9Jg_M-nnwtnB';
+  <main class="container">
+    <div id="loadingView" class="card">Loading...</div>
 
-var CONFIGURED = /^https:\/\/[a-z0-9-]+\.supabase\.co$/.test(SUPABASE_URL) &&
-  SUPABASE_ANON_KEY.length > 20 && SUPABASE_ANON_KEY.indexOf('YOUR-') !== 0;
-var LIB_OK = !!(window.supabase && window.supabase.createClient);
-var sb = (CONFIGURED && LIB_OK) ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-  auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
-}) : null;
+    <section id="authView" class="card hidden">
+      <h2 id="authTitle" style="font-size: 24px; margin-bottom: 6px;">Welcome back</h2>
+      <p id="authSubtitle" style="color: #64748b; margin-bottom: 18px;">Sign in to your PrimeCore account.</p>
 
-/* ==================== DEFAULT PLAN & PROGRAM CONFIG ==================== */
-var DEFAULT_PLANS = [
-  { code: 'JUNIOR', name: 'JUNIOR', min_amount: 30, max_amount: 500, proposed_daily_rate: 1.0, lock_days: 30, fee_pct: 2.0, eligibility_note: 'Verified account & minimum $30 valid balance', is_active: true },
-  { code: 'SENIOR', name: 'SENIOR', min_amount: 501, max_amount: 1500, proposed_daily_rate: 1.5, lock_days: 30, fee_pct: 2.0, eligibility_note: 'Verified account & $501–$1,500 valid balance', is_active: true },
-  { code: 'SPECIAL', name: 'SPECIAL', min_amount: 1501, max_amount: 5000, proposed_daily_rate: 2.0, lock_days: 45, fee_pct: 1.5, eligibility_note: 'Verified account & $1,501–$5,000 valid balance', is_active: true },
-  { code: 'ELITE', name: 'ELITE', min_amount: 5001, max_amount: 20000, proposed_daily_rate: 2.5, lock_days: 60, fee_pct: 1.0, eligibility_note: 'Verified KYC & $5,001–$20,000 valid balance', is_active: true },
-  { code: 'UNIVERSAL', name: 'UNIVERSAL', min_amount: 20001, max_amount: 50000, proposed_daily_rate: 3.0, lock_days: 90, fee_pct: 0.5, eligibility_note: 'Verified KYC & $20,001–$50,000 valid balance', is_active: true }
-];
+      <form id="authForm">
+        <div id="nameFieldWrap" class="field hidden">
+          <label for="fullNameInput">Full Name</label>
+          <input id="fullNameInput" type="text" placeholder="MUHAMMAD ADNAN" />
+        </div>
+        <div class="field">
+          <label for="emailInput">Email</label>
+          <input id="emailInput" type="email" required placeholder="you@example.com" />
+        </div>
+        <div class="field">
+          <label for="passwordInput">Password</label>
+          <input id="passwordInput" type="password" required placeholder="••••••••" />
+        </div>
+        <button id="authSubmitBtn" class="btn full-btn" type="submit">Sign in</button>
+      </form>
 
-var DEFAULT_SETTINGS = {
-  level_1_rate: 10, level_1_target: 2,
-  level_2_rate: 7,  level_2_target: 5,
-  level_3_rate: 3,  level_3_target: 10,
-  challenge_5_reward: 15,
-  challenge_10_reward: 30,
-  challenge_20_reward: 50,
-  funded_reward_budget: 0,
-  min_qualifying_deposit: 30,
-  compounding_enabled: false,
-  auto_credit_enabled: false
-};
+      <div class="row-links">
+        <button id="forgotBtn" class="link-btn" type="button">Forgot password?</button>
+        <button id="toggleAuthModeBtn" class="link-btn" type="button">Create account</button>
+      </div>
+      <div id="authMessage"></div>
+    </section>
 
-/* ==================== STATE & HELPERS ==================== */
-var S = { ready: false, user: null, profile: null, msg: null, pendingEmail: '', view: 'dashboard' };
-var seq = 0;
-var AUTH = ['login', 'signup', 'verify', 'forgot', 'reset'];
-var NAV = [
-  ['dashboard', 'Dashboard'], ['tasks', 'Tasks'], ['daily', 'Daily Reward'], ['wallet', 'Wallet'],
-  ['investment', 'Investment'], ['team', 'My Team'], ['profit', 'Profit'], ['leaderboard', 'Leaderboard'],
-  ['notifications', 'Notifications'], ['profile', 'Profile'], ['settings', 'Settings'], ['help', 'Help']
-];
-var DIALS = [
-  ['US','United States','+1'],['CA','Canada','+1'],['GB','United Kingdom','+44'],['AU','Australia','+61'],
-  ['DE','Germany','+49'],['FR','France','+33'],['ES','Spain','+34'],['IT','Italy','+39'],['NL','Netherlands','+31'],
-  ['BR','Brazil','+55'],['MX','Mexico','+52'],['NG','Nigeria','+234'],['GH','Ghana','+233'],['KE','Kenya','+254'],
-  ['ZA','South Africa','+27'],['EG','Egypt','+20'],['AE','United Arab Emirates','+971'],['SA','Saudi Arabia','+966'],
-  ['TR','Turkey','+90'],['IN','India','+91'],['PK','Pakistan','+92'],['BD','Bangladesh','+880'],['PH','Philippines','+63'],
-  ['ID','Indonesia','+62'],['MY','Malaysia','+60'],['SG','Singapore','+65'],['TH','Thailand','+66'],['VN','Vietnam','+84'],
-  ['JP','Japan','+81'],['KR','South Korea','+82'],['CN','China','+86']
-];
-var KIND = {
-  deposit_credit: 'Deposit', withdrawal: 'Withdrawal', investment_debit: 'Investment',
-  reward_credit: 'Daily reward', task_credit: 'Task reward', referral_credit: 'Referral',
-  claim_credit: 'Claim reward', compound_reinvest: 'Compounding reinvest', admin_adjustment: 'Adjustment'
-};
-var PILL = {
-  pending: 'p-wait', PENDING: 'p-wait', submitted: 'p-wait',
-  successful: 'p-ok', SUCCESS: 'p-ok', approved: 'p-ok', paid: 'p-ok', posted: 'p-ok',
-  rejected: 'p-bad', REJECTED: 'p-bad', started: 'p-off', active: 'p-ok', completed: 'p-off'
-};
-var CLAIM_LABEL = { started: 'Not submitted', submitted: 'Pending', paid: 'Success', rejected: 'Rejected' };
-var MSG = {
-  insufficient_balance: 'Your available balance is not enough.',
-  invalid_amount: 'Enter an amount of at least $10.',
-  invalid_destination: 'Enter a valid destination.',
-  already_started: 'You have already started this task.',
-  not_submittable: 'This task cannot be submitted right now.',
-  task_unavailable: 'This task is no longer available.',
-  forbidden: 'Admin permission is required.',
-  not_pending: 'This request was already processed.',
-  not_submitted: 'This task is no longer awaiting review.',
-  not_found: 'That record could not be found.',
-  cannot_change_own_role: 'You cannot change your own role.',
-  duplicate_claim_today: 'You have already submitted or claimed this milestone today.',
-  insufficient_qualified_referrals: 'You have not met the verified qualified referral requirement yet.',
-  insufficient_reward_budget: 'Funded reward budget is currently insufficient for this claim.',
-  duplicate_cycle_today: 'A compounding cycle has already been processed for this 24-hour window.',
-  no_verified_earnings: 'Only verified, eligible earnings can be compounded.',
-  rewards_disabled_pending_legal_review: 'Automatic rewards are disabled unless funded by verified business revenue.',
-  investments_disabled_pending_legal_review: 'Investments require verified eligibility and terms acceptance.'
-};
+    <section id="appView" class="hidden">
+      <div id="tab-dashboard" class="card tab-panel">
+        <h2 style="margin-bottom: 12px;">Dashboard</h2>
+        <p id="userEmailText" style="color: #475569; margin-bottom: 14px;"></p>
+        <div class="grid-2">
+          <div class="stat-box">
+            <div class="stat-label">Available Balance</div>
+            <div id="availBalText" class="stat-val">$0.00</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-label">Pending Balance</div>
+            <div id="pendBalText" class="stat-val">$0.00</div>
+          </div>
+        </div>
+      </div>
 
-var $ = function (s) { return document.querySelector(s); };
-var esc = function (v) {
-  return String(v == null ? '' : v).replace(/[&<>"']/g, function (c) {
-    return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
-  });
-};
-var money = function (n) {
-  return '$' + Number(n || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-};
-var when = function (d) { return d ? new Date(d).toLocaleString() : '—'; };
-var pill = function (s) { return '<span class="pill ' + (PILL[s] || 'p-off') + '">' + esc(s) + '</span>'; };
-var flag = function (cc) {
-  return String.fromCodePoint.apply(null, cc.toUpperCase().split('').map(function (c) { return 127397 + c.charCodeAt(0); }));
-};
-var friendly = function (e) {
-  var m = String((e && e.message) || e || '').trim();
-  if (MSG[m]) return MSG[m];
-  if (m.indexOf('Invalid login credentials') > -1) return 'Email or password is incorrect.';
-  if (m.indexOf('Email not confirmed') > -1) return 'Verify your email before signing in.';
-  if (m.indexOf('already registered') > -1) return 'An account with this email already exists.';
-  if (m.indexOf('Token has expired') > -1 || (m.indexOf('invalid') > -1 && m.indexOf('Token') > -1)) return 'That code is invalid or expired. Request a new one.';
-  if (m.indexOf('duplicate') > -1 || m.indexOf('profiles_username') > -1 || m.indexOf('Database error') > -1) {
-    return 'That record already exists or username is taken.';
-  }
-  return m || 'Something went wrong. Please try again.';
-};
-var setMsg = function (t, m) { S.msg = { t: t, m: m }; };
-var msgHTML = function () {
-  var m = S.msg; S.msg = null;
-  return m ? '<div class="msg ' + m.t + '" role="status">' + esc(m.m) + '</div>' : '';
-};
-var errorBox = function (e) {
-  return '<div class="card"><div class="msg err">' + esc(friendly(e)) + '</div></div>';
-};
-var stat = function (label, value, cls) {
-  return '<div class="' + cls + '"><small>' + esc(label) + '</small><b>' + money(value) + '</b></div>';
-};
-var isAdmin = function () {
-  return !!(S.profile && (S.profile.role === 'admin' || S.profile.role === 'super_admin'));
-};
-var sum = function (rows) {
-  return (rows || []).reduce(function (a, r) { return a + Number(r.amount || 0); }, 0);
-};
-var firstError = function (results) {
-  for (var i = 0; i < results.length; i++) if (results[i].error) return results[i].error;
-  return null;
-};
+      <div id="tab-tasks" class="card tab-panel hidden">
+        <h2 style="margin-bottom: 10px;">Tasks</h2>
+        <p id="tasksInfo" style="color: #475569;">No tasks assigned yet.</p>
+      </div>
 
-async function loadPlans() {
-  if (!sb) return DEFAULT_PLANS;
-  var r = await sb.from('investment_plans').select('*').order('min_amount', { ascending: true });
-  if (!r.error && r.data && r.data.length) return r.data;
-  return DEFAULT_PLANS;
-}
+      <div id="tab-daily-reward" class="card tab-panel hidden">
+        <h2 style="margin-bottom: 10px;">Daily Reward</h2>
+        <p style="color: #475569; margin-bottom: 12px;">Claim your daily check-in reward.</p>
+        <button id="claimDailyBtn" class="btn" type="button">Claim Daily Reward ($5.00)</button>
+        <div id="rewardMsg"></div>
+      </div>
 
-async function loadProgramSettings() {
-  if (!sb) return Object.assign({}, DEFAULT_SETTINGS);
-  var r = await sb.from('program_settings').select('*').eq('id', 1).maybeSingle();
-  if (!r.error && r.data) return Object.assign({}, DEFAULT_SETTINGS, r.data);
-  return Object.assign({}, DEFAULT_SETTINGS);
-}
+      <div id="tab-wallet" class="card tab-panel hidden">
+        <h2 style="margin-bottom: 10px;">Wallet</h2>
+        <p id="walletDetailText" style="color: #475569;">Available: $0.00 | Pending: $0.00</p>
+      </div>
 
-function matchPlan(plans, validBalance) {
-  var b = Number(validBalance || 0);
-  for (var i = 0; i < plans.length; i++) {
-    var p = plans[i];
-    if (p.is_active !== false && b >= Number(p.min_amount) && b <= Number(p.max_amount)) return p;
-  }
-  return null;
-}
+      <div id="tab-invest" class="card tab-panel hidden">
+        <h2 style="margin-bottom: 10px;">Invest</h2>
+        <p style="color: #475569;">Starter and growth investment plans will appear here.</p>
+      </div>
+    </section>
+  </main>
 
-function authHTML(view) {
-  var dialOpts = DIALS.map(function (c) {
-    return '<option value="' + c[0] + '|' + c[2] + '">' + flag(c[0]) + ' ' + esc(c[1]) + ' (' + c[2] + ')</option>';
-  }).join('');
-  var box = function (title, sub, body) {
-    return '<div class="card auth"><h1>' + title + '</h1><p class="muted">' + sub + '</p>' + body + '</div>';
-  };
-  if (view === 'signup') return box('Create account', 'Takes about a minute. We will email you a 6-digit code.',
-    '<form data-form="signup">' +
-    '<label>Full name<input name="full_name" required minlength="2" maxlength="80" autocomplete="name"></label>' +
-    '<label>Username (3–20 letters, numbers or _)<input name="username" required pattern="[A-Za-z0-9_]{3,20}" autocomplete="username"></label>' +
-    '<label>Email<input type="email" name="email" required autocomplete="email"></label>' +
-    '<label>Country and code<select name="country">' + dialOpts + '</select></label>' +
-    '<label>Phone number (without country code)<input name="phone" inputmode="tel" required></label>' +
-    '<label>Password (8+ characters)<input type="password" name="password" minlength="8" required autocomplete="new-password"></label>' +
-    '<label>Confirm password<input type="password" name="confirm" minlength="8" required autocomplete="new-password"></label>' +
-    '<label>Referrer username (optional)<input name="ref"></label>' +
-    '<button type="submit" style="width:100%">Create account</button></form>' +
-    '<p class="muted">Already registered? <a href="#login">Sign in</a></p>');
-  if (view === 'verify') return box('Verify your email', 'Enter the code sent to your email.',
-    '<form data-form="verify">' +
-    '<label>Email<input type="email" name="email" required value="' + esc(S.pendingEmail) + '"></label>' +
-    '<label>6-digit code<input name="token" inputmode="numeric" pattern="[0-9]{6,8}" required autocomplete="one-time-code"></label>' +
-    '<button type="submit" style="width:100%">Verify and continue</button></form>' +
-    '<form data-form="resend" style="margin-top:12px"><label>Email<input type="email" name="email" required value="' + esc(S.pendingEmail) + '"></label>' +
-    '<button type="submit" class="ghost" style="width:100%">Resend code</button></form>' +
-    '<p class="muted"><a href="#login">Back to sign in</a></p>');
-  if (view === 'forgot') return box('Reset password', 'We will email you a secure link.',
-    '<form data-form="forgot"><label>Email<input type="email" name="email" required autocomplete="email"></label>' +
-    '<button type="submit" style="width:100%">Send reset link</button></form>' +
-    '<p class="muted"><a href="#login">Back to sign in</a></p>');
-  if (view === 'reset') return box('Choose a new password', 'Use at least 8 characters.',
-    '<form data-form="reset"><label>New password<input type="password" name="password" minlength="8" required autocomplete="new-password"></label>' +
-    '<label>Confirm new password<input type="password" name="confirm" minlength="8" required autocomplete="new-password"></label>' +
-    '<button type="submit" style="width:100%">Update password</button></form>');
-  return box('Welcome back', 'Sign in to your PrimeCore account.',
-    '<form data-form="login"><label>Email<input type="email" name="email" required autocomplete="email"></label>' +
-    '<label>Password<input type="password" name="password" required autocomplete="current-password"></label>' +
-    '<button type="submit" style="width:100%">Sign in</button></form>' +
-    '<p class="muted" style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-top:12px">' +
-    '<a href="#forgot">Forgot password?</a><a href="#signup">Create account</a></p>');
-}
+  <script>
+    const SUPABASE_URL = "https://qufxjfntdqhympultbx.supabase.co";
+    const SUPABASE_KEY = "sb_publishable_639f9uEApKsGgOtQW_J9Jg_M-nnwtnB";
+    const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-function renderNav() {
-  var links = S.user ? NAV.slice() : [];
-  if (S.user && isAdmin()) links.push(['admin', 'Admin']);
-  $('#nav').innerHTML = links.map(function (l) {
-    return '<a href="#' + l[0] + '" class="' + (S.view === l[0] ? 'on' : '') + '">' + esc(l[1]) + '</a>';
-  }).join('');
-  $('#logout').style.display = S.user ? '' : 'none';
-}
+    let isSignUp = false;
 
-var PAGES = {};
-var UID = function () { return S.user.id; };
+    const loadingView = document.getElementById("loadingView");
+    const authView = document.getElementById("authView");
+    const appView = document.getElementById("appView");
+    const navTabs = document.getElementById("navTabs");
+    const signOutBtn = document.getElementById("signOutBtn");
+    const authMessage = document.getElementById("authMessage");
 
-PAGES.dashboard = async function () {
-  var uid = UID();
-  var q = await Promise.all([
-    sb.from('wallet_balances').select('available_balance,pending_hold').eq('user_id', uid).maybeSingle(),
-    sb.from('deposits').select('amount').eq('user_id', uid).eq('status', 'successful'),
-    sb.from('investments').select('amount').eq('user_id', uid).eq('status', 'active'),
-    sb.from('wallet_ledger').select('amount,kind').eq('user_id', uid).eq('status', 'posted').in('kind', ['task_credit', 'reward_credit', 'referral_credit', 'claim_credit']),
-    sb.from('withdrawals').select('amount').eq('user_id', uid).eq('status', 'pending'),
-    sb.from('wallet_ledger').select('kind,amount,status,created_at').eq('user_id', uid).order('created_at', { ascending: false }).limit(8),
-    sb.rpc('team_tree'),
-    sb.from('claim_requests').select('id,category,reward_amount,status,created_at').eq('user_id', uid).order('created_at', { ascending: false }).limit(25),
-    loadPlans(),
-    loadProgramSettings()
-  ]);
-  if (q[0].error) return msgHTML() + errorBox(q[0].error);
+    function showLoading() {
+      loadingView.classList.remove("hidden");
+      authView.classList.add("hidden");
+      appView.classList.add("hidden");
+      navTabs.classList.add("hidden");
+      signOutBtn.classList.add("hidden");
+    }
 
-  var bal = q[0].data || { available_balance: 0, pending_hold: 0 };
-  var totalDeposits = sum(q[1].data);
-  var verifiedEarnings = sum(q[3].data);
-  var pendingWd = sum(q[4].data);
-  var validBalance = Number(bal.available_balance || 0);
-  var plans = q[8];
-  var cfg = q[9];
-  var currentPlan = matchPlan(plans, validBalance);
+    function showAuth() {
+      loadingView.classList.add("hidden");
+      appView.classList.add("hidden");
+      navTabs.classList.add("hidden");
+      signOutBtn.classList.add("hidden");
+      authView.classList.remove("hidden");
+    }
 
-  var teamRows = (!q[6].error && q[6].data) ? q[6].data : [];
-  var directRefs = teamRows.filter(function (x) { return x.level === 1; });
-  var qualifiedDirect = directRefs.filter(function (x) { return Number(x.deposits || 0) >= Number(cfg.min_qualifying_deposit || 30); });
+    function showApp() {
+      loadingView.classList.add("hidden");
+      authView.classList.add("hidden");
+      appView.classList.remove("hidden");
+      navTabs.classList.remove("hidden");
+      signOutBtn.classList.remove("hidden");
+    }
 
-  var claims = (!q[7].error && q[7].data) ? q[7].data : [];
-  var pendingClaims = claims.filter(function (c) { return c.status === 'PENDING'; });
-  var successClaims = claims.filter(function (c) { return c.status === 'SUCCESS'; });
+    async function loadUserData(user) {
+      document.getElementById("userEmailText").textContent = "Signed in as: " + (user.email || "");
+      try {
+        const { data: wallet } = await sb
+          .from("wallet_balances")
+          .select("available_balance, pending_balance")
+          .eq("user_id", user.id)
+          .maybeSingle();
 
-  var recent = (q[5].data || []).map(function (t) {
-    var neg = t.amount < 0;
-    return '<tr><td>' + when(t.created_at) + '</td><td>' + esc(KIND[t.kind] || t.kind) + '</td><td style="color:' +
-      (neg ? '#dc2626' : '#059669') + ';font-weight:600">' + (neg ? '−' : '+') + money(Math.abs(t.amount)) +
-      '</td><td>' + pill(t.status) + '</td></tr>';
-  }).join('');
+        const avail = Number(wallet?.available_balance ?? 0).toFixed(2);
+        const pend = Number(wallet?.pending_balance ?? 0).toFixed(2);
 
-  var l1Ok = qualifiedDirect.length >= Number(cfg.level_1_target);
-  var l2Ok = qualifiedDirect.length >= Number(cfg.level_2_target);
-  var l3Ok = qualifiedDirect.length >= Number(cfg.level_3_target);
+        document.getElementById("availBalText").textContent = "$" + avail;
+        document.getElementById("pendBalText").textContent = "$" + pend;
+        document.getElementById("walletDetailText").textContent =
+          "Available: $" + avail + " | Pending: $" + pend;
 
-  return msgHTML() + '<h1>Dashboard</h1>' +
-    '<div class="cols4">' +
-      stat('Total Deposits', totalDeposits, 'stat') +
-      stat('Valid Balance', validBalance, 'stat green') +
-      stat('Verified Earnings', verifiedEarnings, 'stat dark') +
-      stat('Pending Withdrawals', pendingWd, 'stat amber') +
-    '</div>' +
-    '<div class="cols3">' +
-      '<div class="card">' +
-        '<div class="row"><h2>Current Plan</h2>' + (currentPlan ? '<span class="pill p-info">' + esc(currentPlan.name) + '</span>' : '<span class="pill p-off">Below Minimum</span>') + '</div>' +
-        (currentPlan
-          ? '<p style="margin:6px 0"><b>Proposed Daily Rate: ' + esc(currentPlan.proposed_daily_rate) + '%</b> <span class="muted">(Not guaranteed)</span></p>' +
-            '<p class="muted">Tier Range: ' + money(currentPlan.min_amount) + ' – ' + money(currentPlan.max_amount) + ' · Lock: ' + esc(currentPlan.lock_days) + 'd</p>'
-          : '<p class="muted">Deposit at least ' + money(plans[0].min_amount) + ' to qualify for <b>' + esc(plans[0].name) + '</b> (Proposed ' + esc(plans[0].proposed_daily_rate) + '%/day).</p>') +
-        '<a href="#investment">View all 5 plan tiers →</a>' +
-      '</div>' +
-      '<div class="card">' +
-        '<div class="row"><h2>Compounding System</h2><span class="pill ' + (cfg.compounding_enabled ? 'p-ok' : 'p-wait') + '">' + (cfg.compounding_enabled ? 'Server Active' : 'Verified Only') + '</span></div>' +
-        '<div class="kpi"><span class="muted">Eligible Starting Balance</span><b>' + money(validBalance) + '</b></div>' +
-        '<div class="kpi"><span class="muted">Verified Earnings</span><b>' + money(verifiedEarnings) + '</b></div>' +
-        '<p class="muted" style="margin-top:8px">Server-side calculation only. No automatic unverified credits.</p>' +
-        '<a href="#profit">Open Compounding &amp; Profit →</a>' +
-      '</div>' +
-      '<div class="card">' +
-        '<div class="row"><h2>Direct Referrals</h2><span class="pill p-info">' + qualifiedDirect.length + ' Qualified</span></div>' +
-        '<div class="kpi"><span class="muted">Total Direct</span><b>' + directRefs.length + '</b></div>' +
-        '<div class="kpi"><span class="muted">Qualified (≥' + money(cfg.min_qualifying_deposit) + ')</span><b>' + qualifiedDirect.length + '</b></div>' +
-        '<a href="#team" style="display:inline-block;margin-top:8px">Manage Referrals &amp; Team →</a>' +
-      '</div>' +
-      '<div class="card">' +
-        '<div class="row"><h2>Team Performance</h2><span class="pill p-ok">3 Levels</span></div>' +
-        '<div class="kpi"><span>Level 1 (' + cfg.level_1_rate + '% proposed)</span>' + pill(l1Ok ? 'active' : 'pending') + '</div>' +
-        '<div class="kpi"><span>Level 2 (' + cfg.level_2_rate + '% proposed)</span>' + pill(l2Ok ? 'active' : 'pending') + '</div>' +
-        '<div class="kpi"><span>Level 3 (' + cfg.level_3_rate + '% proposed)</span>' + pill(l3Ok ? 'active' : 'pending') + '</div>' +
-        '<a href="#team" style="display:inline-block;margin-top:8px">Team Commission Dashboard →</a>' +
-      '</div>' +
-      '<div class="card">' +
-        '<div class="row"><h2>Daily Referral Challenge</h2><span class="pill p-wait">Milestones</span></div>' +
-        '<p class="muted">5 Qualified = ' + money(cfg.challenge_5_reward) + ' · 10 = ' + money(cfg.challenge_10_reward) + ' · 20 = ' + money(cfg.challenge_20_reward) + ' (proposed).</p>' +
-        '<a href="#team">Open Daily Challenge &amp; Claim →</a>' +
-      '</div>' +
-      '<div class="card">' +
-        '<div class="row"><h2>Claims Overview</h2><span class="pill p-wait">' + pendingClaims.length + ' Pending</span></div>' +
-        '<div class="kpi"><span class="muted">Pending Claims</span><b>' + pendingClaims.length + ' (' + money(sum(pendingClaims.map(function(x){return {amount:x.reward_amount};}))) + ')</b></div>' +
-        '<div class="kpi"><span class="muted">Completed Rewards</span><b>' + successClaims.length + ' (' + money(sum(successClaims.map(function(x){return {amount:x.reward_amount};}))) + ')</b></div>' +
-        '<a href="#daily" style="display:inline-block;margin-top:8px">View Claim Requests →</a>' +
-      '</div>' +
-    '</div>' +
-    '<div class="card"><h2>Recent transactions</h2><div class="wide">' +
-      (recent ? '<table><tr><th>Date</th><th>Type</th><th>Amount</th><th>Status</th></tr>' + recent + '</table>'
-              : '<p class="muted">No transactions yet.</p>') +
-    '</div></div>';
-};
+        const { data: tasks } = await sb
+          .from("tasks")
+          .select("id, title, status")
+          .eq("user_id", user.id);
 
-PAGES.wallet = async function () {
-  var uid = UID();
-  var q = await Promise.all([
-    sb.from('wallet_balances').select('available_balance,pending_hold').eq('user_id', uid).maybeSingle(),
-    sb.from('deposits').select('id,amount,method,reference,status,requested_at').eq('user_id', uid).order('requested_at', { ascending: false }).limit(50),
-    sb.from('withdrawals').select('id,amount,method,destination,status,requested_at').eq('user_id', uid).order('requested_at', { ascending: false }).limit(50)
-  ]);
-  var err = firstError(q);
-  if (err) return msgHTML() + errorBox(err);
-  var bal = q[0].data || { available_balance: 0, pending_hold: 0 };
-  var dep = (q[1].data || []).map(function (d) {
-    return '<tr><td>' + when(d.requested_at) + '</td><td>' + money(d.amount) + '</td><td>' + esc(d.method) + '</td><td>' + pill(d.status) + '</td></tr>';
-  }).join('');
-  var wd = (q[2].data || []).map(function (w) {
-    return '<tr><td>' + when(w.requested_at) + '</td><td>' + money(w.amount) + '</td><td>' + esc(w.destination) + '</td><td>' + pill(w.status) + '</td></tr>';
-  }).join('');
-  var methods = '<option value="bank">Bank transfer</option><option value="crypto">Crypto</option><option value="other">Other</option>';
-  return msgHTML() + '<h1>My Wallet</h1>' +
-    '<div class="two">' + stat('Available Balance', bal.available_balance, 'stat green') + stat('Pending holds', bal.pending_hold, 'stat amber') + '</div>' +
-    '<div class="two">' +
-      '<div class="card"><h2>Request a deposit</h2><form data-form="deposit">' +
-        '<label>Amount (USD)<input type="number" name="amount" min="10" step="0.01" required></label>' +
-        '<label>Method<select name="method">' + methods + '</select></label>' +
-        '<label>Payment reference<input name="reference" required minlength="5"></label>' +
-        '<button type="submit">Submit deposit request</button></form>' +
-        '<p class="muted">Your balance changes only after an admin verifies the transfer.</p></div>' +
-      '<div class="card"><h2>Request a withdrawal</h2><form data-form="withdraw">' +
-        '<label>Amount (USD)<input type="number" name="amount" min="10" step="0.01" required></label>' +
-        '<label>Method<select name="method">' + methods + '</select></label>' +
-        '<label>Destination (account or wallet)<input name="destination" required minlength="5"></label>' +
-        '<button type="submit">Submit withdrawal request</button></form>' +
-        '<p class="muted">The amount is held now and released if the request is rejected.</p></div>' +
-    '</div>' +
-    '<div class="card"><h2>Deposits</h2><div class="wide">' +
-      (dep ? '<table><tr><th>Requested</th><th>Amount</th><th>Method</th><th>Status</th></tr>' + dep + '</table>'
-           : '<p class="muted">No deposit requests yet.</p>') +
-    '</div></div>' +
-    '<div class="card"><h2>Withdrawals</h2><div class="wide">' +
-      (wd ? '<table><tr><th>Requested</th><th>Amount</th><th>Destination</th><th>Status</th></tr>' + wd + '</table>'
-          : '<p class="muted">No withdrawal requests yet.</p>') +
-    '</div></div>';
-};
+        document.getElementById("tasksInfo").textContent =
+          tasks && tasks.length > 0
+            ? tasks.map(t => `${t.title} (${t.status})`).join(", ")
+            : "No tasks assigned yet.";
+      } catch (err) {
+        console.error("Data load warning:", err);
+      }
+    }
 
-PAGES.tasks = async function () {
-  var uid = UID();
-  var q = await Promise.all([
-    sb.from('tasks').select('id,category,title,description,reward_amount').eq('is_active', true).order('created_at'),
-    sb.from('task_completions').select('id,task_id,status,started_at,submitted_at').eq('user_id', uid).order('started_at', { ascending: false })
-  ]);
-  var err = firstError(q);
-  if (err) return msgHTML() + errorBox(err);
-  var tasks = q[0].data || [], comps = q[1].data || [];
-  var by = {};
-  comps.forEach(function (c) { by[c.task_id] = c; });
-  var cards = tasks.map(function (t) {
-    var c = by[t.id], action = '';
-    if (!c) action = '<button data-act="start" data-id="' + esc(t.id) + '">Start task</button>';
-    else if (c.status === 'started') action = '<button data-act="submit" data-id="' + esc(c.id) + '">Submit for verification</button>';
-    else if (c.status === 'submitted') action = '<span class="muted">Awaiting admin review</span>';
-    else if (c.status === 'paid') action = '<span class="muted">Reward credited</span>';
-    return '<div class="card"><div class="row"><h2>' + esc(t.title) + '</h2><b>' + money(t.reward_amount) + '</b></div>' +
-      '<p class="muted">' + esc(t.description) + '</p><div class="row">' +
-      (c ? pill(c.status) : '<span class="pill p-off">Not started</span>') + action + '</div></div>';
-  }).join('');
-  var reqs = comps.map(function (c) {
-    var t = tasks.filter(function (x) { return x.id === c.task_id; })[0];
-    return '<tr><td style="font-family:monospace">' + esc(c.id.slice(0, 8)) + '</td><td>' + esc(t ? t.title : '—') +
-      '</td><td>' + money(t ? t.reward_amount : 0) + '</td><td>' + when(c.submitted_at) + '</td><td>' +
-      '<span class="pill ' + (PILL[c.status] || 'p-off') + '">' + esc(CLAIM_LABEL[c.status] || c.status) + '</span></td></tr>';
-  }).join('');
-  return msgHTML() + '<h1>Tasks Center</h1><p class="muted">Rewards are credited only after an admin verifies the task.</p>' +
-    (cards || '<div class="card"><p class="muted">No tasks are available right now.</p></div>') +
-    '<div class="card"><h2>Task Claim Requests</h2><div class="wide">' +
-      (reqs ? '<table><tr><th>Request ID</th><th>Task</th><th>Reward</th><th>Submitted</th><th>Status</th></tr>' + reqs + '</table>'
-            : '<p class="muted">No task claim requests yet.</p>') +
-    '</div></div>';
-};
-
-PAGES.daily = async function () {
-  var uid = UID();
-  var q = await Promise.all([
-    sb.from('claim_requests').select('*').eq('user_id', uid).order('created_at', { ascending: false }).limit(50),
-    loadProgramSettings()
-  ]);
-  var claims = (!q[0].error && q[0].data) ? q[0].data : [];
-  var cfg = q[1];
-  var rows = claims.map(function (c) {
-    return '<tr>' +
-      '<td style="font-family:monospace">' + esc(String(c.id).slice(0, 8)) + '</td>' +
-      '<td>' + esc(c.category) + '</td>' +
-      '<td><b>' + money(c.reward_amount) + '</b></td>' +
-      '<td>' + when(c.created_at) + '</td>' +
-      '<td>' + pill(c.status) + '</td>' +
-      '<td class="muted">' + esc(c.admin_note || (c.processed_at ? 'Processed ' + when(c.processed_at) : 'Awaiting admin verification')) + '</td>' +
-    '</tr>';
-  }).join('');
-
-  return msgHTML() + '<h1>Daily Reward &amp; Claim Requests</h1>' +
-    '<div class="notice"><b>Revenue-Backed Policy:</b> Proposed daily rates and milestone rewards are never auto-credited without verified, legally permitted revenue and funded reward budget (' + money(cfg.funded_reward_budget) + ' currently allocated). Duplicate daily processing is blocked server-side.</div>' +
-    '<div class="card">' +
-      '<div class="row"><h2>Claim Request History</h2><span class="pill p-info">PENDING → SUCCESS Workflow</span></div>' +
-      '<p class="muted">Every reward claim creates a tracked server record. Status stays <b>PENDING</b> until an authorized admin verifies eligibility and credits the funded reward (<b>SUCCESS</b>).</p>' +
-      '<div class="wide">' +
-        (rows ? '<table><tr><th>Request ID</th><th>Reward Category</th><th>Reward Amount</th><th>Claim Date</th><th>Current Status</th><th>Processing History</th></tr>' + rows + '</table>'
-              : '<p class="muted">No reward claims submitted yet. Visit <a href="#team">My Team</a> to submit eligible Daily Referral Challenge or Team Level claims.</p>') +
-      '</div>' +
-    '</div>';
-};
-
-PAGES.investment = async function () {
-  var uid = UID();
-  var q = await Promise.all([
-    sb.from('wallet_balances').select('available_balance').eq('user_id', uid).maybeSingle(),
-    sb.from('investments').select('*').eq('user_id', uid).order('created_at', { ascending: false }),
-    loadPlans()
-  ]);
-  var bal = Number((q[0].data && q[0].data.available_balance) || 0);
-  var invs = (!q[1].error && q[1].data) ? q[1].data : [];
-  var plans = q[2];
-  var activeTier = matchPlan(plans, bal);
-
-  var cards = plans.map(function (p) {
-    var isCurrent = activeTier && activeTier.code === p.code;
-    return '<div class="card ' + (isCurrent ? 'plan-active' : '') + '">' +
-      '<div class="row"><h2>' + esc(p.name) + '</h2>' +
-        (isCurrent ? '<span class="pill p-ok">Current Eligible Tier</span>' : '<span class="pill p-info">Proposed Tier</span>') +
-      '</div>' +
-      '<div class="kpi"><span class="muted">Balance Range</span><b>' + money(p.min_amount) + ' – ' + money(p.max_amount) + '</b></div>' +
-      '<div class="kpi"><span class="muted">Proposed Daily Rate</span><b>' + esc(p.proposed_daily_rate) + '% / day</b></div>' +
-      '<div class="kpi"><span class="muted">Lock Period</span><span>' + esc(p.lock_days) + ' days</span></div>' +
-      '<div class="kpi"><span class="muted">Service / Exit Fee</span><span>' + esc(p.fee_pct) + '%</span></div>' +
-      '<p class="muted" style="margin-top:8px">' + esc(p.eligibility_note || '') + '</p>' +
-      '<p class="muted" style="font-size:12px"><i>Proposed rate only — not a guaranteed return. Credited only from verified, legally permitted revenue.</i></p>' +
-    '</div>';
-  }).join('');
-
-  var invRows = invs.map(function (i) {
-    return '<tr><td>' + when(i.created_at) + '</td><td>' + esc(i.plan_code || 'Standard') + '</td><td>' + money(i.amount) + '</td><td>' + pill(i.status) + '</td></tr>';
-  }).join('');
-
-  return msgHTML() + '<h1>Investment Plan Tiers</h1>' +
-    '<div class="notice"><b>Risk &amp; Terms Disclosure:</b> All displayed percentages are <b>proposed daily rates</b>, not guaranteed returns. Capital is subject to lock periods (' + plans.map(function(x){return x.name+': '+x.lock_days+'d';}).join(', ') + '), withdrawal verification, and applicable fees. Earnings are never generated from new member deposits.</div>' +
-    '<div class="two">' +
-      stat('Your Valid Balance', bal, 'stat green') +
-      '<div class="stat dark"><small>Matched Plan Tier</small><b>' + (activeTier ? esc(activeTier.name) + ' (' + esc(activeTier.proposed_daily_rate) + '% proposed)' : 'None ($30 min)') + '</b></div>' +
-    '</div>' +
-    '<div class="cols3">' + cards + '</div>' +
-    '<div class="card"><h2>Active &amp; Historical Allocations</h2><div class="wide">' +
-      (invRows ? '<table><tr><th>Date</th><th>Plan</th><th>Amount</th><th>Status</th></tr>' + invRows + '</table>'
-               : '<p class="muted">No active plan allocations recorded yet.</p>') +
-    '</div></div>';
-};
-
-PAGES.team = async function () {
-  var uid = UID();
-  var q = await Promise.all([
-    sb.rpc('team_tree'),
-    loadProgramSettings(),
-    sb.from('claim_requests').select('*').eq('user_id', uid).order('created_at', { ascending: false }).limit(50)
-  ]);
-  if (q[0].error) return msgHTML() + errorBox(q[0].error);
-  var rows = q[0].data || [];
-  var cfg = q[1];
-  var claims = (!q[2].error && q[2].data) ? q[2].data : [];
-
-  var direct = rows.filter(function (x) { return x.level === 1; });
-  var minDep = Number(cfg.min_qualifying_deposit || 30);
-  var qualifiedDirect = direct.filter(function (x) { return Number(x.deposits || 0) >= minDep; });
-  var qCount = qualifiedDirect.length;
-
-  var totals = {
-    deposits: rows.reduce(function (a, x) { return a + Number(x.deposits || 0); }, 0),
-    investments: rows.reduce(function (a, x) { return a + Number(x.investments || 0); }, 0)
-  };
-
-  var levels = [
-    { lvl: 1, rate: cfg.level_1_rate, target: Number(cfg.level_1_target), label: '2 qualified direct referrals' },
-    { lvl: 2, rate: cfg.level_2_rate, target: Number(cfg.level_2_target), label: '5 total qualified direct referrals (+3)' },
-    { lvl: 3, rate: cfg.level_3_rate, target: Number(cfg.level_3_target), label: '10 total qualified direct referrals (+5)' }
-  ];
-
-  var levelCards = levels.map(function (l) {
-    var pct = Math.min(100, Math.round((qCount / Math.max(1, l.target)) * 100));
-    var unlocked = qCount >= l.target;
-    return '<div class="card">' +
-      '<div class="row"><h2>Level ' + l.lvl + '</h2>' + pill(unlocked ? 'active' : 'pending') + '</div>' +
-      '<div class="kpi"><span class="muted">Proposed Commission</span><b>' + l.rate + '%</b></div>' +
-      '<div class="kpi"><span class="muted">Unlock Condition</span><span>' + esc(l.label) + '</span></div>' +
-      '<div class="prog"><i style="width:' + pct + '%"></i></div>' +
-      '<div class="muted">' + qCount + ' / ' + l.target + ' qualified referrals (' + pct + '%)</div>' +
-    '</div>';
-  }).join('');
-
-  var claimRows = claims.map(function (c) {
-    return '<tr><td>' + when(c.created_at) + '</td><td>' + esc(c.category) + '</td><td>' + money(c.reward_amount) + '</td><td>' + pill(c.status) + '</td></tr>';
-  }).join('');
-
-  return msgHTML() + '<h1>My Team &amp; Referral Milestones</h1>' +
-    '<div class="cols3">' +
-      stat('Team Deposits', totals.deposits, 'stat') +
-      stat('Team Investments', totals.investments, 'stat green') +
-      '<div class="stat dark"><small>Qualified Referrals (≥' + money(minDep) + ')</small><b>' + qCount + ' / ' + direct.length + '</b></div>' +
-    '</div>' +
-    '<div class="cols3">' + levelCards + '</div>' +
-    '<div class="card"><h2>Recent Referral &amp; Milestone Claims</h2><div class="wide">' +
-      (claimRows ? '<table><tr><th>Date</th><th>Category</th><th>Amount</th><th>Status</th></tr>' + claimRows + '</table>'
-                 : '<p class="muted">No team milestone claims yet.</p>') +
-    '</div></div>';
-};
-
-PAGES.profit = async function () {
-  var uid = UID();
-  var q = await Promise.all([
-    sb.from('wallet_balances').select('available_balance').eq('user_id', uid).maybeSingle(),
-    sb.from('wallet_ledger').select('id,kind,amount,status,created_at').eq('user_id', uid).order('created_at', { ascending: false }).limit(50),
-    loadProgramSettings()
-  ]);
-  if (q[0].error) return msgHTML() + errorBox(q[0].error);
-  var bal = Number((q[0].data && q[0].data.available_balance) || 0);
-  var rows = (q[1].data || []).map(function (r) {
-    return '<tr><td>' + when(r.created_at) + '</td><td>' + esc(KIND[r.kind] || r.kind) + '</td><td>' + money(r.amount) + '</td><td>' + pill(r.status) + '</td></tr>';
-  }).join('');
-  return msgHTML() + '<h1>Profit &amp; Ledger</h1>' +
-    '<div class="two">' +
-      stat('Available Balance', bal, 'stat green') +
-      '<div class="stat dark"><small>Compounding Status</small><b>' + (q[2].compounding_enabled ? 'Enabled' : 'Manual / Verified') + '</b></div>' +
-    '</div>' +
-    '<div class="card"><h2>Ledger Entries</h2><div class="wide">' +
-      (rows ? '<table><tr><th>Date</th><th>Type</th><th>Amount</th><th>Status</th></tr>' + rows + '</table>'
-            : '<p class="muted">No ledger entries yet.</p>') +
-    '</div></div>';
-};
-
-PAGES.leaderboard = async function () {
-  var r = await sb.rpc('team_tree');
-  var rows = (!r.error && r.data) ? r.data : [];
-  var list = rows.slice().sort(function (a, b) { return Number(b.deposits || 0) - Number(a.deposits || 0); }).slice(0, 15);
-  var trs = list.map(function (x, i) {
-    return '<tr><td>#' + (i + 1) + '</td><td>' + esc(x.username || x.full_name || 'Member') + '</td><td>' + money(x.deposits || 0) + '</td><td>' + money(x.investments || 0) + '</td></tr>';
-  }).join('');
-  return msgHTML() + '<h1>Leaderboard</h1><div class="card"><div class="wide">' +
-    (trs ? '<table><tr><th>Rank</th><th>Member</th><th>Deposits</th><th>Investments</th></tr>' + trs + '</table>'
-         : '<p class="muted">No leaderboard entries available yet.</p>') +
-  '</div></div>';
-};
-
-PAGES.notifications = async function () {
-  var r = await sb.from('wallet_ledger').select('id,kind,amount,status,created_at').eq('user_id', UID()).order('created_at', { ascending: false }).limit(25);
-  var items = (!r.error && r.data) ? r.data.map(function (n) {
-    return '<li><b>' + esc(KIND[n.kind] || n.kind) + '</b> — ' + money(n.amount) + ' ' + pill(n.status) + ' <span class="muted">(' + when(n.created_at) + ')</span></li>';
-  }).join('') : '';
-  return msgHTML() + '<h1>Notifications</h1><div class="card">' +
-    (items ? '<ul class="tree">' + items + '</ul>' : '<p class="muted">No notifications yet.</p>') +
-  '</div>';
-};
-
-PAGES.profile = async function () {
-  var p = S.profile || {};
-  return msgHTML() + '<h1>Profile</h1><div class="card">' +
-    '<div class="kpi"><span class="muted">Full Name</span><b>' + esc(p.full_name || '—') + '</b></div>' +
-    '<div class="kpi"><span class="muted">Username</span><b>' + esc(p.username || '—') + '</b></div>' +
-    '<div class="kpi"><span class="muted">Email</span><b>' + esc(p.email || (S.user && S.user.email) || '—') + '</b></div>' +
-    '<div class="kpi"><span class="muted">Role</span><b>' + esc(p.role || 'user') + '</b></div>' +
-  '</div>';
-};
-
-PAGES.settings = async function () {
-  return msgHTML() + '<h1>Settings</h1><div class="card"><p class="muted">Account session is active and connected to Supabase.</p></div>';
-};
-
-PAGES.help = async function () {
-  return msgHTML() + '<h1>Help</h1><div class="card"><p class="muted">Deposits, withdrawals, and tasks are processed through your connected Supabase database.</p></div>';
-};
-
-PAGES.admin = async function () {
-  if (!isAdmin()) return msgHTML() + errorBox('forbidden');
-  return msgHTML() + '<h1>Admin</h1><div class="card"><p class="muted">Admin tools are available for authorized staff accounts.</p></div>';
-};
-
-/* ==================== RENDER & EVENTS ==================== */
-function show(view) {
-  var target = view || (S.user ? 'dashboard' : 'login');
-  if (!S.user && AUTH.indexOf(target) === -1) target = 'login';
-  if (S.user && AUTH.indexOf(target) > -1) target = 'dashboard';
-  S.view = target;
-  if (location.hash.replace(/^#/, '') !== target) {
-    history.replaceState(null, '', '#' + target);
-  }
-  renderNav();
-  if (!S.ready) {
-    $('#app').innerHTML = '<p class="muted">Loading…</p>';
-    return;
-  }
-  if (!S.user) {
-    $('#app').innerHTML = msgHTML() + authHTML(target);
-    return;
-  }
-  var id = ++seq;
-  var pageFn = PAGES[target] || PAGES.dashboard;
-  pageFn().then(function (html) {
-    if (id === seq) $('#app').innerHTML = html;
-  }).catch(function (err) {
-    if (id === seq) $('#app').innerHTML = errorBox(err);
-  });
-}
-
-async function refreshSession() {
-  if (!sb) {
-    S.ready = true;
-    S.user = null;
-    S.profile = null;
-    return;
-  }
-  var res = await sb.auth.getSession();
-  var sess = res && res.data ? res.data.session : null;
-  S.user = sess ? sess.user : null;
-  if (S.user) {
-    var pr = await sb.from('profiles').select('*').eq('id', S.user.id).maybeSingle();
-    S.profile = (!pr.error && pr.data) ? pr.data : null;
-  } else {
-    S.profile = null;
-  }
-  S.ready = true;
-}
-
-document.addEventListener('submit', async function (e) {
-  var form = e.target;
-  if (!form || !form.dataset || !form.dataset.form) return;
-  e.preventDefault();
-  if (!sb) {
-    setMsg('err', 'Supabase client is not initialized.');
-    show(S.view);
-    return;
-  }
-  var kind = form.dataset.form;
-  var fd = new FormData(form);
-  var btn = form.querySelector('button[type="submit"]');
-  if (btn) btn.disabled = true;
-
-  try {
-    if (kind === 'login') {
-      var email = String(fd.get('email') || '').trim();
-      var password = String(fd.get('password') || '');
-      var lr = await sb.auth.signInWithPassword({ email: email, password: password });
-      if (lr.error) throw lr.error;
-      await refreshSession();
-      setMsg('ok', 'Signed in successfully.');
-      show('dashboard');
-    } else if (kind === 'signup') {
-      var pw = String(fd.get('password') || '');
-      var cpw = String(fd.get('confirm') || '');
-      if (pw !== cpw) throw new Error('Passwords do not match.');
-      var cParts = String(fd.get('country') || 'PK|+92').split('|');
-      var sr = await sb.auth.signUp({
-        email: String(fd.get('email') || '').trim(),
-        password: pw,
-        options: {
-          data: {
-            full_name: String(fd.get('full_name') || '').trim(),
-            username: String(fd.get('username') || '').trim(),
-            country: cParts[0],
-            phone: String(fd.get('phone') || '').trim()
-          }
+    async function syncSession() {
+      showLoading();
+      try {
+        const { data: { session }, error } = await sb.auth.getSession();
+        if (error || !session || !session.user) {
+          showAuth();
+          return;
         }
-      });
-      if (sr.error) throw sr.error;
-      S.pendingEmail = String(fd.get('email') || '').trim();
-      setMsg('ok', 'Account created. Enter the verification code sent to your email.');
-      show('verify');
-    } else if (kind === 'verify') {
-      var vr = await sb.auth.verifyOtp({
-        email: String(fd.get('email') || '').trim(),
-        token: String(fd.get('token') || '').trim(),
-        type: 'signup'
-      });
-      if (vr.error) throw vr.error;
-      await refreshSession();
-      setMsg('ok', 'Email verified.');
-      show('dashboard');
-    } else if (kind === 'resend') {
-      var rr = await sb.auth.resend({
-        type: 'signup',
-        email: String(fd.get('email') || '').trim()
-      });
-      if (rr.error) throw rr.error;
-      setMsg('ok', 'Verification code sent.');
-      show('verify');
-    } else if (kind === 'forgot') {
-      var fr = await sb.auth.resetPasswordForEmail(String(fd.get('email') || '').trim());
-      if (fr.error) throw fr.error;
-      setMsg('ok', 'Reset instructions sent.');
-      show('login');
-    } else if (kind === 'reset') {
-      var npw = String(fd.get('password') || '');
-      if (npw !== String(fd.get('confirm') || '')) throw new Error('Passwords do not match.');
-      var ur = await sb.auth.updateUser({ password: npw });
-      if (ur.error) throw ur.error;
-      setMsg('ok', 'Password updated.');
-      show('dashboard');
-    } else if (kind === 'deposit') {
-      var amt = Number(fd.get('amount') || 0);
-      if (amt < 10) throw new Error('invalid_amount');
-      var dr = await sb.from('deposits').insert({
-        user_id: UID(),
-        amount: amt,
-        method: String(fd.get('method') || 'bank'),
-        reference: String(fd.get('reference') || '').trim(),
-        status: 'pending'
-      });
-      if (dr.error) throw dr.error;
-      setMsg('ok', 'Deposit request submitted.');
-      show('wallet');
-    } else if (kind === 'withdraw') {
-      var wamt = Number(fd.get('amount') || 0);
-      if (wamt < 10) throw new Error('invalid_amount');
-      var wr = await sb.from('withdrawals').insert({
-        user_id: UID(),
-        amount: wamt,
-        method: String(fd.get('method') || 'bank'),
-        destination: String(fd.get('destination') || '').trim(),
-        status: 'pending'
-      });
-      if (wr.error) throw wr.error;
-      setMsg('ok', 'Withdrawal request submitted.');
-      show('wallet');
+        await loadUserData(session.user);
+        showApp();
+      } catch (err) {
+        console.error("Session sync error:", err);
+        showAuth();
+      }
     }
-  } catch (err) {
-    setMsg('err', friendly(err));
-    show(S.view);
-  } finally {
-    if (btn) btn.disabled = false;
-  }
-});
 
-document.addEventListener('click', async function (e) {
-  var btn = e.target.closest('button[data-act]');
-  if (!btn || !sb) return;
-  var act = btn.dataset.act;
-  var id = btn.dataset.id;
-  btn.disabled = true;
-  try {
-    if (act === 'start') {
-      var r1 = await sb.from('task_completions').insert({ user_id: UID(), task_id: id, status: 'started' });
-      if (r1.error) throw r1.error;
-      setMsg('ok', 'Task started.');
-      show('tasks');
-    } else if (act === 'submit') {
-      var r2 = await sb.from('task_completions').update({ status: 'submitted', submitted_at: new Date().toISOString() }).eq('id', id).eq('user_id', UID());
-      if (r2.error) throw r2.error;
-      setMsg('ok', 'Task submitted for verification.');
-      show('tasks');
-    }
-  } catch (err) {
-    setMsg('err', friendly(err));
-    show(S.view);
-  } finally {
-    btn.disabled = false;
-  }
-});
+    document.getElementById("toggleAuthModeBtn").addEventListener("click", () => {
+      isSignUp = !isSignUp;
+      authMessage.textContent = "";
+      document.getElementById("nameFieldWrap").classList.toggle("hidden", !isSignUp);
+      document.getElementById("authTitle").textContent = isSignUp ? "Create account" : "Welcome back";
+      document.getElementById("authSubtitle").textContent = isSignUp
+        ? "Register your new PrimeCore account."
+        : "Sign in to your PrimeCore account.";
+      document.getElementById("authSubmitBtn").textContent = isSignUp ? "Create account" : "Sign in";
+      document.getElementById("toggleAuthModeBtn").textContent = isSignUp
+        ? "Already have an account? Sign in"
+        : "Create account";
+    });
 
-$('#logout').addEventListener('click', async function () {
-  if (sb) await sb.auth.signOut();
-  S.user = null;
-  S.profile = null;
-  setMsg('ok', 'Signed out.');
-  show('login');
-});
+    document.getElementById("authForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      authMessage.innerHTML = "";
+      const email = document.getElementById("emailInput").value.trim();
+      const password = document.getElementById("passwordInput").value;
+      const fullName = document.getElementById("fullNameInput").value.trim();
 
-window.addEventListener('hashchange', function () {
-  show(location.hash.replace(/^#/, ''));
-});
+      if (isSignUp) {
+        const { error } = await sb.auth.signUp({
+          email,
+          password,
+          options: { data: { full_name: fullName || "User" } }
+        });
+        if (error) {
+          authMessage.innerHTML = `<div class="msg-err">${error.message}</div>`;
+          return;
+        }
+        authMessage.innerHTML = `<div class="msg-ok">Account created! Please check your email if confirmation is enabled, or sign in.</div>`;
+      } else {
+        const { data, error } = await sb.auth.signInWithPassword({ email, password });
+        if (error) {
+          authMessage.innerHTML = `<div class="msg-err">${error.message}</div>`;
+          return;
+        }
+        if (data?.user) {
+          await loadUserData(data.user);
+          showApp();
+        }
+      }
+    });
 
-if (sb && sb.auth && sb.auth.onAuthStateChange) {
-  sb.auth.onAuthStateChange(async function (event) {
-    if (event === 'PASSWORD_RECOVERY') {
-      S.ready = true;
-      show('reset');
-      return;
-    }
-    await refreshSession();
-    show(S.view);
-  });
-}
+    document.getElementById("forgotBtn").addEventListener("click", async () => {
+      const email = document.getElementById("emailInput").value.trim();
+      if (!email) {
+        authMessage.innerHTML = `<div class="msg-err">Enter your email first to reset password.</div>`;
+        return;
+      }
+      const { error } = await sb.auth.resetPasswordForEmail(email, {
+        redirectTo: "https://primecoreuk.vercel.app"
+      });
+      authMessage.innerHTML = error
+        ? `<div class="msg-err">${error.message}</div>`
+        : `<div class="msg-ok">Password reset link sent to ${email}.</div>`;
+    });
 
-refreshSession().then(function () {
-  show(location.hash.replace(/^#/, ''));
-});
-})();
-</script>
+    signOutBtn.addEventListener("click", async () => {
+      await sb.auth.signOut();
+      showAuth();
+    });
+
+    document.querySelectorAll(".tab").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll(".tab").forEach((t) => t.classList.remove("active"));
+        btn.classList.add("active");
+        const target = btn.getAttribute("data-tab");
+        document.querySelectorAll(".tab-panel").forEach((p) => p.classList.add("hidden"));
+        document.getElementById("tab-" + target)?.classList.remove("hidden");
+      });
+    });
+
+    document.getElementById("claimDailyBtn").addEventListener("click", async () => {
+      const rewardMsg = document.getElementById("rewardMsg");
+      rewardMsg.innerHTML = "";
+      const { data: { user } } = await sb.auth.getUser();
+      if (!user) return;
+      const { error } = await sb.from("daily_rewards").insert({
+        user_id: user.id,
+        reward_amount: 5.00
+      });
+      if (error) {
+        rewardMsg.innerHTML = `<div class="msg-err">${error.message}</div>`;
+        return;
+      }
+      rewardMsg.innerHTML = `<div class="msg-ok">Daily reward of $5.00 recorded!</div>`;
+    });
+
+    sb.auth.onAuthStateChange(async (event, session) => {
+      if (event === "SIGNED_OUT" || !session?.user) {
+        showAuth();
+      } else if (event === "SIGNED_IN" || event === "TOKEN_REFRESHED") {
+        await loadUserData(session.user);
+        showApp();
+      }
+    });
+
+    syncSession();
+  </script>
 </body>
 </html>
