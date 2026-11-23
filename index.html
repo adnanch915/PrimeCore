@@ -1566,5 +1566,39 @@ $$("sp-go").onclick=function(){var btn=this,b=$$("sp-m").value.trim();
 setInterval(function(){if(!document.hidden&&$("support").classList.contains("on"))loadChat()},15000);
 })();
 </script>
+<script>
+/* ---------- v15: chat attachments + more translations ---------- */
+(function(){
+var EX={"Wallet": ["वॉलेट", "والیٹ"], "Salary": ["सैलरी", "تنخواہ"], "Daily Bonus": ["दैनिक बोनस", "یومیہ بونس"], "Profile": ["प्रोफ़ाइल", "پروفائل"], "Sound": ["साउंड", "آواز"], "Your wallet, profit and team at a glance.": ["आपका वॉलेट, मुनाफ़ा और टीम, एक नज़र में।", "آپ کا والیٹ، منافع اور ٹیم، ایک نظر میں۔"], "Wallet Balance": ["वॉलेट बैलेंस", "والیٹ بیلنس"], "Available to withdraw": ["निकासी के लिए उपलब्ध", "نکلوانے کے لیے دستیاب"], "Daily Profit": ["दैनिक मुनाफ़ा", "یومیہ منافع"], "Added every 24 hours": ["हर 24 घंटे में जोड़ा जाता है", "ہر 24 گھنٹے بعد شامل ہوتا ہے"], "Total Deposit": ["कुल जमा", "کل ڈپازٹ"], "Confirmed deposits": ["पुष्टि किए गए डिपॉज़िट", "تصدیق شدہ ڈپازٹس"], "Direct Referrals": ["सीधे रेफ़रल", "براہ راست ریفرلز"], "Your 1st line": ["आपकी पहली लाइन", "آپ کی پہلی لائن"], "Total Profit Earned": ["कुल कमाया गया मुनाफ़ा", "کل کمایا گیا منافع"], "Profit overview": ["मुनाफ़े का ओवरव्यू", "منافع کا جائزہ"], "Attach file": ["फ़ाइल जोड़ें", "فائل منسلک کریں"], "Remove": ["हटाएँ", "ہٹائیں"], "File is too large. Maximum size is 5 MB.": ["फ़ाइल बहुत बड़ी है। अधिकतम साइज़ 5 MB है।", "فائل بہت بڑی ہے۔ زیادہ سے زیادہ سائز 5 MB ہے۔"], "File upload failed. Please try again.": ["फ़ाइल अपलोड नहीं हो सकी। कृपया दोबारा कोशिश करें।", "فائل اپ لوڈ نہیں ہو سکی۔ براہ کرم دوبارہ کوشش کریں۔"], "Screenshots, images, PDF or text files up to 5 MB.": ["स्क्रीनशॉट, इमेज, PDF या टेक्स्ट फ़ाइल, 5 MB तक।", "اسکرین شاٹ، تصویر، PDF یا ٹیکسٹ فائل، 5 MB تک۔"], "Attachment": ["अटैचमेंट", "منسلکہ"]};
+Object.keys(EX).forEach(function(k){I18[k]=I18[k]||{};I18[k].hi=EX[k][0];I18[k].ur=EX[k][1]});
+var FILE=null,box=$$("sp-m").parentNode,UR=/https?:\/\/[^\s<]+\/storage\/v1\/object\/public\/support-files\/[^\s<]+/g;
+var bar=document.createElement("div");bar.style.cssText="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:10px";
+bar.innerHTML='<input type="file" id="sp-f" accept="image/*,.pdf,.txt,.log,.zip" hidden><button type="button" class="btn ln sm" id="sp-at">&#128206; <span>Attach file</span></button><span id="sp-fn" class="mu" style="font-size:13px;word-break:break-all"></span><small class="mu" style="width:100%">Screenshots, images, PDF or text files up to 5 MB.</small>';
+box.parentNode.insertBefore(bar,$$("sp-go"));
+function setF(f){if(f&&f.size>5242880){toast("File is too large. Maximum size is 5 MB.",1);return}FILE=f||null;$$("sp-f").value="";
+ $$("sp-fn").innerHTML=FILE?esc(FILE.name)+' <a href="#" id="sp-rm">'+esc(T("Remove"))+'</a>':""}
+$$("sp-at").onclick=function(){$$("sp-f").click()};
+$$("sp-f").onchange=function(){setF(this.files[0])};
+bar.addEventListener("click",function(e){if(e.target.id==="sp-rm"){e.preventDefault();setF(null)}});
+$$("sp-m").addEventListener("paste",function(e){var it=[].filter.call((e.clipboardData&&e.clipboardData.items)||[],function(i){return i.kind==="file"})[0];if(it){setF(it.getAsFile())}});
+function link(h){return h.replace(UR,function(u){var n=decodeURIComponent(u.split("/").pop().replace(/^\d+-/,""));
+ return /\.(png|jpe?g|gif|webp)$/i.test(u)?'<a href="'+u+'" target="_blank" rel="noopener"><img src="'+u+'" alt="" style="max-width:100%;max-height:220px;border-radius:10px;display:block;margin:6px 0"></a>':'<a href="'+u+'" target="_blank" rel="noopener" style="text-decoration:underline">&#128206; '+n+'</a>'})}
+var _b=window.bubble;window.bubble=function(m){return _b(m).replace(/(<div style="font-size:14px;white-space:pre-wrap">)([\s\S]*?)(<\/div><\/div>)$/,function(a,x,y,z){return x+link(y)+z})};
+function up(u){if(!FILE)return Promise.resolve("");var p=u.id+"/"+Date.now()+"-"+FILE.name.replace(/[^\w.\-]+/g,"_");
+ return sb.storage.from("support-files").upload(p,FILE,{contentType:FILE.type||undefined}).then(function(r){if(r.error)throw r.error;return sb.storage.from("support-files").getPublicUrl(p).data.publicUrl})}
+$$("sp-go").onclick=function(){var btn=this,tx=$$("sp-m").value.trim();
+ if(!tx&&!FILE)return toast("Type a message first",1);if(!sb)return toast("Not connected",1);
+ busy(btn,function(){return sb.auth.getSession().then(function(s){var u=s.data&&s.data.session&&s.data.session.user;if(!u)return{error:{message:"Please log in again"}};
+  return up(u).then(function(url){var b=(tx+(url?"\n"+url:"")).trim();
+   return sb.from("support_messages").insert({user_id:u.id,sender:"MEMBER",body:b}).then(function(r){
+    if(r.error&&/user_id|column/i.test(r.error.message||""))return sb.from("support_messages").insert({sender:"MEMBER",body:b});return r})},
+   function(e){console.error(e);return{error:{message:"upload: "+((e&&e.message)||"")},up:1}})})}).then(function(r){
+  if(r.error)return toast(T(r.up||/^upload/.test(r.error.message)?"File upload failed. Please try again.":"Message not sent. Please try again.")+" ("+sbErr(r.error)+")",1);
+  $$("sp-m").value="";setF(null);sfx.ok();toast("Message sent");loadChat()})};
+/* admin inbox: make file links clickable */
+var al=document.getElementById("adm-s");if(al)new MutationObserver(function(){al.querySelectorAll("div[style*=pre-wrap]").forEach(function(d){if(!d.querySelector("a")&&UR.test(d.textContent)){UR.lastIndex=0;d.innerHTML=link(d.innerHTML)}UR.lastIndex=0})}).observe(al,{childList:true});
+applyLang();
+})();
+</script>
 </body>
 </html>
