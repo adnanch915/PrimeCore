@@ -1538,5 +1538,33 @@ new MutationObserver(sync).observe(a,{attributes:true,attributeFilter:["class"]}
  P("pf-out").onclick=function(){P("out").click()};
 })();
 </script>
+<script>
+/* ---------- v14: language + support fixes ---------- */
+(function(){
+var EX={"Customer <b>support</b>": ["ग्राहक <b>सपोर्ट</b>", "کسٹمر <b>سپورٹ</b>"], "My <b>wallet</b>": ["मेरा <b>वॉलेट</b>", "میرا <b>والیٹ</b>"], "My <b>profile</b>": ["मेरी <b>प्रोफ़ाइल</b>", "میری <b>پروفائل</b>"], "Send your message here. Our support team replies in this chat.": ["अपना संदेश यहाँ भेजें। हमारी सपोर्ट टीम इसी चैट में जवाब देगी।", "اپنا پیغام یہاں بھیجیں۔ ہماری سپورٹ ٹیم اسی چیٹ میں جواب دے گی۔"], "Your message": ["आपका संदेश", "آپ کا پیغام"], "Send message": ["संदेश भेजें", "پیغام بھیجیں"], "Type your message": ["अपना संदेश लिखें", "اپنا پیغام لکھیں"], "Type a message first": ["पहले संदेश लिखें", "پہلے پیغام لکھیں"], "Message sent": ["संदेश भेज दिया गया", "پیغام بھیج دیا گیا"], "Message not sent. Please try again.": ["संदेश नहीं भेजा जा सका। कृपया दोबारा कोशिश करें।", "پیغام نہیں بھیجا جا سکا۔ براہ کرم دوبارہ کوشش کریں۔"], "No messages yet. Send us your question below.": ["अभी कोई संदेश नहीं है। अपना सवाल नीचे भेजें।", "ابھی کوئی پیغام نہیں ہے۔ اپنا سوال نیچے بھیجیں۔"], "Chat is not available right now.": ["चैट अभी उपलब्ध नहीं है।", "چیٹ اس وقت دستیاب نہیں ہے۔"], "You": ["आप", "آپ"], "Support team": ["सपोर्ट टीम", "سپورٹ ٹیم"], "Withdraw": ["निकासी", "رقم نکلوائیں"], "Deposit": ["जमा करें", "جمع کریں"], "Available balance": ["उपलब्ध बैलेंस", "دستیاب بیلنس"], "Pending deposits": ["लंबित जमा", "زیر التواء ڈپازٹس"], "Pending withdrawals": ["लंबित निकासी", "زیر التواء رقم نکلوانے کی درخواستیں"], "Amount (USD)": ["राशि (USD)", "رقم (USD)"], "Create deposit": ["डिपॉज़िट बनाएँ", "ڈپازٹ بنائیں"], "Request withdrawal": ["निकासी का अनुरोध करें", "رقم نکلوانے کی درخواست کریں"], "Deposit history": ["जमा का इतिहास", "ڈپازٹ کی تاریخ"], "Withdrawal history": ["निकासी का इतिहास", "رقم نکلوانے کی تاریخ"], "USDT wallet address": ["USDT वॉलेट एड्रेस", "USDT والیٹ ایڈریس"], "Refresh": ["रिफ्रेश", "ریفریش"], "Copy": ["कॉपी करें", "کاپی کریں"], "Link copied": ["लिंक कॉपी हो गया", "لنک کاپی ہو گیا"], "Your referral link": ["आपका रेफ़रल लिंक", "آپ کا ریفرل لنک"], "Team tree": ["टीम ट्री", "ٹیم ٹری"], "Status": ["स्थिति", "اسٹیٹس"], "Members": ["सदस्य", "ممبرز"], "Withdrawals": ["निकासी", "رقم نکلوانا"], "Deposits": ["जमा", "ڈپازٹس"], "Activity log": ["गतिविधि लॉग", "سرگرمی لاگ"], "Support": ["सपोर्ट", "سپورٹ"], "Support inbox": ["सपोर्ट इनबॉक्स", "سپورٹ ان باکس"]};
+Object.keys(EX).forEach(function(k){I18[k]=I18[k]||{};I18[k].hi=EX[k][0];I18[k].ur=EX[k][1]});
+var _t=toast;window.toast=toast=function(m,b){_t(T(m),b)};
+var obs,tm,_al=applyLang;
+function attrs(){["placeholder","title","aria-label"].forEach(function(a){document.querySelectorAll("["+a+"]").forEach(function(e){var k="_o_"+a,o=e[k]||e.getAttribute(a);if(!I18[o]&&!e[k])return;e[k]=o;e.setAttribute(a,T(o))})})}
+window.applyLang=applyLang=function(){if(obs)obs.disconnect();try{_al();attrs()}finally{if(obs)obs.observe(document.body,{childList:true,subtree:true})}};
+obs=new MutationObserver(function(){clearTimeout(tm);tm=setTimeout(function(){applyLang()},60)});
+applyLang();
+function me(){return sb.auth.getSession().then(function(r){return r.data&&r.data.session?r.data.session.user:null})}
+window.bubble=function(m){var mine=m.sender==="MEMBER";return'<div style="justify-self:'+(mine?'end':'start')+';max-width:82%;background:'+(mine?'var(--inv)':'var(--card)')+';color:'+(mine?'var(--invt)':'var(--txt)')+';border:1px solid var(--line);border-radius:14px;padding:10px 12px"><small style="display:block;font-size:11px;opacity:.7;margin-bottom:4px">'+T(mine?"You":"Support team")+' &middot; '+esc((m.created_at||"").slice(0,16).replace("T"," "))+'</small><div style="font-size:14px;white-space:pre-wrap">'+esc(m.body)+'</div></div>'};
+function draw(r){var c=$$("chat");if(r.error){c.innerHTML='<p class="mu" style="font-size:14px">'+esc(T("Chat is not available right now."))+'</p>';return}
+ c.innerHTML=r.data.length?r.data.map(bubble).join(""):'<p class="mu" style="font-size:14px">'+esc(T("No messages yet. Send us your question below."))+'</p>';c.scrollTop=c.scrollHeight}
+window.loadChat=function(){if(!sb)return;me().then(function(u){if(!u)return;
+ sb.from("support_messages").select("sender,body,created_at").eq("user_id",u.id).order("created_at",{ascending:true}).limit(200).then(function(r){
+  if(r.error)return sb.from("support_messages").select("sender,body,created_at").order("created_at",{ascending:true}).limit(200).then(draw);draw(r)})})};
+$$("sp-go").onclick=function(){var btn=this,b=$$("sp-m").value.trim();
+ if(!b)return toast("Type a message first",1);if(!sb)return toast("Not connected",1);
+ busy(btn,function(){return me().then(function(u){if(!u)return{error:{message:"Please log in again"}};
+  return sb.from("support_messages").insert({user_id:u.id,sender:"MEMBER",body:b}).then(function(r){
+   if(r.error&&/user_id|column/i.test(r.error.message||""))return sb.from("support_messages").insert({sender:"MEMBER",body:b});return r})})}).then(function(r){
+  if(r.error){console.error("support send failed",r.error);return toast(T("Message not sent. Please try again.")+" ("+sbErr(r.error)+")",1)}
+  $$("sp-m").value="";sfx.ok();toast("Message sent");loadChat()})};
+setInterval(function(){if(!document.hidden&&$("support").classList.contains("on"))loadChat()},15000);
+})();
+</script>
 </body>
 </html>
