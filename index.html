@@ -648,7 +648,7 @@ input:focus,select:focus,textarea:focus{transform:translateY(-1px)}
 
 <section class="view" id="packages"><div class="hd"><div><h1>Choose your <b>package</b></h1><p class="mu">Tap a package to see what is included. Rates are proposed, not guaranteed.</p></div></div>
 <div class="g g3" id="pkgs"></div>
-<div class="c" style="margin-bottom:14px"><h3>Risks, fees and withdrawal terms</h3><ul class="rk"><li>Daily rates are proposed rates only. They are not guaranteed returns, and earnings can be zero.</li><li>Each confirmed deposit starts a 100-day plan. Profit is added to your wallet every 24 hours, and the plan ends after day 100. No profit is added after that.</li><li>Fees, lock periods and withdrawal terms are published by the company and shown before you confirm a plan.</li><li>Your capital is at risk. Do not use money you cannot afford to lose.</li></ul></div>
+<div class="c" style="margin-bottom:14px"><h3>Risks, fees and withdrawal terms</h3><ul class="rk"><li>Daily rates are proposed rates only. They are not guaranteed returns, and earnings can be zero.</li><li>Each confirmed deposit starts a 100-day plan. Profit is added to your wallet every 24 hours, and the plan ends after day 100. No profit is added after that.</li><li>Fees, lock periods and withdrawal terms are published by the company and shown before you confirm a plan.</li><li>Your capital is at risk. Do not use money you cannot afford to lose.</li><li>If you have a written agreement with the company, the terms of that agreement apply first.</li></ul></div>
 
 </section>
 
@@ -816,7 +816,7 @@ function stats(){
  $("nx").innerHTML=nx?ring(D.qual/nx.q*100,D.qual+"/"+nx.q)+'<div><h3>Next reward</h3><p class="mu">$'+nx.a+' at '+nx.q+' qualified referrals today.</p><button class="btn sm" style="margin-top:10px" data-go="challenge">Open daily bonus</button></div>':'<div><h3>All milestones reached</h3><p class="mu">Claim your rewards in Daily Bonus.</p></div>';
 }
 function pkgs(){
- $("pkgs").innerHTML=PK.map(function(p,i){return'<div class="c pk hv'+(i===4?' u':'')+(i===D.pkg?' sel':'')+'" data-i="'+i+'" tabindex="0"><div class="row"><span class="tag'+(i===D.pkg?' pd':'')+'">'+(i===D.pkg?'Your package':'Package')+'</span><span class="tag ng">Not guaranteed</span></div><h3 style="margin-top:10px">'+p.n+'</h3><div class="pr">'+p.p+'</div><div class="rt"><small>Proposed daily rate</small><b>'+p.rate+'%</b></div><div class="rt"><small>Plan duration</small><b>100 days</b></div><ul>'+p.inc.map(function(x){return"<li>"+x+"</li>"}).join("")+'</ul><div class="more"><p style="margin-bottom:10px">The rate is proposed only and is not a guaranteed return. Earnings are credited only from verified, approved revenue. Fees, lock period and withdrawal terms apply.</p><button class="btn gd sm" data-pick="'+i+'">Select package</button></div></div>'}).join("");
+ $("pkgs").innerHTML=PK.map(function(p,i){return'<div class="c pk hv'+(i===4?' u':'')+(i===D.pkg?' sel':'')+'" data-i="'+i+'" tabindex="0"><div class="row"><span class="tag'+(i===D.pkg?' pd':'')+'">'+(i===D.pkg?'Your package':'Package')+'</span></div><h3 style="margin-top:10px">'+p.n+'</h3><div class="pr">'+p.p+'</div><div class="rt"><small>Proposed daily rate</small><b>'+p.rate+'%</b></div><div class="rt"><small>Plan duration</small><b>100 days</b></div><ul>'+p.inc.map(function(x){return"<li>"+x+"</li>"}).join("")+'</ul><div class="more"><p style="margin-bottom:10px">Earnings are credited only from verified, approved revenue. Fees, lock period and withdrawal terms apply.</p><button class="btn gd sm" data-pick="'+i+'">Select package</button></div></div>'}).join("");
  document.querySelectorAll(".pk").forEach(function(c){c.onclick=function(e){if(e.target.closest("[data-pick]"))return;c.classList.toggle("sel")}});
  document.querySelectorAll("[data-pick]").forEach(function(b){b.onclick=function(){D.pkg=+b.dataset.pick;D.audit.unshift("Package set to "+PK[D.pkg].n+"");sfx.ok();toast("Package selected: "+PK[D.pkg].n);pkgs();stats()}});
 }
@@ -993,7 +993,7 @@ function admLoad(){
  Promise.all([arp("admin_overview"),arp("admin_withdrawals",{p_status:"PENDING"}),arp("admin_unmatched"),arp("admin_deposits"),arp("admin_members"),arp("admin_support"),arp("admin_log"),arp("admin_payment_requests")]).then(function(R){
   if(R[0].error&&R[1].error)return toast("Admin data failed to load",1);
   ADM.o=R[0].data;ADM.w=R[1].data||[];ADM.u=R[2].data||[];ADM.d=R[3].data||[];
-  ADM.setup=!R[4].error;ADM.m=R[4].data||[];ADM.supOk=!R[5].error;ADM.s=R[5].data||[];ADM.l=R[6].data||[];ADM.rq=R[7].data||[];
+  ADM.setup=!R[4].error;ADM.err=R[4].error?String(R[4].error.message||R[4].error.code||"unknown"):"";ADM.m=R[4].data||[];ADM.supOk=!R[5].error;ADM.s=R[5].data||[];ADM.l=R[6].data||[];ADM.rq=R[7].data||[];
   admRender();
  })
 }
@@ -1033,7 +1033,7 @@ function admRender(){
  $("adm-l").innerHTML=ADM.l.length?ADM.l.map(function(x){return'<div class="wal-row" style="flex-wrap:wrap"><span><b>'+esc(x.action||"")+'</b>'+(x.target_email?' &middot; '+esc(x.target_email):'')+(x.detail?'<br><small class="mu">'+esc(x.detail)+'</small>':'')+'</span><small class="mu">'+admTime(x.at)+'</small></div>'}).join(""):admEmpty("No admin actions recorded yet.");
 }
 function admMem(){
- if(!ADM.setup){$("adm-setup").innerHTML='<p class="mu" style="font-size:14px;margin-bottom:10px">Member controls are not active yet. Run <b>admin_setup.sql</b> once in Supabase (SQL Editor), then press Refresh.</p>';$("adm-m").innerHTML="";$("adm-mc").textContent="";return}
+ if(!ADM.setup){$("adm-setup").innerHTML='<p class="mu" style="font-size:14px;margin-bottom:10px">Member controls are not active yet. Run <b>admin_setup.sql</b> once in Supabase (SQL Editor), then press Refresh.</p>'+(ADM.err?'<p class="mu" style="font-size:12px;word-break:break-word;margin-bottom:10px">Error: '+esc(ADM.err)+'</p>':'');$("adm-m").innerHTML="";$("adm-mc").textContent="";return}
  $("adm-setup").innerHTML="";
  var q=ADM.q,f=ADM.f,L=ADM.m.filter(function(x){
   if(f!=="all"&&x.status!==f)return false;
@@ -1048,7 +1048,7 @@ function admSheet(id){
  var bl=x.status==="BLOCKED",row=function(a,b){return'<div class="wal-row"><span class="mu">'+a+'</span><span style="text-align:right;word-break:break-all">'+b+'</span></div>'};
  $("adm-sb").innerHTML='<div class="row" style="align-items:center;gap:12px;flex-wrap:nowrap;margin-bottom:10px"><div class="amav" style="width:48px;height:48px">'+esc(String(x.full_name||x.email||"?").charAt(0).toUpperCase())+'</div><div style="min-width:0"><h3 style="margin:0">'+esc(x.full_name||"-")+'</h3><small class="mu">@'+esc(x.username||"-")+'</small></div><span class="tag '+(bl?'bad':'ok')+'" style="margin-left:auto">'+(bl?'BLOCKED':'ACTIVE')+'</span></div>'
   +row("Email",esc(x.email||"-"))+row("Phone",esc(x.phone||"-"))+row("Country",esc(x.country||"-"))+row("Joined",admDay(x.created_at))+row("Last login",x.last_sign_in_at?admTime(x.last_sign_in_at):"Never")+row("Total deposited",admMoney(x.total_deposits))+row("Total withdrawn",admMoney(x.total_withdrawn))+(bl&&x.blocked_reason?row("Block reason",esc(x.blocked_reason)):"")
-  +'<div style="display:flex;gap:8px;margin-top:16px;flex-wrap:wrap"><button class="btn sm" data-cp="'+esc(x.email||"")+'">Copy email</button>'+(bl?'<button class="btn gd sm" data-mb="0" data-id="'+esc(x.id)+'">Unblock member</button>':'<button class="btn dn sm" data-mb="1" data-id="'+esc(x.id)+'">Block member</button>')+'<button class="btn sm" data-sx="1" style="margin-left:auto">Close</button></div>';
+  +'<div style="display:flex;gap:8px;margin-top:16px;flex-wrap:wrap"><button class="btn sm" data-cp="'+esc(x.email||"")+'">Copy email</button>'+'<button class="btn gd sm" data-dep="'+esc(x.id)+'">Add deposit</button>'+(bl?'<button class="btn gd sm" data-mb="0" data-id="'+esc(x.id)+'">Unblock member</button>':'<button class="btn dn sm" data-mb="1" data-id="'+esc(x.id)+'">Block member</button>')+'<button class="btn sm" data-sx="1" style="margin-left:auto">Close</button></div>';
  $("adm-sh").hidden=false;
 }
 function admSheetClose(){$("adm-sh").hidden=true}
@@ -1088,6 +1088,7 @@ function admSet(id,st,tx){sb.rpc("admin_set_withdrawal",{p_id:id,p_status:st,p_t
  S.addEventListener("click",function(e){
   if(e.target===S)return admSheetClose();
   var t=e.target.closest("[data-sx]");if(t)return admSheetClose();
+  t=e.target.closest("[data-dep]");if(t){var uid=t.dataset.dep,u=ADM.m.filter(function(m){return m.id===uid})[0],em=u?u.email:"";var am=prompt("Manual deposit for "+em+"\nAmount in USD:");if(am===null)return;am=+am;if(!am||am<1)return toast("Enter an amount of $1 or more",1);var nt=prompt("Note (optional, saved in the activity log):","Test deposit");if(nt===null)return;if(!confirm("Add a $"+am.toFixed(2)+" deposit to "+em+"? It will be credited like a real deposit and counts in totals, plans and profit."))return;arp("admin_add_deposit",{p_user:uid,p_amount:am,p_note:nt}).then(function(r){if(r.error)return toast(sbErr(r.error),1);sfx.ok();toast("Deposit added");admSheetClose();admLoad()});return}
   t=e.target.closest("[data-cp]");if(t)return copyTxt(t.dataset.cp,"Email copied");
   t=e.target.closest("[data-mb]");if(t)admMemberSet(t.dataset.id,t.dataset.mb==="1");
  });
