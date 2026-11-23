@@ -1600,5 +1600,58 @@ var al=document.getElementById("adm-s");if(al)new MutationObserver(function(){al
 applyLang();
 })();
 </script>
+<script>
+/* ---------- v16: chat notifications + admin chat window ---------- */
+(function(){
+var L=["ar","es","zh","fr","de","pt","ru","tr","ja","ko","id"],N={"Wallet": ["المحفظة", "Billetera", "钱包", "Portefeuille", "Wallet", "Carteira", "Кошелёк", "Cüzdan", "ウォレット", "지갑", "Dompet"], "Salary": ["الراتب", "Salario", "薪资", "Salaire", "Gehalt", "Salário", "Зарплата", "Maaş", "給与", "급여", "Gaji"], "Daily Bonus": ["المكافأة اليومية", "Bono diario", "每日奖金", "Bonus quotidien", "Tagesbonus", "Bônus diário", "Ежедневный бонус", "Günlük Bonus", "デイリーボーナス", "일일 보너스", "Bonus Harian"], "Profile": ["الملف الشخصي", "Perfil", "个人资料", "Profil", "Profil", "Perfil", "Профиль", "Profil", "プロフィール", "프로필", "Profil"], "Support": ["الدعم", "Soporte", "客服支持", "Assistance", "Support", "Suporte", "Поддержка", "Destek", "サポート", "고객 지원", "Dukungan"], "Sound": ["الصوت", "Sonido", "声音", "Son", "Ton", "Som", "Звук", "Ses", "サウンド", "소리", "Suara"]},H={"Support replied": ["सपोर्ट ने जवाब दिया", "سپورٹ نے جواب دیا"], "Open": ["खोलें", "کھولیں"], "New message from our support team": ["हमारी सपोर्ट टीम का नया संदेश", "ہماری سپورٹ ٹیم کی طرف سے نیا پیغام"]};
+Object.keys(N).forEach(function(k){I18[k]=I18[k]||{};L.forEach(function(l,i){I18[k][l]=N[k][i]})});
+Object.keys(H).forEach(function(k){I18[k]=I18[k]||{};I18[k].hi=H[k][0];I18[k].ur=H[k][1]});
+function ls(k,v){try{if(v===undefined)return localStorage.getItem(k);localStorage.setItem(k,v)}catch(e){return null}}
+var P;
+function pop(t,x,go){if(P)P.remove();P=document.createElement("div");P.style.cssText="position:fixed;top:12px;left:50%;transform:translateX(-50%);width:min(420px,92vw);z-index:500;background:var(--card);color:var(--txt);border:1px solid var(--line);border-radius:16px;padding:14px 16px;box-shadow:0 18px 40px rgba(0,0,0,.35);display:flex;gap:12px;align-items:center";
+ P.innerHTML='<div style="flex:1;min-width:0"><b style="display:block">'+esc(t)+'</b><span style="font-size:13px;opacity:.8;display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+esc(x)+'</span></div><button class="btn sm" data-o>'+esc(T("Open"))+'</button><button class="ic" data-x aria-label="Close">&times;</button>';
+ var me=P;P.onclick=function(e){if(e.target.closest("[data-o]")){me.remove();go()}else if(e.target.closest("[data-x]"))me.remove()};
+ document.body.appendChild(P);sfx.ok();setTimeout(function(){me.remove()},9000)}
+function badge(v,n){var b=document.querySelector('.nv[data-v="'+v+'"]');if(!b)return;var s=b.querySelector(".nb");if(!n){if(s)s.remove();return}
+ if(!s){s=document.createElement("span");s.className="nb";s.style.cssText="margin-inline-start:auto;background:#e5484d;color:#fff;border-radius:999px;min-width:20px;height:20px;padding:0 6px;font-size:12px;font-weight:800;display:grid;place-items:center";b.appendChild(s)}s.textContent=n}
+/* member: admin replied */
+function memberPoll(){if(!sb||document.body.classList.contains("locked"))return;
+ sb.auth.getSession().then(function(s){var u=s.data&&s.data.session&&s.data.session.user;if(!u)return;var k="pc-ms-"+u.id;
+  sb.from("support_messages").select("sender,body,created_at").eq("user_id",u.id).neq("sender","MEMBER").order("created_at",{ascending:false}).limit(20).then(function(r){
+   if(r.error||!r.data)return;var top=r.data[0]&&r.data[0].created_at,seen=ls(k);
+   if($("support").classList.contains("on")||seen===null){ls(k,top||seen||"0");badge("support",0);return}
+   var nw=r.data.filter(function(x){return x.created_at>seen});badge("support",nw.length);
+   if(nw.length&&ls(k+"-p")!==top){ls(k+"-p",top);var tx=String(nw[0].body||"").split("\n")[0];
+    pop(T("Support replied"),tx,function(){show("support");loadChat();ls(k,top);badge("support",0)});
+    try{primeNotify(T("Support replied"),T("New message from our support team"))}catch(e){}}})})}
+/* admin: members wrote */
+function maxM(rows){return rows.filter(function(x){return x.sender==="MEMBER"}).reduce(function(a,x){return x.created_at>a?x.created_at:a},"")}
+function markA(){if(typeof ADM!=="undefined"&&ADM.s){ls("pc-as",maxM(ADM.s)||ls("pc-as")||"0")}badge("admin",0)}
+function adminPoll(){if(!IS_ADMIN||!sb)return;arp("admin_support").then(function(r){if(r.error||!r.data)return;
+ var seen=ls("pc-as")||"0",top=maxM(r.data),us={},nw=r.data.filter(function(x){return x.sender==="MEMBER"&&x.created_at>seen});
+ nw.forEach(function(x){us[x.user_id]=1});var n=Object.keys(us).length;badge("admin",n);
+ if(n&&ls("pc-as-p")!==top){ls("pc-as-p",top);
+  pop(nw.length+(nw.length>1?" new messages":" new message"),n+(n>1?" members are waiting":" member is waiting")+(nw[0].email?" · "+nw[0].email:""),function(){ls("pc-as",top);badge("admin",0);show("admin");admLoad();var t=document.querySelector('[data-at="sup"]');if(t)t.click()})}})}
+/* admin: real chat window instead of prompt() */
+function openChat(uid){
+ var rows=((typeof ADM!=="undefined"&&ADM.s)||[]).filter(function(x){return x.user_id===uid}).sort(function(a,b){return a.created_at<b.created_at?-1:1});
+ var em=(rows[0]&&rows[0].email)||"Member",o=document.createElement("div");
+ o.style.cssText="position:fixed;inset:0;z-index:450;background:rgba(0,0,0,.6);display:grid;place-items:center;padding:12px";
+ o.innerHTML='<div style="background:var(--card);color:var(--txt);border:1px solid var(--line);border-radius:20px;width:min(520px,100%);max-height:90vh;display:flex;flex-direction:column"><div style="display:flex;justify-content:space-between;align-items:center;padding:14px 16px;border-bottom:1px solid var(--line)"><b style="word-break:break-all">'+esc(em)+'</b><button class="ic" data-x aria-label="Close">&times;</button></div><div id="ac-l" style="flex:1;overflow:auto;display:grid;gap:10px;padding:14px;align-content:start;min-height:160px"></div><div style="display:flex;gap:8px;padding:12px;border-top:1px solid var(--line)"><textarea id="ac-m" rows="2" style="flex:1" placeholder="Type your reply"></textarea><button class="btn gd" id="ac-s">Send</button></div></div>';
+ document.body.appendChild(o);
+ function draw(){var l=$("ac-l");l.innerHTML=rows.length?rows.map(function(x){var adm=x.sender!=="MEMBER";
+  return window.bubble({sender:adm?"MEMBER":"X",body:x.body,created_at:x.created_at}).replace(/(<small[^>]*>)[^&<]*( &middot;)/,'$1'+(adm?"Admin":esc(em))+'$2')}).join(""):'<p class="mu">No messages yet.</p>';l.scrollTop=l.scrollHeight}
+ draw();
+ o.onclick=function(e){if(e.target===o||e.target.closest("[data-x]"))o.remove()};
+ $("ac-s").onclick=function(){var b=this,v=$("ac-m").value.trim();if(!v)return;b.disabled=true;
+  arp("admin_support_reply",{p_user:uid,p_body:v}).then(function(r){b.disabled=false;if(r.error)return toast(sbErr(r.error),1);
+   $("ac-m").value="";rows.push({sender:"ADMIN",body:v,created_at:new Date().toISOString(),user_id:uid,email:em});draw();sfx.ok();admLoad()})}}
+document.addEventListener("click",function(e){var t=e.target.closest&&e.target.closest("[data-sup]");
+ if(t){e.stopImmediatePropagation();e.preventDefault();markA();openChat(t.dataset.sup);return}
+ if(e.target.closest&&e.target.closest('[data-at="sup"]'))setTimeout(markA,800)},true);
+setTimeout(function(){memberPoll();adminPoll()},3000);setInterval(function(){if(!document.hidden){memberPoll();adminPoll()}},15000);
+applyLang();
+})();
+</script>
 </body>
 </html>
