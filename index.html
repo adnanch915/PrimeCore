@@ -649,7 +649,7 @@ input:focus,select:focus,textarea:focus{transform:translateY(-1px)}
 
 <section class="view" id="packages"><div class="hd"><div><h1>Choose your <b>package</b></h1><p class="mu">Tap a package to see what is included. Rates are proposed, not guaranteed.</p></div></div>
 <div class="g g3" id="pkgs"></div>
-<div class="c" style="margin-bottom:14px"><h3>Risks, fees and withdrawal terms</h3><ul class="rk"><li>Daily rates are proposed rates only. They are not guaranteed returns, and earnings can be zero.</li><li>Each confirmed deposit starts a 100-day plan. Profit is added to your wallet every 24 hours, and the plan ends after day 100. No profit is added after that.</li><li>Fees, lock periods and withdrawal terms are published by the company and shown before you confirm a plan.</li><li>Your capital is at risk. Do not use money you cannot afford to lose.</li><li>If you have a written agreement with the company, the terms of that agreement apply first.</li></ul></div>
+<div class="c" style="margin-bottom:14px"><p style="margin:0 0 12px">Planning to deposit more than $5,000? Please contact the company for a separate plan.</p><button class="btn gd sm" id="bigdep">Contact the company</button></div>
 
 </section>
 
@@ -722,35 +722,6 @@ input:focus,select:focus,textarea:focus{transform:translateY(-1px)}
 <div class="c" style="margin-top:14px"><label>Your message<textarea id="sp-m" rows="3" placeholder="Type your message"></textarea></label><button class="btn gd" id="sp-go" style="width:100%;margin-top:10px">Send message</button></div>
 </section>
 
-<section class="view" id="profile"><div class="hd"><div><h1>My <b>profile</b></h1><p class="mu">Manage your account details, password and saved withdrawal address.</p></div></div>
-<div class="g gm">
-<div class="c"><div class="row" style="justify-content:flex-start;flex-wrap:nowrap;margin-bottom:14px"><div class="amav" id="pf-av" style="width:52px;height:52px;font-size:20px">M</div><div style="min-width:0"><h3 id="pf-nm" style="margin:0">Member</h3><small class="mu" id="pf-em2" style="word-break:break-all"></small></div></div>
-<h3 style="margin-bottom:8px">Personal details</h3>
-<label>Full name<input id="pf-fn" maxlength="60" autocomplete="name"></label>
-<div class="two"><label>Username<input id="pf-un" readonly style="opacity:.65"></label><label>Country<input id="pf-co" readonly style="opacity:.65"></label></div>
-<div class="two"><label>Email address<input id="pf-em" readonly style="opacity:.65"></label><label>Phone number<input id="pf-ph" readonly style="opacity:.65"></label></div>
-<p class="wal-msg" style="margin:0 0 12px">Username, email, country and phone are locked for security. Contact support to change them. Member since: <b id="pf-jd">-</b></p>
-<div class="err" id="pf-e1"></div><button class="btn gd" id="pf-save" style="width:100%">Save details</button></div>
-<div class="c"><h3 style="margin-bottom:8px">Change password</h3>
-<label>Current password<input id="pf-cp" type="password" autocomplete="current-password"></label>
-<label>New password<input id="pf-np" type="password" autocomplete="new-password"></label>
-<label>Confirm new password<input id="pf-nc" type="password" autocomplete="new-password"></label>
-<div class="pm"><i id="pf-pm"></i></div>
-<div class="err" id="pf-e2"></div><button class="btn" id="pf-pw" style="width:100%">Update password</button>
-<p class="wal-msg">Minimum 8 characters with letters and numbers.</p></div>
-</div>
-<div class="g gm">
-<div class="c"><h3 style="margin-bottom:8px">Saved withdrawal address</h3>
-<label>USDT wallet address (BEP20)<input id="pf-wa" placeholder="0x..." style="font-size:13px"></label>
-<div class="err" id="pf-e3"></div>
-<div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn" id="pf-wsave">Save address</button><button class="btn ln" id="pf-wclr">Remove</button></div>
-<p class="wal-msg">Saved only in this browser. It is filled in automatically on the Wallet page when you request a withdrawal.</p></div>
-<div class="c"><h3 style="margin-bottom:8px">Security and session</h3>
-<p class="mu" style="font-size:14px;margin-bottom:12px">If you used your account on another phone or computer, you can log out from every device.</p>
-<button class="btn ln" id="pf-all" style="width:100%;margin-bottom:8px">Log out from all devices</button>
-<button class="btn ln" id="pf-out" style="width:100%">Log out</button></div>
-</div></section>
-
 <section class="view" id="about"><div class="hd"><div><h1>The <b>company</b></h1><p class="mu">Company details and terms.</p></div></div>
 <div class="c"><div class="facts"><div><small class="mu">Company name</small><br><b>PRIME CORE</b></div><div><small class="mu">Support email</small><br><b>primecoreuk.support@gmail.com</b></div><div><small class="mu">Deposits and withdrawals</small><br><b>USDT (BEP20)</b></div><div><small class="mu">Profit plan</small><br><b>100 days, added every 24 hours</b></div></div></div>
 <div class="row" style="justify-content:flex-start;margin-top:18px"><button class="btn" id="live">Join live session</button><button class="btn ln" id="sup">Contact support</button></div></div>
@@ -803,7 +774,7 @@ pf();
 var LV=[{l:"Level 1",r:10,t:2},{l:"Level 2",r:7,t:5},{l:"Level 3",r:3,t:10}];
 var MS=[{q:5,a:10},{q:10,a:25},{q:20,a:50}];
 var D={name:"Member",pkg:-1,purchases:0,comm:0,courses:0,refs:0,qual:0,budget:0,claims:[],inq:[],audit:[]};
-var NV=[["home","Overview","M3 11l9-8 9 8v10H3z"],["packages","Packages","M3 7l9-4 9 4v10l-9 4-9-4zM3 7l9 4 9-4M12 11v10"],["wallet","Wallet","M3 7h18v12H3zM3 7l3-3h12l3 3M16 13h2"],["team","Team","M17 21v-2a4 4 0 00-4-4H7a4 4 0 00-4 4v2M10 11a4 4 0 100-8 4 4 0 000 8zM21 21v-2a4 4 0 00-3-3.9M17 3.1a4 4 0 010 7.8"],["salary","Salary","M2 6h20v12H2zM12 15a3 3 0 100-6 3 3 0 000 6zM6 12h.01M18 12h.01"],["challenge","Daily Bonus","M20 12v10H4V12M2 7h20v5H2zM12 22V7M12 7H7.5a2.5 2.5 0 010-5C11 2 12 7 12 7zM12 7h4.5a2.5 2.5 0 000-5C13 2 12 7 12 7z"],["claims","Claims","M6 3h12v18l-3-2-3 2-3-2-3 2zM9 8h6M9 12h6"],["support","Support","M4 12a8 8 0 0116 0v5a2 2 0 01-2 2h-2v-6h4M4 12v5a2 2 0 002 2h2v-6H4"],["profile","Profile","M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2M12 11a4 4 0 100-8 4 4 0 000 8z"]];
+var NV=[["home","Overview","M3 11l9-8 9 8v10H3z"],["packages","Packages","M3 7l9-4 9 4v10l-9 4-9-4zM3 7l9 4 9-4M12 11v10"],["wallet","Wallet","M3 7h18v12H3zM3 7l3-3h12l3 3M16 13h2"],["team","Team","M17 21v-2a4 4 0 00-4-4H7a4 4 0 00-4 4v2M10 11a4 4 0 100-8 4 4 0 000 8zM21 21v-2a4 4 0 00-3-3.9M17 3.1a4 4 0 010 7.8"],["salary","Salary","M2 6h20v12H2zM12 15a3 3 0 100-6 3 3 0 000 6zM6 12h.01M18 12h.01"],["challenge","Daily Bonus","M20 12v10H4V12M2 7h20v5H2zM12 22V7M12 7H7.5a2.5 2.5 0 010-5C11 2 12 7 12 7zM12 7h4.5a2.5 2.5 0 000-5C13 2 12 7 12 7z"],["claims","Claims","M6 3h12v18l-3-2-3 2-3-2-3 2zM9 8h6M9 12h6"],["support","Support","M4 12a8 8 0 0116 0v5a2 2 0 01-2 2h-2v-6h4M4 12v5a2 2 0 002 2h2v-6H4"]];
 $("nv").innerHTML=NV.map(function(n,i){return'<button class="nv'+(i?'':' on')+'" data-v="'+n[0]+'"><svg viewBox="0 0 24 24"><path d="'+n[2]+'"/></svg><span>'+n[1]+'</span></button>'}).join("");
 
 document.getElementById("mnu").onclick=function(){if(innerWidth>900)document.body.classList.toggle("nav-closed");else document.body.classList.toggle("nav-open")};
@@ -961,7 +932,7 @@ $("pay-x").onclick=closePay;
 $("dgo").onclick=function(){
  var a=+$("da").value;
  if(!sb)return toast("Database is not connected",1);
- if(!a||a<30)return toast("Minimum deposit is $30",1);
+ if(!a||a<30)return toast("Minimum deposit is $30",1);if(a>PK[PK.length-1].max){show("support");return toast("Deposits above $"+PK[PK.length-1].max.toLocaleString()+" need a custom plan. Please contact the company.",1)}
  $("dgo").disabled=true;
  sb.rpc("create_deposit",{p_amount:a}).then(function(r){
   $("dgo").disabled=false;
@@ -993,6 +964,7 @@ function loadReq(){
   $("pr-l").innerHTML=PRQ.length?PRQ.slice(0,10).map(function(x){return'<div class="wal-row"><span>'+String(x.created_at).slice(0,16).replace("T"," ")+' &middot; $'+Number(x.amount).toFixed(2)+'<br><small class="mu" style="word-break:break-all">'+esc(String(x.tx_hash).slice(0,22))+'...</small>'+(x.admin_note?'<br><small class="mu">'+esc(x.admin_note)+'</small>':'')+'</span><span class="tag '+(x.status==="RESOLVED"?"ok":(x.status==="REJECTED"?"bad":"pd"))+'">'+x.status+'</span></div>'}).join(""):"";
  },function(){})
 }
+$("bigdep").onclick=function(){show("support")};
 $("pr-go").onclick=function(){
  var a=+$("pr-a").value,t=$("pr-t").value.trim(),n=$("pr-n").value.trim();
  if(!sb)return toast("Database is not connected",1);
@@ -1471,192 +1443,6 @@ $$("sp-go").onclick=function(){
 b.onclick=function(){a.click()};
 function sync(){b.classList.toggle("off",a.classList.contains("off"))}
 new MutationObserver(sync).observe(a,{attributes:true,attributeFilter:["class"]});sync()})();
-</script>
-<script>
-/* ---------- Profile page ---------- */
-(function(){
- var P=function(i){return document.getElementById(i)},U=null;
- function wkey(){return"pc-wa-"+(U?U.id:"x")}
- function fill(){
-  if(!sb)return;
-  sb.auth.getUser().then(function(r){
-   var u=r&&r.data&&r.data.user;if(!u)return;U=u;
-   var m=u.user_metadata||{},nm=m.full_name||u.email.split("@")[0];
-   P("pf-av").textContent=String(nm).charAt(0).toUpperCase();
-   P("pf-nm").textContent=nm;P("pf-em2").textContent=u.email;
-   P("pf-fn").value=nm;P("pf-un").value=m.username||"";P("pf-co").value=m.country||"";
-   P("pf-em").value=u.email||"";P("pf-ph").value=m.phone||"";
-   P("pf-jd").textContent=String(u.created_at||"").slice(0,10)||"-";
-   var a="";try{a=localStorage.getItem(wkey())||""}catch(e){}
-   P("pf-wa").value=a;
-   if(a&&P("wd")&&!P("wd").value)P("wd").value=a;
-  });
- }
- var _s=window.show;
- window.show=function(v){_s(v);if(v==="profile")fill()};
- P("pf-save").onclick=function(){
-  var n=P("pf-fn").value.trim().replace(/\s+/g," ");P("pf-e1").textContent="";
-  if(!sb)return toast("Database is not connected",1);
-  if(n.length<2)return P("pf-e1").textContent="Enter your full name.";
-  busy(this,function(){return sb.auth.updateUser({data:{full_name:n}})}).then(function(r){
-   if(r.error)return P("pf-e1").textContent=r.error.message;
-   setUser(r.data.user);U=r.data.user;sfx.ok();toast("Profile updated");fill();render();
-  },function(){toast("Network error. Try again.",1)});
- };
- P("pf-np").oninput=function(){var p=this.value,sc=(p.length>=8)+(/[A-Z]/.test(p))+(/[0-9]/.test(p))+(/[^A-Za-z0-9]/.test(p));var b=P("pf-pm");b.style.width=sc*25+"%";b.style.background=sc>=3?"var(--ac)":"var(--ink)"};
- P("pf-pw").onclick=function(){
-  var c=P("pf-cp").value,p=P("pf-np").value,e=P("pf-e2");e.textContent="";
-  if(!sb)return toast("Database is not connected",1);
-  if(!c)return e.textContent="Enter your current password.";
-  if(!okPw(p))return e.textContent="Password needs 8+ characters with letters and numbers.";
-  if(p!==P("pf-nc").value)return e.textContent="New passwords do not match.";
-  if(p===c)return e.textContent="New password must be different from the current one.";
-  busy(this,function(){return sb.auth.getUser().then(function(g){
-   var u=g.data&&g.data.user;if(!u)return{error:{message:"Please log in again."}};
-   return sb.auth.signInWithPassword({email:u.email,password:c}).then(function(x){
-    if(x.error)return{error:{message:"Current password is incorrect."}};
-    return sb.auth.updateUser({password:p})})})}).then(function(r){
-   if(r.error)return e.textContent=r.error.message;
-   ["pf-cp","pf-np","pf-nc"].forEach(function(i){P(i).value=""});P("pf-pm").style.width="0";
-   sfx.ok();toast("Password updated");
-  },function(){toast("Network error. Try again.",1)});
- };
- P("pf-wsave").onclick=function(){
-  var a=P("pf-wa").value.trim(),e=P("pf-e3");e.textContent="";
-  if(!BEP.test(a))return e.textContent="Enter a valid BEP20 address (0x...).";
-  try{localStorage.setItem(wkey(),a)}catch(x){return e.textContent="Could not save in this browser."}
-  if(P("wd"))P("wd").value=a;sfx.ok();toast("Address saved");
- };
- P("pf-wclr").onclick=function(){
-  try{localStorage.removeItem(wkey())}catch(x){}
-  P("pf-wa").value="";P("pf-e3").textContent="";toast("Saved address removed");
- };
- P("pf-all").onclick=function(){
-  if(!sb)return;if(!confirm("Log out from all devices?"))return;
-  sb.auth.signOut({scope:"global"}).then(function(){location.reload()});
- };
- P("pf-out").onclick=function(){P("out").click()};
-})();
-</script>
-<script>
-/* ---------- v14: language + support fixes ---------- */
-(function(){
-var EX={"Customer <b>support</b>": ["ग्राहक <b>सपोर्ट</b>", "کسٹمر <b>سپورٹ</b>"], "My <b>wallet</b>": ["मेरा <b>वॉलेट</b>", "میرا <b>والیٹ</b>"], "My <b>profile</b>": ["मेरी <b>प्रोफ़ाइल</b>", "میری <b>پروفائل</b>"], "Send your message here. Our support team replies in this chat.": ["अपना संदेश यहाँ भेजें। हमारी सपोर्ट टीम इसी चैट में जवाब देगी।", "اپنا پیغام یہاں بھیجیں۔ ہماری سپورٹ ٹیم اسی چیٹ میں جواب دے گی۔"], "Your message": ["आपका संदेश", "آپ کا پیغام"], "Send message": ["संदेश भेजें", "پیغام بھیجیں"], "Type your message": ["अपना संदेश लिखें", "اپنا پیغام لکھیں"], "Type a message first": ["पहले संदेश लिखें", "پہلے پیغام لکھیں"], "Message sent": ["संदेश भेज दिया गया", "پیغام بھیج دیا گیا"], "Message not sent. Please try again.": ["संदेश नहीं भेजा जा सका। कृपया दोबारा कोशिश करें।", "پیغام نہیں بھیجا جا سکا۔ براہ کرم دوبارہ کوشش کریں۔"], "No messages yet. Send us your question below.": ["अभी कोई संदेश नहीं है। अपना सवाल नीचे भेजें।", "ابھی کوئی پیغام نہیں ہے۔ اپنا سوال نیچے بھیجیں۔"], "Chat is not available right now.": ["चैट अभी उपलब्ध नहीं है।", "چیٹ اس وقت دستیاب نہیں ہے۔"], "You": ["आप", "آپ"], "Support team": ["सपोर्ट टीम", "سپورٹ ٹیم"], "Withdraw": ["निकासी", "رقم نکلوائیں"], "Deposit": ["जमा करें", "جمع کریں"], "Available balance": ["उपलब्ध बैलेंस", "دستیاب بیلنس"], "Pending deposits": ["लंबित जमा", "زیر التواء ڈپازٹس"], "Pending withdrawals": ["लंबित निकासी", "زیر التواء رقم نکلوانے کی درخواستیں"], "Amount (USD)": ["राशि (USD)", "رقم (USD)"], "Create deposit": ["डिपॉज़िट बनाएँ", "ڈپازٹ بنائیں"], "Request withdrawal": ["निकासी का अनुरोध करें", "رقم نکلوانے کی درخواست کریں"], "Deposit history": ["जमा का इतिहास", "ڈپازٹ کی تاریخ"], "Withdrawal history": ["निकासी का इतिहास", "رقم نکلوانے کی تاریخ"], "USDT wallet address": ["USDT वॉलेट एड्रेस", "USDT والیٹ ایڈریس"], "Refresh": ["रिफ्रेश", "ریفریش"], "Copy": ["कॉपी करें", "کاپی کریں"], "Link copied": ["लिंक कॉपी हो गया", "لنک کاپی ہو گیا"], "Your referral link": ["आपका रेफ़रल लिंक", "آپ کا ریفرل لنک"], "Team tree": ["टीम ट्री", "ٹیم ٹری"], "Status": ["स्थिति", "اسٹیٹس"], "Members": ["सदस्य", "ممبرز"], "Withdrawals": ["निकासी", "رقم نکلوانا"], "Deposits": ["जमा", "ڈپازٹس"], "Activity log": ["गतिविधि लॉग", "سرگرمی لاگ"], "Support": ["सपोर्ट", "سپورٹ"], "Support inbox": ["सपोर्ट इनबॉक्स", "سپورٹ ان باکس"]};
-Object.keys(EX).forEach(function(k){I18[k]=I18[k]||{};I18[k].hi=EX[k][0];I18[k].ur=EX[k][1]});
-var _t=toast;window.toast=toast=function(m,b){_t(T(m),b)};
-var obs,tm,_al=applyLang;
-function attrs(){["placeholder","title","aria-label"].forEach(function(a){document.querySelectorAll("["+a+"]").forEach(function(e){var k="_o_"+a,o=e[k]||e.getAttribute(a);if(!I18[o]&&!e[k])return;e[k]=o;e.setAttribute(a,T(o))})})}
-window.applyLang=applyLang=function(){if(obs)obs.disconnect();try{_al();attrs()}finally{if(obs)obs.observe(document.body,{childList:true,subtree:true})}};
-obs=new MutationObserver(function(){clearTimeout(tm);tm=setTimeout(function(){applyLang()},60)});
-applyLang();
-function me(){return sb.auth.getSession().then(function(r){return r.data&&r.data.session?r.data.session.user:null})}
-window.bubble=function(m){var mine=m.sender==="MEMBER";return'<div style="justify-self:'+(mine?'end':'start')+';max-width:82%;background:'+(mine?'var(--inv)':'var(--card)')+';color:'+(mine?'var(--invt)':'var(--txt)')+';border:1px solid var(--line);border-radius:14px;padding:10px 12px"><small style="display:block;font-size:11px;opacity:.7;margin-bottom:4px">'+T(mine?"You":"Support team")+' &middot; '+esc((m.created_at||"").slice(0,16).replace("T"," "))+'</small><div style="font-size:14px;white-space:pre-wrap">'+esc(m.body)+'</div></div>'};
-function draw(r){var c=$$("chat");if(r.error){c.innerHTML='<p class="mu" style="font-size:14px">'+esc(T("Chat is not available right now."))+'</p>';return}
- c.innerHTML=r.data.length?r.data.map(bubble).join(""):'<p class="mu" style="font-size:14px">'+esc(T("No messages yet. Send us your question below."))+'</p>';c.scrollTop=c.scrollHeight}
-window.loadChat=function(){if(!sb)return;me().then(function(u){if(!u)return;
- sb.from("support_messages").select("sender,body,created_at").eq("user_id",u.id).order("created_at",{ascending:true}).limit(200).then(function(r){
-  if(r.error)return sb.from("support_messages").select("sender,body,created_at").order("created_at",{ascending:true}).limit(200).then(draw);draw(r)})})};
-$$("sp-go").onclick=function(){var btn=this,b=$$("sp-m").value.trim();
- if(!b)return toast("Type a message first",1);if(!sb)return toast("Not connected",1);
- busy(btn,function(){return me().then(function(u){if(!u)return{error:{message:"Please log in again"}};
-  return sb.from("support_messages").insert({user_id:u.id,sender:"MEMBER",body:b}).then(function(r){
-   if(r.error&&/user_id|column/i.test(r.error.message||""))return sb.from("support_messages").insert({sender:"MEMBER",body:b});return r})})}).then(function(r){
-  if(r.error){console.error("support send failed",r.error);return toast(T("Message not sent. Please try again.")+" ("+sbErr(r.error)+")",1)}
-  $$("sp-m").value="";sfx.ok();toast("Message sent");loadChat()})};
-setInterval(function(){if(!document.hidden&&$("support").classList.contains("on"))loadChat()},15000);
-})();
-</script>
-<script>
-/* ---------- v15: chat attachments + more translations ---------- */
-(function(){
-var EX={"Wallet": ["वॉलेट", "والیٹ"], "Salary": ["सैलरी", "تنخواہ"], "Daily Bonus": ["दैनिक बोनस", "یومیہ بونس"], "Profile": ["प्रोफ़ाइल", "پروفائل"], "Sound": ["साउंड", "آواز"], "Your wallet, profit and team at a glance.": ["आपका वॉलेट, मुनाफ़ा और टीम, एक नज़र में।", "آپ کا والیٹ، منافع اور ٹیم، ایک نظر میں۔"], "Wallet Balance": ["वॉलेट बैलेंस", "والیٹ بیلنس"], "Available to withdraw": ["निकासी के लिए उपलब्ध", "نکلوانے کے لیے دستیاب"], "Daily Profit": ["दैनिक मुनाफ़ा", "یومیہ منافع"], "Added every 24 hours": ["हर 24 घंटे में जोड़ा जाता है", "ہر 24 گھنٹے بعد شامل ہوتا ہے"], "Total Deposit": ["कुल जमा", "کل ڈپازٹ"], "Confirmed deposits": ["पुष्टि किए गए डिपॉज़िट", "تصدیق شدہ ڈپازٹس"], "Direct Referrals": ["सीधे रेफ़रल", "براہ راست ریفرلز"], "Your 1st line": ["आपकी पहली लाइन", "آپ کی پہلی لائن"], "Total Profit Earned": ["कुल कमाया गया मुनाफ़ा", "کل کمایا گیا منافع"], "Profit overview": ["मुनाफ़े का ओवरव्यू", "منافع کا جائزہ"], "Attach file": ["फ़ाइल जोड़ें", "فائل منسلک کریں"], "Remove": ["हटाएँ", "ہٹائیں"], "File is too large. Maximum size is 5 MB.": ["फ़ाइल बहुत बड़ी है। अधिकतम साइज़ 5 MB है।", "فائل بہت بڑی ہے۔ زیادہ سے زیادہ سائز 5 MB ہے۔"], "File upload failed. Please try again.": ["फ़ाइल अपलोड नहीं हो सकी। कृपया दोबारा कोशिश करें।", "فائل اپ لوڈ نہیں ہو سکی۔ براہ کرم دوبارہ کوشش کریں۔"], "Screenshots, images, PDF or text files up to 5 MB.": ["स्क्रीनशॉट, इमेज, PDF या टेक्स्ट फ़ाइल, 5 MB तक।", "اسکرین شاٹ، تصویر، PDF یا ٹیکسٹ فائل، 5 MB تک۔"], "Attachment": ["अटैचमेंट", "منسلکہ"]};
-Object.keys(EX).forEach(function(k){I18[k]=I18[k]||{};I18[k].hi=EX[k][0];I18[k].ur=EX[k][1]});
-var FILE=null,box=$$("sp-m").parentNode,UR=/https?:\/\/[^\s<]+\/storage\/v1\/object\/public\/support-files\/[^\s<]+/g;
-var bar=document.createElement("div");bar.style.cssText="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:10px";
-bar.innerHTML='<input type="file" id="sp-f" accept="image/*,.pdf,.txt,.log,.zip" hidden><button type="button" class="btn ln sm" id="sp-at">&#128206; <span>Attach file</span></button><span id="sp-fn" class="mu" style="font-size:13px;word-break:break-all"></span><small class="mu" style="width:100%">Screenshots, images, PDF or text files up to 5 MB.</small>';
-box.parentNode.insertBefore(bar,$$("sp-go"));
-function setF(f){if(f&&f.size>5242880){toast("File is too large. Maximum size is 5 MB.",1);return}FILE=f||null;$$("sp-f").value="";
- $$("sp-fn").innerHTML=FILE?esc(FILE.name)+' <a href="#" id="sp-rm">'+esc(T("Remove"))+'</a>':""}
-$$("sp-at").onclick=function(){$$("sp-f").click()};
-$$("sp-f").onchange=function(){setF(this.files[0])};
-bar.addEventListener("click",function(e){if(e.target.id==="sp-rm"){e.preventDefault();setF(null)}});
-$$("sp-m").addEventListener("paste",function(e){var it=[].filter.call((e.clipboardData&&e.clipboardData.items)||[],function(i){return i.kind==="file"})[0];if(it){setF(it.getAsFile())}});
-function link(h){return h.replace(UR,function(u){var n=decodeURIComponent(u.split("/").pop().replace(/^\d+-/,""));
- return /\.(png|jpe?g|gif|webp)$/i.test(u)?'<a href="'+u+'" target="_blank" rel="noopener"><img src="'+u+'" alt="" style="max-width:100%;max-height:220px;border-radius:10px;display:block;margin:6px 0"></a>':'<a href="'+u+'" target="_blank" rel="noopener" style="text-decoration:underline">&#128206; '+n+'</a>'})}
-var _b=window.bubble;window.bubble=function(m){return _b(m).replace(/(<div style="font-size:14px;white-space:pre-wrap">)([\s\S]*?)(<\/div><\/div>)$/,function(a,x,y,z){return x+link(y)+z})};
-function up(u){if(!FILE)return Promise.resolve("");var p=u.id+"/"+Date.now()+"-"+FILE.name.replace(/[^\w.\-]+/g,"_");
- return sb.storage.from("support-files").upload(p,FILE,{contentType:FILE.type||undefined}).then(function(r){if(r.error)throw r.error;return sb.storage.from("support-files").getPublicUrl(p).data.publicUrl})}
-$$("sp-go").onclick=function(){var btn=this,tx=$$("sp-m").value.trim();
- if(!tx&&!FILE)return toast("Type a message first",1);if(!sb)return toast("Not connected",1);
- busy(btn,function(){return sb.auth.getSession().then(function(s){var u=s.data&&s.data.session&&s.data.session.user;if(!u)return{error:{message:"Please log in again"}};
-  return up(u).then(function(url){var b=(tx+(url?"\n"+url:"")).trim();
-   return sb.from("support_messages").insert({user_id:u.id,sender:"MEMBER",body:b}).then(function(r){
-    if(r.error&&/user_id|column/i.test(r.error.message||""))return sb.from("support_messages").insert({sender:"MEMBER",body:b});return r})},
-   function(e){console.error(e);return{error:{message:"upload: "+((e&&e.message)||"")},up:1}})})}).then(function(r){
-  if(r.error)return toast(T(r.up||/^upload/.test(r.error.message)?"File upload failed. Please try again.":"Message not sent. Please try again.")+" ("+sbErr(r.error)+")",1);
-  $$("sp-m").value="";setF(null);sfx.ok();toast("Message sent");loadChat()})};
-/* admin inbox: make file links clickable */
-var al=document.getElementById("adm-s");if(al)new MutationObserver(function(){al.querySelectorAll("div[style*=pre-wrap]").forEach(function(d){if(!d.querySelector("a")&&UR.test(d.textContent)){UR.lastIndex=0;d.innerHTML=link(d.innerHTML)}UR.lastIndex=0})}).observe(al,{childList:true});
-applyLang();
-})();
-</script>
-<script>
-/* ---------- v16: chat notifications + admin chat window ---------- */
-(function(){
-var L=["ar","es","zh","fr","de","pt","ru","tr","ja","ko","id"],N={"Wallet": ["المحفظة", "Billetera", "钱包", "Portefeuille", "Wallet", "Carteira", "Кошелёк", "Cüzdan", "ウォレット", "지갑", "Dompet"], "Salary": ["الراتب", "Salario", "薪资", "Salaire", "Gehalt", "Salário", "Зарплата", "Maaş", "給与", "급여", "Gaji"], "Daily Bonus": ["المكافأة اليومية", "Bono diario", "每日奖金", "Bonus quotidien", "Tagesbonus", "Bônus diário", "Ежедневный бонус", "Günlük Bonus", "デイリーボーナス", "일일 보너스", "Bonus Harian"], "Profile": ["الملف الشخصي", "Perfil", "个人资料", "Profil", "Profil", "Perfil", "Профиль", "Profil", "プロフィール", "프로필", "Profil"], "Support": ["الدعم", "Soporte", "客服支持", "Assistance", "Support", "Suporte", "Поддержка", "Destek", "サポート", "고객 지원", "Dukungan"], "Sound": ["الصوت", "Sonido", "声音", "Son", "Ton", "Som", "Звук", "Ses", "サウンド", "소리", "Suara"]},H={"Support replied": ["सपोर्ट ने जवाब दिया", "سپورٹ نے جواب دیا"], "Open": ["खोलें", "کھولیں"], "New message from our support team": ["हमारी सपोर्ट टीम का नया संदेश", "ہماری سپورٹ ٹیم کی طرف سے نیا پیغام"]};
-Object.keys(N).forEach(function(k){I18[k]=I18[k]||{};L.forEach(function(l,i){I18[k][l]=N[k][i]})});
-Object.keys(H).forEach(function(k){I18[k]=I18[k]||{};I18[k].hi=H[k][0];I18[k].ur=H[k][1]});
-function ls(k,v){try{if(v===undefined)return localStorage.getItem(k);localStorage.setItem(k,v)}catch(e){return null}}
-var P;
-function pop(t,x,go){if(P)P.remove();P=document.createElement("div");P.style.cssText="position:fixed;top:12px;left:50%;transform:translateX(-50%);width:min(420px,92vw);z-index:500;background:var(--card);color:var(--txt);border:1px solid var(--line);border-radius:16px;padding:14px 16px;box-shadow:0 18px 40px rgba(0,0,0,.35);display:flex;gap:12px;align-items:center";
- P.innerHTML='<div style="flex:1;min-width:0"><b style="display:block">'+esc(t)+'</b><span style="font-size:13px;opacity:.8;display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+esc(x)+'</span></div><button class="btn sm" data-o>'+esc(T("Open"))+'</button><button class="ic" data-x aria-label="Close">&times;</button>';
- var me=P;P.onclick=function(e){if(e.target.closest("[data-o]")){me.remove();go()}else if(e.target.closest("[data-x]"))me.remove()};
- document.body.appendChild(P);sfx.ok();setTimeout(function(){me.remove()},9000)}
-function badge(v,n){var b=document.querySelector('.nv[data-v="'+v+'"]');if(!b)return;var s=b.querySelector(".nb");if(!n){if(s)s.remove();return}
- if(!s){s=document.createElement("span");s.className="nb";s.style.cssText="margin-inline-start:auto;background:#e5484d;color:#fff;border-radius:999px;min-width:20px;height:20px;padding:0 6px;font-size:12px;font-weight:800;display:grid;place-items:center";b.appendChild(s)}s.textContent=n}
-/* member: admin replied */
-function memberPoll(){if(!sb||document.body.classList.contains("locked"))return;
- sb.auth.getSession().then(function(s){var u=s.data&&s.data.session&&s.data.session.user;if(!u)return;var k="pc-ms-"+u.id;
-  sb.from("support_messages").select("sender,body,created_at").eq("user_id",u.id).neq("sender","MEMBER").order("created_at",{ascending:false}).limit(20).then(function(r){
-   if(r.error||!r.data)return;var top=r.data[0]&&r.data[0].created_at,seen=ls(k);
-   if($("support").classList.contains("on")||seen===null){ls(k,top||seen||"0");badge("support",0);return}
-   var nw=r.data.filter(function(x){return x.created_at>seen});badge("support",nw.length);
-   if(nw.length&&ls(k+"-p")!==top){ls(k+"-p",top);var tx=String(nw[0].body||"").split("\n")[0];
-    pop(T("Support replied"),tx,function(){show("support");loadChat();ls(k,top);badge("support",0)});
-    try{primeNotify(T("Support replied"),T("New message from our support team"))}catch(e){}}})})}
-/* admin: members wrote */
-function maxM(rows){return rows.filter(function(x){return x.sender==="MEMBER"}).reduce(function(a,x){return x.created_at>a?x.created_at:a},"")}
-function markA(){if(typeof ADM!=="undefined"&&ADM.s){ls("pc-as",maxM(ADM.s)||ls("pc-as")||"0")}badge("admin",0)}
-function adminPoll(){if(!IS_ADMIN||!sb)return;arp("admin_support").then(function(r){if(r.error||!r.data)return;
- var seen=ls("pc-as")||"0",top=maxM(r.data),us={},nw=r.data.filter(function(x){return x.sender==="MEMBER"&&x.created_at>seen});
- nw.forEach(function(x){us[x.user_id]=1});var n=Object.keys(us).length;badge("admin",n);
- if(n&&ls("pc-as-p")!==top){ls("pc-as-p",top);
-  pop(nw.length+(nw.length>1?" new messages":" new message"),n+(n>1?" members are waiting":" member is waiting")+(nw[0].email?" · "+nw[0].email:""),function(){ls("pc-as",top);badge("admin",0);show("admin");admLoad();var t=document.querySelector('[data-at="sup"]');if(t)t.click()})}})}
-/* admin: real chat window instead of prompt() */
-function openChat(uid){
- var rows=((typeof ADM!=="undefined"&&ADM.s)||[]).filter(function(x){return x.user_id===uid}).sort(function(a,b){return a.created_at<b.created_at?-1:1});
- var em=(rows[0]&&rows[0].email)||"Member",o=document.createElement("div");
- o.style.cssText="position:fixed;inset:0;z-index:450;background:rgba(0,0,0,.6);display:grid;place-items:center;padding:12px";
- o.innerHTML='<div style="background:var(--card);color:var(--txt);border:1px solid var(--line);border-radius:20px;width:min(520px,100%);max-height:90vh;display:flex;flex-direction:column"><div style="display:flex;justify-content:space-between;align-items:center;padding:14px 16px;border-bottom:1px solid var(--line)"><b style="word-break:break-all">'+esc(em)+'</b><button class="ic" data-x aria-label="Close">&times;</button></div><div id="ac-l" style="flex:1;overflow:auto;display:grid;gap:10px;padding:14px;align-content:start;min-height:160px"></div><div style="display:flex;gap:8px;padding:12px;border-top:1px solid var(--line)"><textarea id="ac-m" rows="2" style="flex:1" placeholder="Type your reply"></textarea><button class="btn gd" id="ac-s">Send</button></div></div>';
- document.body.appendChild(o);
- function draw(){var l=$("ac-l");l.innerHTML=rows.length?rows.map(function(x){var adm=x.sender!=="MEMBER";
-  return window.bubble({sender:adm?"MEMBER":"X",body:x.body,created_at:x.created_at}).replace(/(<small[^>]*>)[^&<]*( &middot;)/,'$1'+(adm?"Admin":esc(em))+'$2')}).join(""):'<p class="mu">No messages yet.</p>';l.scrollTop=l.scrollHeight}
- draw();
- o.onclick=function(e){if(e.target===o||e.target.closest("[data-x]"))o.remove()};
- $("ac-s").onclick=function(){var b=this,v=$("ac-m").value.trim();if(!v)return;b.disabled=true;
-  arp("admin_support_reply",{p_user:uid,p_body:v}).then(function(r){b.disabled=false;if(r.error)return toast(sbErr(r.error),1);
-   $("ac-m").value="";rows.push({sender:"ADMIN",body:v,created_at:new Date().toISOString(),user_id:uid,email:em});draw();sfx.ok();admLoad()})}}
-document.addEventListener("click",function(e){var t=e.target.closest&&e.target.closest("[data-sup]");
- if(t){e.stopImmediatePropagation();e.preventDefault();markA();openChat(t.dataset.sup);return}
- if(e.target.closest&&e.target.closest('[data-at="sup"]'))setTimeout(markA,800)},true);
-setTimeout(function(){memberPoll();adminPoll()},3000);setInterval(function(){if(!document.hidden){memberPoll();adminPoll()}},15000);
-applyLang();
-})();
-</script>
-<script>
-/* ---------- v17: translations batch 1 (11 languages) ---------- */
-(function(){var L=["ar","es","zh","fr","de","pt","ru","tr","ja","ko","id"],N={"Customer <b>support</b>": ["<b>دعم</b> العملاء", "<b>Atención</b> al cliente", "客户<b>支持</b>", "<b>Support</b> client", "Kunden-<b>Support</b>", "<b>Suporte</b> ao cliente", "<b>Поддержка</b> клиентов", "Müşteri <b>desteği</b>", "カスタマー<b>サポート</b>", "고객 <b>지원</b>", "<b>Dukungan</b> pelanggan"], "Send your message here. Our support team replies in this chat.": ["أرسل رسالتك هنا. سيرد فريق الدعم في هذه المحادثة.", "Envía tu mensaje aquí. Nuestro equipo de soporte responde en este chat.", "在此发送您的消息。我们的客服团队会在此聊天中回复。", "Envoyez votre message ici. Notre équipe d'assistance répond dans ce chat.", "Senden Sie Ihre Nachricht hier. Unser Support-Team antwortet in diesem Chat.", "Envie sua mensagem aqui. Nossa equipe de suporte responde neste chat.", "Отправьте сообщение здесь. Наша служба поддержки ответит в этом чате.", "Mesajınızı buradan gönderin. Destek ekibimiz bu sohbette yanıt verir.", "ここにメッセージを送信してください。サポートチームがこのチャットで返信します。", "여기에 메시지를 보내세요. 지원팀이 이 채팅에서 답변해 드립니다.", "Kirim pesan Anda di sini. Tim dukungan kami membalas di obrolan ini."], "Your message": ["رسالتك", "Tu mensaje", "您的消息", "Votre message", "Ihre Nachricht", "Sua mensagem", "Ваше сообщение", "Mesajınız", "メッセージ", "메시지", "Pesan Anda"], "Send message": ["إرسال الرسالة", "Enviar mensaje", "发送消息", "Envoyer le message", "Nachricht senden", "Enviar mensagem", "Отправить сообщение", "Mesaj gönder", "送信", "메시지 보내기", "Kirim pesan"], "Type your message": ["اكتب رسالتك", "Escribe tu mensaje", "输入您的消息", "Saisissez votre message", "Nachricht eingeben", "Digite sua mensagem", "Введите сообщение", "Mesajınızı yazın", "メッセージを入力", "메시지를 입력하세요", "Ketik pesan Anda"], "Attach file": ["إرفاق ملف", "Adjuntar archivo", "添加附件", "Joindre un fichier", "Datei anhängen", "Anexar arquivo", "Прикрепить файл", "Dosya ekle", "ファイルを添付", "파일 첨부", "Lampirkan file"], "Withdraw": ["سحب", "Retirar", "提现", "Retirer", "Auszahlen", "Sacar", "Вывести", "Çekim yap", "出金", "출금", "Tarik dana"], "Deposit": ["إيداع", "Depositar", "充值", "Déposer", "Einzahlen", "Depositar", "Пополнить", "Para yatır", "入金", "입금", "Setor"], "Wallet Balance": ["رصيد المحفظة", "Saldo de la billetera", "钱包余额", "Solde du portefeuille", "Wallet-Guthaben", "Saldo da carteira", "Баланс кошелька", "Cüzdan bakiyesi", "ウォレット残高", "지갑 잔액", "Saldo dompet"], "Available to withdraw": ["متاح للسحب", "Disponible para retirar", "可提现", "Disponible au retrait", "Zur Auszahlung verfügbar", "Disponível para saque", "Доступно для вывода", "Çekilebilir", "出金可能額", "출금 가능", "Tersedia untuk ditarik"], "Daily Profit": ["الربح اليومي", "Ganancia diaria", "每日收益", "Profit quotidien", "Tagesgewinn", "Lucro diário", "Дневная прибыль", "Günlük kâr", "日次利益", "일일 수익", "Keuntungan harian"], "Added every 24 hours": ["يُضاف كل 24 ساعة", "Se añade cada 24 horas", "每24小时发放", "Ajouté toutes les 24 heures", "Wird alle 24 Stunden gutgeschrieben", "Adicionado a cada 24 horas", "Начисляется каждые 24 часа", "Her 24 saatte bir eklenir", "24時間ごとに追加", "24시간마다 추가", "Ditambahkan setiap 24 jam"], "Total Deposit": ["إجمالي الإيداع", "Depósito total", "总充值", "Total des dépôts", "Einzahlungen gesamt", "Depósito total", "Всего пополнений", "Toplam yatırım", "入金合計", "총 입금액", "Total setoran"], "Confirmed deposits": ["الإيداعات المؤكدة", "Depósitos confirmados", "已确认的充值", "Dépôts confirmés", "Bestätigte Einzahlungen", "Depósitos confirmados", "Подтверждённые пополнения", "Onaylanan yatırımlar", "確認済みの入金", "확인된 입금", "Setoran terkonfirmasi"], "Profit overview": ["نظرة عامة على الأرباح", "Resumen de ganancias", "收益概览", "Aperçu des profits", "Gewinnübersicht", "Visão geral do lucro", "Обзор прибыли", "Kâr özeti", "利益の概要", "수익 개요", "Ringkasan keuntungan"], "Message sent": ["تم إرسال الرسالة", "Mensaje enviado", "消息已发送", "Message envoyé", "Nachricht gesendet", "Mensagem enviada", "Сообщение отправлено", "Mesaj gönderildi", "メッセージを送信しました", "메시지를 보냈습니다", "Pesan terkirim"], "You": ["أنت", "Tú", "您", "Vous", "Sie", "Você", "Вы", "Siz", "あなた", "나", "Anda"], "Support team": ["فريق الدعم", "Equipo de soporte", "客服团队", "Équipe d'assistance", "Support-Team", "Equipe de suporte", "Служба поддержки", "Destek ekibi", "サポートチーム", "지원팀", "Tim dukungan"], "Your wallet, profit and team at a glance.": ["محفظتك وأرباحك وفريقك في نظرة واحدة.", "Tu billetera, ganancias y equipo de un vistazo.", "钱包、收益和团队，一目了然。", "Votre portefeuille, vos profits et votre équipe en un coup d'œil.", "Wallet, Gewinn und Team auf einen Blick.", "Sua carteira, lucro e equipe em um só lugar.", "Ваш кошелёк, прибыль и команда — всё на одном экране.", "Cüzdanınız, kârınız ve ekibiniz tek bakışta.", "ウォレット、利益、チームを一目で確認。", "지갑, 수익, 팀을 한눈에 확인하세요.", "Dompet, keuntungan, dan tim Anda dalam sekilas."]};
-Object.keys(N).forEach(function(k){I18[k]=I18[k]||{};L.forEach(function(l,i){I18[k][l]=N[k][i]})});applyLang()})();
 </script>
 </body>
 </html>
