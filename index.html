@@ -571,6 +571,10 @@ input:focus,select:focus,textarea:focus{transform:translateY(-1px)}
 .hm0{background:var(--line)}.hm1{background:color-mix(in srgb,var(--ink) 25%,transparent)}.hm2{background:color-mix(in srgb,var(--ink) 45%,transparent)}.hm3{background:color-mix(in srgb,var(--ink) 70%,transparent)}.hm4{background:var(--ink)}
 .hml{display:flex;gap:4px;align-items:center;justify-content:flex-end;font-size:11px;color:var(--mute);margin-top:10px}.hml span{margin:0 2px}
 .wtk{display:flex;gap:6px;align-items:stretch}
+.tlist{margin-top:10px;display:flex;flex-direction:column;gap:8px}
+.trow{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 14px;border:1px solid var(--line);border-radius:14px}
+.trow-me{border-color:var(--ink)}
+.tr-r{text-align:right;flex:none}
 .wtks{flex:1;border:1px solid var(--line);border-radius:12px;padding:8px 10px;font-size:12px;color:var(--mute)}
 .wtks i{display:block;width:8px;height:8px;border-radius:50%;background:var(--line);margin-bottom:6px}
 .wtks.on{color:var(--txt);border-color:var(--ink)}.wtks.on i{background:var(--ink)}
@@ -1074,7 +1078,8 @@ function loadTeam(){
   if(r.error){if(ct0)ct0.textContent="Team data error: "+(r.error.message||JSON.stringify(r.error));return}
   if(!r.data){if(ct0)ct0.textContent="Team data: no response from server";return}
   var j=r.data,mem=j.members||[],L=j.levels||{};
-  TREE.children=mem.map(function(m){return{name:m.name,biz:"Level "+m.lvl+" · Joined "+m.joined+" · "+m.package,rank:-1,pb:Number(m.deposit)||0,tb:0,children:[]}});
+  TREE.children=mem.map(function(m){return{name:m.name,lvl:m.lvl,joined:m.joined,pkg:m.package,biz:"",rank:-1,pb:Number(m.deposit)||0,tb:0,children:[]}});
+  window.__direct=Number(L["1"])||0;
   tree();
   $("refs").innerHTML=mem.filter(function(m){return m.lvl===1}).map(function(m){
    return'<tr><td>'+esc(m.name)+'</td><td>'+esc(m.joined)+'</td><td><span class="tag '+(m.status==="Paid"?"ok":"")+'">'+esc(m.status)+'</span></td><td>'+esc(m.package)+'</td></tr>';
@@ -1146,7 +1151,7 @@ if($("pe-save"))$("pe-save").onclick=function(){var N=PK.map(function(p){return{
  try{localStorage.setItem("pc-plans",JSON.stringify(N))}catch(e){}
  D.audit.unshift("Plan settings updated by admin");sfx.ok();toast("Plan settings saved");pkgs();stats();render()};
 function lv(){
- $("levels").innerHTML=LV.map(function(x){var p=Math.round(Math.min(100,D.qual/x.t*100)),ok=D.qual>=x.t;return'<div class="c hv row" style="flex-wrap:nowrap">'+ring(p,p+"%")+'<div><div class="row" style="gap:8px"><h3>'+x.l+'</h3><span class="tag '+(ok?'ok':'')+'">'+(ok?'Eligible':'In progress')+'</span></div><p class="mu" style="font-size:14px">Proposed '+x.r+'% on verified sales. Needs '+x.t+' direct referrals.</p></div></div>'}).join("");
+ $("levels").innerHTML=LV.map(function(x){var p=Math.round(Math.min(100,(window.__direct!=null?window.__direct:D.qual)/x.t*100)),ok=(window.__direct!=null?window.__direct:D.qual)>=x.t;return'<div class="c hv row" style="flex-wrap:nowrap">'+ring(p,p+"%")+'<div><div class="row" style="gap:8px"><h3>'+x.l+'</h3><span class="tag '+(ok?'ok':'')+'">'+(ok?'Eligible':'In progress')+'</span></div><p class="mu" style="font-size:14px">Proposed '+x.r+'% on verified sales. Needs '+x.t+' direct referrals.</p></div></div>'}).join("");
  var r="";for(var i=1;i<=0;i++)r+='<tr style="animation:ci .5s '+i*70+'ms both"><td>REF-'+(1000+i)+'</td><td>2026-11-'+(10+i)+'</td><td><span class="tag ok">Verified</span></td><td>'+PK[i%3].n+'</td></tr>';
  $("refs").innerHTML=r;
 }
@@ -1510,7 +1515,14 @@ function sumBiz(n){return n.children.reduce(function(a,c){return a+c.pb+sumBiz(c
 function tree(){
  var total=sumBiz(TREE);
  $("tt").textContent="$"+total.toFixed(2);
- $("tree").innerHTML=treeHTML(TREE,0)+(TREE.children.length?"":'<p class="mu" style="font-size:14px;margin-top:8px">No team members yet. Your referrals will appear here.</p>');
+ var mem=TREE.children||[];
+ var h='<div class="tlist"><div class="trow trow-me"><div><b>You</b><div class="mu" style="font-size:12.5px">Your account</div></div></div>';
+ mem.forEach(function(c){
+  h+='<div class="trow"><div><b>'+esc(c.name)+'</b> <span class="tag">Level '+c.lvl+'</span><div class="mu" style="font-size:12.5px;margin-top:3px">Joined '+esc(c.joined||"-")+' · '+esc(c.pkg||"-")+'</div></div><div class="tr-r"><div class="mu" style="font-size:12px">Business</div><b>$'+c.pb.toFixed(2)+'</b></div></div>';
+ });
+ h+='</div>';
+ if(!mem.length)h+='<p class="mu" style="font-size:14px;margin-top:8px">No team members yet. Your referrals will appear here.</p>';
+ $("tree").innerHTML=h;
 }
 function render(){renderBell();tree();wallet();stats();pkgs();lv();miles();claimsv();salary();$("qt").textContent=D.qual;if(window.applyLang)applyLang()}
 
