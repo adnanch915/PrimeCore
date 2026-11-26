@@ -578,6 +578,8 @@ input:focus,select:focus,textarea:focus{transform:translateY(-1px)}
 .wtks{flex:1;border:1px solid var(--line);border-radius:12px;padding:8px 10px;font-size:12px;color:var(--mute)}
 .wtks i{display:block;width:8px;height:8px;border-radius:50%;background:var(--line);margin-bottom:6px}
 .wtks.on{color:var(--txt);border-color:var(--ink)}.wtks.on i{background:var(--ink)}
+#nx{display:none!important}
+#chart .pca,#chart .pcx,#chart .pctip{display:none!important}
 </style>
 <style>
 .atabs{display:flex;gap:8px;overflow-x:auto;margin:0 0 16px;padding:2px 0 6px;scrollbar-width:none}
@@ -687,8 +689,9 @@ input:focus,select:focus,textarea:focus{transform:translateY(-1px)}
 <div class="hd"><div><h1 id="gr">Welcome back</h1><p class="mu">Your wallet, profit and team at a glance.</p></div><div class="row" style="gap:8px"><button class="btn ln" data-go="wallet">Withdraw</button><button class="btn gd" data-go="wallet">Deposit</button></div></div>
 <div class="g g4 stg" id="stg"></div>
 <div class="g gm"><div class="c"><div class="row"><h3>Profit overview</h3><span class="tag">Profit and bonus</span></div><div id="chart"></div></div><div class="c row" id="nx"></div></div>
-<div class="c" style="margin-bottom:14px"><div class="row"><h3>Activity</h3><small class="mu">Last 12 weeks</small></div><div id="heat" style="margin-top:12px"></div></div><div class="c" style="margin-bottom:14px"><div class="row"><h3>Daily breakdown</h3><small class="mu">Last 7 days</small></div><div id="daybreak" style="margin-top:12px"></div></div>
+
 <div class="g g4 stg" id="mini"></div>
+<div><div class="c" style="margin-bottom:14px"><div class="row"><h3>Activity</h3><small class="mu">Last 12 weeks</small></div><div id="heat" style="margin-top:12px"></div></div><div class="c" style="margin-bottom:14px"><div class="row"><h3>Daily breakdown</h3><small class="mu">Last 7 days</small></div><div id="daybreak" style="margin-top:12px"></div></div></div>
 </section>
 
 <section class="view" id="packages"><div class="hd"><div><h1>Choose your <b>package</b></h1><p class="mu">Tap a package to see what is included. Rates are proposed, not guaranteed.</p></div></div>
@@ -1082,7 +1085,8 @@ function loadTeam(){
   window.__direct=L[1];
   TREE.children=mem.map(function(m){return{name:m.name,lvl:m.lvl,parent:m.parent,joined:m.joined,pkg:m.pkg,paid:m.paid,rank:-1,pb:Number(m.deposit)||0,tb:0,children:[]}});
   tree();
-  if(ct)ct.innerHTML="Direct: <b>"+L[1]+"</b> · Level 2: <b>"+L[2]+"</b> · Level 3: <b>"+L[3]+"</b> · Referral commission earned: <b>$"+Number(j.commission_total||0).toFixed(2)+"</b>";
+  if(ct)ct.textContent="";
+  var re=$("ratesearn");if(re)re.innerHTML="Your referral commission earned: <b>$"+Number(j.commission_total||0).toFixed(2)+"</b>";
   if(typeof lv==="function")lv();
   var rc=$("refs");if(rc&&rc.closest(".c"))rc.closest(".c").style.display="none";
  });
@@ -1097,8 +1101,8 @@ function setupTeamTabs(){
  dc.innerHTML='<div class="row"><h3>Daily referral bonus</h3><small class="mu">Last 24 hours</small></div><div id="dailyrows" style="margin-top:12px;display:grid;gap:12px"></div>';
  lvl.parentNode.insertBefore(dc,lvl);
  var rt=document.createElement("div");rt.className="c";rt.id="ratescard";rt.style.marginBottom="14px";
- rt.innerHTML='<div class="row"><h3>Commission rates</h3><small class="mu">Proposed, on verified sales</small></div><table style="margin-top:12px"><thead><tr><th>Level</th><th>Rate</th><th>Direct referrals needed</th></tr></thead><tbody><tr><td>Level 1</td><td>10%</td><td>2</td></tr><tr><td>Level 2</td><td>7%</td><td>5</td></tr><tr><td>Level 3</td><td>3%</td><td>10</td></tr></tbody></table><p class="mu" style="font-size:12.5px;margin-top:10px">Active referral means a minimum $30 verified deposit.</p>';
- lvl.parentNode.insertBefore(rt,lvl);
+ rt.innerHTML='<div class="row"><h3>Commission rates</h3><small class="mu">Proposed, on verified sales</small></div><table style="margin-top:12px"><thead><tr><th>Level</th><th>Rate</th><th>Needs direct</th><th>On a $100 sale</th></tr></thead><tbody><tr><td>Level 1</td><td>10%</td><td>2</td><td>$10</td></tr><tr><td>Level 2</td><td>7%</td><td>5</td><td>$7</td></tr><tr><td>Level 3</td><td>3%</td><td>10</td><td>$3</td></tr></tbody></table><p class="mu" style="font-size:12.5px;margin-top:10px">Active referral means a minimum $30 verified deposit.</p><p id="ratesearn" style="margin-top:12px;font-size:15px"></p>';
+ var pr=lvl.parentNode;pr.appendChild(dc);pr.insertBefore(rt,dc);pr.insertBefore(lvl,rt);var rc0=$("refs");if(rc0&&rc0.closest(".c"))rc0.closest(".c").style.display="none";
  $("tabP").onclick=function(){setTeamTab("P")};
  $("tabT").onclick=function(){setTeamTab("T")};
  setTeamTab("P");
@@ -1116,20 +1120,21 @@ function dayBreak(){
   var map={};(r.data||[]).forEach(function(x){map[x.day]=Number(x.amount)||0});
   var prev=null,rows=E.map(function(x){
    var pb=x.p+x.b,rf=map[x.k]||0,tot=pb+rf,d=prev===null?null:tot-prev;prev=tot;
-   var ar=d===null?"":(d>0?'<span style="color:#22c55e">&#9650; $'+d.toFixed(2)+'</span>':d<0?'<span style="color:#ef4444">&#9660; $'+Math.abs(d).toFixed(2)+'</span>':'<span class="mu">no change</span>');
+   var ar=d===null?"":(d>0?'<span style="color:#22c55e;white-space:nowrap">&#9650; $'+d.toFixed(2)+'</span>':d<0?'<span style="color:#ef4444;white-space:nowrap">&#9660; $'+Math.abs(d).toFixed(2)+'</span>':'<span class="mu">&mdash;</span>');
    return'<tr><td>'+esc(x.k)+'</td><td>$'+pb.toFixed(2)+'</td><td>$'+rf.toFixed(2)+'</td><td><b>$'+tot.toFixed(2)+'</b></td><td>'+ar+'</td></tr>';
   }).reverse().join("");
-  $("daybreak").innerHTML='<table><thead><tr><th>Date</th><th>Profit + bonus</th><th>Referral commission</th><th>Total</th><th>Change</th></tr></thead><tbody>'+rows+'</tbody></table>';
+  $("daybreak").innerHTML='<table style="font-size:13px"><thead><tr><th>Date</th><th>Profit + bonus</th><th>Referral commission</th><th>Total</th><th>Change</th></tr></thead><tbody>'+rows+'</tbody></table>';
  });
 }
 function loadDailyReferrals(){
  if(!sb)return;
  sb.rpc("my_referral_daily").then(function(r){
-  if(r.error){var a0=$("dailyrows");if(a0)a0.innerHTML='<p class="mu">Error: '+esc(r.error.message||"")+'</p>';return}
+  if(r.error){var msg='<p class="mu">Error: '+esc(r.error.message||"")+'</p>';var a0=$("dailyrows");if(a0)a0.innerHTML=msg;var m0=$("miles");if(m0)m0.innerHTML=msg;return}
   if(r.data)renderDaily(r.data);
  });
 }
 function renderDaily(d){
+ window.__daily=d;
  var cnt=Number(d.count)||0,tiers=d.tiers||[];
  var html=tiers.map(function(x){
   var can=cnt>=x.t&&!x.claimed;
@@ -1200,10 +1205,9 @@ function lv(){
  var r="";for(var i=1;i<=0;i++)r+='<tr style="animation:ci .5s '+i*70+'ms both"><td>REF-'+(1000+i)+'</td><td>2026-11-'+(10+i)+'</td><td><span class="tag ok">Verified</span></td><td>'+PK[i%3].n+'</td></tr>';
  $("refs").innerHTML=r;
 }
-function miles(){var Q=(window.__qual!=null?window.__qual:Q);
- $("miles").innerHTML=MS.map(function(m,i){var got=Q>=m.q,dup=D.claims.some(function(c){return c.ms===i&&c.d===today()});
- return'<div class="c hv"><div class="row" style="flex-wrap:nowrap">'+ring(Q/m.q*100,Math.min(Q,m.q)+"/"+m.q)+'<div><span class="tag">'+m.q+' qualified referrals</span><div class="v" style="font-size:34px;margin-top:6px">$'+m.a+'</div></div></div><p class="mu" style="font-size:13px;margin:12px 0">Proposed reward. Needs admin approval.</p><button class="btn" style="width:100%" data-m="'+i+'" '+((!got||dup)?"disabled":"")+'>'+(dup?"Claim requested":got?"Claim $"+m.a:"Not reached yet")+'</button></div>'}).join("");
- document.querySelectorAll("[data-m]").forEach(function(b){b.onclick=function(e){claim(+b.dataset.m,e)}});
+function miles(){
+ if(window.__daily){renderDaily(window.__daily);return}
+ var m=$("miles");if(m&&!m.innerHTML)m.innerHTML='<p class="mu">Loading your referral bonus...</p>';
 }
 function claim(i,e){
  var m=MS[i];if(D.qual<m.q)return toast("Milestone not reached",1);
