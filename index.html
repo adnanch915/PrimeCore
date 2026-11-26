@@ -109,7 +109,7 @@ body.locked #app{display:none}
 .pk.sel .more{max-height:150px;opacity:1;margin-top:12px}
 .pk:before{content:"";position:absolute;inset:0;background:radial-gradient(300px circle at var(--mx,50%) var(--my,0),rgba(212,180,106,.22),transparent 60%);opacity:0;transition:opacity .3s}.pk:hover:before{opacity:1}
 .pk>*{position:relative}
-table{width:100%;border-collapse:collapse;font-size:14px}th,td{text-align:left;padding:11px 8px;border-bottom:1px solid var(--line)}th{color:var(--mute);font-weight:600}.scroll{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:14px}th,td{text-align:left;padding:11px 8px;border-bottom:1px solid var(--line)}th{color:var(--mute);font-weight:600}.scroll{overflow-x:auto}.dbt{table-layout:auto;width:100%}.dbt th,.dbt td{padding:9px 3px;font-size:12px;line-height:1.3}.dbt th{font-size:11px}.dbt td:first-child,.dbt th:first-child{padding-left:0}.dbt td:last-child,.dbt th:last-child{padding-right:0}
 .kb{display:grid;grid-template-columns:1fr 1fr;gap:14px}@media(max-width:700px){.kb{grid-template-columns:1fr}}
 .col{min-height:160px;border:1.5px dashed var(--line);border-radius:var(--r);padding:12px;transition:background .3s,border-color .3s}
 .col.ov{background:rgba(212,180,106,.14);border-color:var(--ac)}
@@ -1113,6 +1113,7 @@ function setTeamTab(t){
  lvl.style.display=P?"":"none";dc.style.display=P?"":"none";tc.style.display=P?"none":"";var rc=$("ratescard");if(rc)rc.style.display=P?"":"none";
  $("tabP").className="btn sm"+(P?"":" ln");$("tabT").className="btn sm"+(P?" ln":"");
 }
+function sd(k){var M=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"],a=String(k).split("-");return a.length===3?(+a[2])+" "+M[(+a[1])-1]:esc(k)}
 function dayBreak(){
  if(!sb)return;
  sb.rpc("my_income_log",{p_days:30}).then(function(r){
@@ -1128,8 +1129,8 @@ function dayBreak(){
   });
   var prev=null,rows=E.map(function(x){
    var m=map[x.k]||{dir:0,team:0},pl=x.p+x.b,tot=pl+m.dir+m.team,dl=prev===null?null:tot-prev;prev=tot;
-   var ar=dl===null?"":(dl>0?'<span style="color:#22c55e;white-space:nowrap">&#9650; $'+dl.toFixed(2)+'</span>':dl<0?'<span style="color:#ef4444;white-space:nowrap">&#9660; $'+Math.abs(dl).toFixed(2)+'</span>':'<span class="mu">&mdash;</span>');
-   return'<tr><td>'+esc(x.k)+'</td><td>$'+pl.toFixed(2)+'</td><td>$'+m.dir.toFixed(2)+'</td><td>$'+m.team.toFixed(2)+'</td><td><b>$'+tot.toFixed(2)+'</b></td><td>'+ar+'</td></tr>';
+   var ar=dl===null?"":(dl>0?'<span style="color:#22c55e;white-space:nowrap">&#9650; '+dl.toFixed(2)+'</span>':dl<0?'<span style="color:#ef4444;white-space:nowrap">&#9660; '+Math.abs(dl).toFixed(2)+'</span>':'<span class="mu">&mdash;</span>');
+   return'<tr><td>'+sd(x.k)+'</td><td>$'+pl.toFixed(2)+'</td><td>$'+m.dir.toFixed(2)+'</td><td>$'+m.team.toFixed(2)+'</td><td><b>$'+tot.toFixed(2)+'</b></td><td>'+ar+'</td></tr>';
   }).reverse().join("");
   function p2(n){return(n<10?"0":"")+n}
   var dl=det.slice(0,30).map(function(o){
@@ -1137,7 +1138,7 @@ function dayBreak(){
    var lab=o.x.type==="DIRECT"?"Direct bonus 5%":"Team commission, Level "+o.x.level;
    return'<div class="row" style="flex-wrap:nowrap;align-items:flex-start;padding:10px 0;border-top:1px solid var(--line)"><div style="min-width:0"><b style="font-size:14px">'+esc(o.x.name||"Member")+'</b><div class="mu" style="font-size:12px;margin-top:2px">'+(o.x.uid?"ID "+esc(o.x.uid)+" &middot; ":"")+tm+'</div><span class="tag" style="margin-top:6px;display:inline-block">'+lab+'</span></div><b style="color:#22c55e;white-space:nowrap">+$'+o.a.toFixed(2)+'</b></div>';
   }).join("");
-  $("daybreak").innerHTML='<div class="scroll"><table style="font-size:13px"><thead><tr><th>Date</th><th>Plan profit</th><th>Direct bonus 5%</th><th>Team commission</th><th>Total</th><th>Change</th></tr></thead><tbody>'+rows+'</tbody></table></div><p class="mu" style="font-size:12.5px;margin-top:12px;line-height:1.6"><b>Plan profit</b>: daily profit from your own plan.<br><b>Direct bonus 5%</b>: 5% of the deposit made by people you referred directly.<br><b>Team commission</b>: commission from your Level 1, 2 and 3 team.<br><b>Total</b>: all three added together.<br><b>Change</b>: today\'s total minus the previous day\'s total.</p>'+(det.length?'<h3 style="margin:18px 0 4px;font-size:16px">Who paid you</h3><small class="mu">Latest entries with member ID, date and time</small><div style="margin-top:8px">'+dl+'</div>':'');
+  $("daybreak").innerHTML='<div><table class="dbt"><thead><tr><th>Date</th><th>Self</th><th>Direct</th><th>Team</th><th>Total</th><th>Change</th></tr></thead><tbody>'+rows+'</tbody></table></div>'+(det.length?'<h3 style="margin:18px 0 4px;font-size:16px">Who paid you</h3><small class="mu">Latest entries with member ID, date and time</small><div style="margin-top:8px">'+dl+'</div>':'');
  },function(){dayBreakOld()});
 }
 function dayBreakOld(){
@@ -1150,7 +1151,7 @@ function dayBreakOld(){
    var ar=d===null?"":(d>0?'<span style="color:#22c55e;white-space:nowrap">&#9650; $'+d.toFixed(2)+'</span>':d<0?'<span style="color:#ef4444;white-space:nowrap">&#9660; $'+Math.abs(d).toFixed(2)+'</span>':'<span class="mu">&mdash;</span>');
    return'<tr><td>'+esc(x.k)+'</td><td>$'+pb.toFixed(2)+'</td><td>$'+rf.toFixed(2)+'</td><td><b>$'+tot.toFixed(2)+'</b></td><td>'+ar+'</td></tr>';
   }).reverse().join("");
-  $("daybreak").innerHTML='<table style="font-size:13px"><thead><tr><th>Date</th><th>Plan profit</th><th>Referral commission</th><th>Total</th><th>Change</th></tr></thead><tbody>'+rows+'</tbody></table><p class="mu" style="font-size:12.5px;margin-top:12px;line-height:1.6"><b>Plan profit</b>: daily profit from your own plan.<br><b>Referral commission</b>: 5% of confirmed deposits from people you referred, credited that day.<br><b>Total</b>: both added together.<br><b>Change</b>: today\'s total minus the previous day\'s total.</p>';
+  $("daybreak").innerHTML='<table class="dbt"><thead><tr><th>Date</th><th>Self</th><th>Referral</th><th>Total</th><th>Change</th></tr></thead><tbody>'+rows+'</tbody></table>';
  });
 }
 function loadDailyReferrals(){
