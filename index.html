@@ -998,16 +998,29 @@ function exportCsv(){
 $("stmt").onclick=exportCsv;
 function profRow(k,v){return'<div class="wal-row"><span class="mu">'+k+'</span><b style="text-align:right;word-break:break-all">'+esc(String(v))+'</b></div>'}
 function profShow(){
- var u=CU||{},m=u.user_metadata||{};
- var pk=(typeof D!=="undefined"&&D&&typeof PK!=="undefined")?PK[D.pkg]:null;
- var dep=(typeof W!=="undefined"&&W&&W.dep)?W.dep:[];
- var conf=dep.filter(function(x){return x.st==="CREDITED"}).reduce(function(t,x){return t+x.a},0);
- $("pf-info").innerHTML=profRow("Username",m.username||"-")+profRow("Email",u.email||"-")+profRow("Phone",m.phone||"-")+profRow("Country",m.country||"-");
- var dn=$("pf-dn");if(dn&&document.activeElement!==dn&&!dn.value)dn.value=m.full_name||"";
- var rl=$("rl"),prl=$("pf-rl");if(prl&&rl&&rl.value)prl.value=rl.value;
- $("pf-pst").textContent=PINSET?"Withdrawal PIN is on. Enter your current PIN to change it.":"No withdrawal PIN set yet. Set one to enable withdrawals.";
- $("pf-mem").innerHTML=profRow("Member since",String(u.created_at||"-").slice(0,10))+profRow("Last sign-in",String(u.last_sign_in_at||"-").slice(0,16).replace("T"," "))+profRow("Package",pk?pk.n:"-")+profRow("Confirmed deposits","$"+conf.toFixed(2))+profRow("Member ID",String(u.id||"-").slice(0,8));
+ if(!sb)return;
+ sb.auth.getUser().then(function(r){
+  var u=r.data&&r.data.user;if(!u)return;
+  var m=u.user_metadata||{};
+  $("pf-info").innerHTML=profRow("Username",m.username||"-")+profRow("Email",u.email||"-")+profRow("Phone",m.phone||"-")+profRow("Country",m.country||"-");
+  var dn=$("pf-dn");if(dn&&document.activeElement!==dn&&!dn.value)dn.value=m.full_name||"";
+  var rl=$("rl"),prl=$("pf-rl");if(prl&&rl&&rl.value)prl.value=rl.value;
+  $("pf-pst").textContent=PINSET?"Withdrawal PIN is on. Enter your current PIN to change it.":"No withdrawal PIN set yet. Set one to enable withdrawals.";
+  $("pf-mem").innerHTML=profRow("Member since",String(u.created_at||"-").slice(0,10))+profRow("Last sign-in",String(u.last_sign_in_at||"-").slice(0,16).replace("T"," "))+profRow("Member ID",String(u.id||"-").slice(0,8));
+  sb.rpc("dashboard_summary").then(function(d){
+   var j=(d&&d.data)||{};
+   var conf=(j.deposits||[]).filter(function(x){return x.status==="CREDITED"}).reduce(function(t,x){return t+Number(x.amount||0)},0);
+   var pl=(j.plans||[]).filter(function(x){return x.status==="ACTIVE"})[0]||(j.plans||[])[0];
+   var pk="-";if(pl){var p=Number(pl.principal||0);pk=p<=500?"JUNIOR":p<=1500?"SENIOR":p<=5000?"SPECIAL":"VIP / Custom"}
+   $("pf-mem").innerHTML+=profRow("Package",pk)+profRow("Confirmed deposits","$"+conf.toFixed(2));
+  });
+ });
 }
+window.lastView=function(){
+ var v="home";try{v=localStorage.getItem("pc-view")||"home"}catch(x){}
+ var el=document.getElementById(v);if(!el||!el.classList.contains("view"))v="home";
+ return v;
+};
 function profPw(){
  var np=$("pf-np").value,cp=$("pf-cp").value;
  if(!okPw(np))return toast("Password needs 8+ characters with letters and numbers",1);
@@ -1736,7 +1749,7 @@ $$("sp-go").onclick=function(){
  function reveal(){
   if(revealed||!sp)return;revealed=true;
   sp.classList.add("out");B.classList.add("go");B.classList.remove("pre");
-  if(!B.classList.contains("locked")){var h=document.getElementById("home");enter("home");h.classList.remove("on");void h.offsetWidth;h.classList.add("on");if(window.render)render()}
+  if(!B.classList.contains("locked")){window.show(window.lastView());if(window.render)render()}
   var t0=performance.now(),D=950,F=90,cx=innerWidth/2,cy=innerHeight/2,R=Math.hypot(cx,cy);
   function m(r){var g="radial-gradient(circle at "+cx+"px "+cy+"px,transparent "+r+"px,#000 "+(r+F)+"px)";sp.style.webkitMaskImage=g;sp.style.maskImage=g}
   m(-F);
