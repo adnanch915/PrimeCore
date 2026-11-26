@@ -998,12 +998,14 @@ function exportCsv(){
 $("stmt").onclick=exportCsv;
 function profRow(k,v){return'<div class="wal-row"><span class="mu">'+k+'</span><b style="text-align:right;word-break:break-all">'+esc(String(v))+'</b></div>'}
 function profShow(){
- var u=CU||{},m=u.user_metadata||{},pk=PK[D.pkg];
+ var u=CU||{},m=u.user_metadata||{};
+ var pk=(typeof D!=="undefined"&&D&&typeof PK!=="undefined")?PK[D.pkg]:null;
+ var dep=(typeof W!=="undefined"&&W&&W.dep)?W.dep:[];
+ var conf=dep.filter(function(x){return x.st==="CREDITED"}).reduce(function(t,x){return t+x.a},0);
  $("pf-info").innerHTML=profRow("Username",m.username||"-")+profRow("Email",u.email||"-")+profRow("Phone",m.phone||"-")+profRow("Country",m.country||"-");
- $("pf-dn").value=m.full_name||"";
- $("pf-rl").value=$("rl")?$("rl").value:"";
+ var dn=$("pf-dn");if(dn&&document.activeElement!==dn&&!dn.value)dn.value=m.full_name||"";
+ var rl=$("rl"),prl=$("pf-rl");if(prl&&rl&&rl.value)prl.value=rl.value;
  $("pf-pst").textContent=PINSET?"Withdrawal PIN is on. Enter your current PIN to change it.":"No withdrawal PIN set yet. Set one to enable withdrawals.";
- var conf=((W&&W.dep)||[]).filter(function(x){return x.st==="CREDITED"}).reduce(function(t,x){return t+x.a},0);
  $("pf-mem").innerHTML=profRow("Member since",String(u.created_at||"-").slice(0,10))+profRow("Last sign-in",String(u.last_sign_in_at||"-").slice(0,16).replace("T"," "))+profRow("Package",pk?pk.n:"-")+profRow("Confirmed deposits","$"+conf.toFixed(2))+profRow("Member ID",String(u.id||"-").slice(0,8));
 }
 function profPw(){
@@ -1155,7 +1157,7 @@ function loadWallet(quiet){
   W.dep.forEach(function(x){if(old.indexOf(x.id)>-1&&x.st==="CREDITED"){burst(innerWidth/2,innerHeight/3);sfx.ok();toast("Deposit confirmed: $"+x.a.toFixed(2));primeNotify("Deposit confirmed","$"+x.a.toFixed(2)+" USDT credited. Your 100-day plan has started.")}});
   if(d.is_admin!==IS_ADMIN){IS_ADMIN=!!d.is_admin;adminNav()}
   sb.rpc("my_status").then(function(s){if(s&&s.data&&s.data.blocked){sb.auth.signOut().then(function(){alert("Your account has been suspended. Please contact support.");location.reload()})}},function(){});
-  if($("wa-bal"))$("wa-bal").textContent="$"+W.bal.toFixed(2);wtrack();dbNotifs();
+  if($("wa-bal"))$("wa-bal").textContent="$"+W.bal.toFixed(2);wtrack();dbNotifs();if($("profile")&&$("profile").classList.contains("on")){try{profShow()}catch(e){}}
   render();if(PAYID)payView();if(!quiet)loadReq();
  })
 }
