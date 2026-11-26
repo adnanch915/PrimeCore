@@ -593,9 +593,9 @@ input:focus,select:focus,textarea:focus{transform:translateY(-1px)}
 <style>
 .pct{display:flex;gap:6px;align-items:center;margin:10px 0 12px;flex-wrap:wrap}
 .pcb{border:1px solid var(--line);background:transparent;color:var(--txt);border-radius:99px;padding:6px 14px;font:inherit;font-size:12px;font-weight:700;cursor:pointer}
-.pcb.on{background:var(--ac);color:#0a0a0a;border-color:transparent}
+.pcb.on{background:var(--inv);color:var(--invt);border-color:transparent}
 .pcl{margin-left:auto;font-size:12px;color:var(--mute);display:flex;gap:6px;align-items:center}
-.pcl i{width:9px;height:9px;border-radius:3px;display:inline-block}.d1{background:var(--ac)}.d2{background:#4f7cff;margin-left:8px}
+.pcl i{width:8px;height:8px;border-radius:50%;display:inline-block}.d1{background:var(--ink)}
 .pcg{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
 .pck{display:grid;gap:2px;padding:10px 12px;border:1px solid var(--line);border-radius:14px}
 .pck small{color:var(--mute);font-size:12px}.pck b{font-size:20px}.pck span{font-size:11px;color:var(--mute)}
@@ -605,13 +605,9 @@ input:focus,select:focus,textarea:focus{transform:translateY(-1px)}
 .pcy span{position:absolute;right:0;transform:translateY(50%)}
 .pcgr{position:relative;flex:1;min-width:0}
 .pcgr u{position:absolute;left:0;right:0;border-top:1px dashed var(--line)}
-.pcbars{position:absolute;inset:0;display:flex;align-items:flex-end;gap:2px}
-.pbr{flex:1;height:100%;display:flex;flex-direction:column;justify-content:flex-end;cursor:pointer;border-radius:4px 4px 0 0}
-.pbr i{display:block;width:100%}
-.pbp{background:linear-gradient(180deg,var(--ac),#b8902f);border-radius:3px 3px 0 0}
-.pbb{background:#4f7cff;border-radius:3px 3px 0 0}
-.pbr:hover,.pbr.sel{background:#ffffff14;outline:1px solid var(--line)}
-.pbr.hi .pbp{box-shadow:0 0 0 1.5px var(--ink)}
+.ptl{position:absolute;inset:0;width:100%;height:100%;overflow:visible;color:var(--ink)}.ptp{fill:none;stroke:var(--ink);stroke-width:2;stroke-linejoin:round;stroke-linecap:round;vector-effect:non-scaling-stroke}
+.pbr{fill:transparent;cursor:pointer}
+.pbr:hover,.pbr.sel{fill:var(--line);fill-opacity:.6}
 .pcx{display:flex;justify-content:space-between;margin:6px 0 0 42px;font-size:11px;color:var(--mute)}
 .pctip{margin-top:10px;font-size:13px;color:var(--mute);min-height:20px}
 .pce{padding:24px 6px;text-align:center}
@@ -816,7 +812,7 @@ function today(){return new Date().toISOString().slice(0,10)}
 var PK=[
 {n:"JUNIOR",min:30,max:500,rate:2,inc:["Entry tier","100-day plan, profit added every 24 hours","Full terms shown before you confirm"]},
 {n:"SENIOR",min:501,max:1500,rate:2.5,inc:["Growth tier","100-day plan, profit added every 24 hours","Full terms shown before you confirm"]},
-{n:"SPECIAL",min:1501,max:5000,rate:3,inc:["Advanced tier","100-day plan, profit added every 24 hours","Full terms shown before you confirm"]}];
+{n:"SPECIAL",min:1501,max:1000000,rate:3,inc:["Advanced tier","100-day plan, profit added every 24 hours","Full terms shown before you confirm"]}];
 var PLAN_DAYS=100,DAY=864e5;
 function planOf(a){for(var i=0;i<PK.length;i++)if(a>=PK[i].min&&a<=PK[i].max)return PK[i];return null}
 function plans(){var now=Date.now();
@@ -889,12 +885,16 @@ function pchart(PL){
   ["Lowest "+u,lo>=0&&lo!==hi?pm(B[lo].p+B[lo].b):"-",lo>=0&&lo!==hi?plbl(B[lo]):"Not enough data",""]]
   .map(function(k){return'<div class="pck"><small>'+k[0]+'</small><b>'+k[1]+'</b><span class="'+k[3]+'">'+k[2]+'</span></div>'}).join("");
  if(!tot&&!PL.length){$("chart").innerHTML='<div class="pce"><b>No profit yet</b><p class="mu">Your first profit is added 24 hours after your deposit is confirmed. Daily profit and bonuses will appear here as a chart.</p></div>';return}
- var bars=B.map(function(x,i){return'<div class="pbr'+(i===hi?" hi":"")+'" data-pci="'+i+'"><i class="pbb" style="height:'+(x.b/mx*100)+'%"></i><i class="pbp" style="height:'+(x.p/mx*100)+'%"></i></div>'}).join("");
+ var W=600,H=200,L=B.length,pts=B.map(function(x,i){return[L>1?i*W/(L-1):W/2,H-12-((x.p+x.b)/mx)*(H-24)]}),
+  ln=pts.map(function(p,i){return(i?"L":"M")+p[0].toFixed(1)+" "+p[1].toFixed(1)}).join(""),
+  ar=ln+"L"+pts[L-1][0].toFixed(1)+" "+H+"L"+pts[0][0].toFixed(1)+" "+H+"Z",
+  hits=B.map(function(x,i){var w=W/L;return'<rect class="pbr'+(i===hi?" hi":"")+'" data-pci="'+i+'" x="'+(i*w).toFixed(1)+'" y="0" width="'+w.toFixed(1)+'" height="'+H+'"/>'}).join("");
+ var svg='<svg class="ptl" viewBox="0 0 '+W+' '+H+'" preserveAspectRatio="none"><defs><linearGradient id="pga" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:var(--ink);stop-opacity:.14"/><stop offset="1" style="stop-color:var(--ink);stop-opacity:0"/></linearGradient></defs><path d="'+ar+'" fill="url(#pga)"/><path class="ptp" d="'+ln+'"/>'+hits+'</svg>';
  var yl=[1,.5,0].map(function(f){return'<span style="bottom:'+(f*100)+'%">$'+(mx*f>=10?Math.round(mx*f):(mx*f).toFixed(mx<4?1:0))+'</span>'}).join("");
  var mid=B[Math.floor(B.length/2)];
- $("chart").innerHTML='<div class="pct">'+tabs+'<span class="pcl"><i class="d1"></i>Profit<i class="d2"></i>Bonus</span></div><div class="pcg">'+kp+'</div>'
-  +'<div class="pca"><div class="pcy">'+yl+'</div><div class="pcgr"><u style="bottom:0"></u><u style="bottom:50%"></u><u style="bottom:100%"></u><div class="pcbars">'+bars+'</div></div></div>'
-  +'<div class="pcx"><span>'+pfmt(B[0].a)+'</span><span>'+pfmt(mid.a)+'</span><span>Today</span></div><div class="pctip" id="pctip">Tap a bar to see the details for that '+u+'.</div>'}
+ $("chart").innerHTML='<div class="pct">'+tabs+'<span class="pcl"><i class="d1"></i>Profit + bonus</span></div><div class="pcg">'+kp+'</div>'
+  +'<div class="pca"><div class="pcy">'+yl+'</div><div class="pcgr"><u style="bottom:0"></u><u style="bottom:50%"></u><u style="bottom:100%"></u>'+svg+'</div></div>'
+  +'<div class="pcx"><span>'+pfmt(B[0].a)+'</span><span>'+pfmt(mid.a)+'</span><span>Today</span></div><div class="pctip" id="pctip">Tap a point to see the details for that '+u+'.</div>'}
 document.addEventListener("click",function(e){
  var r=e.target.closest("[data-pcr]");if(r){PCR=+r.dataset.pcr;pchart(PCL);return}
  var b=e.target.closest("[data-pci]");if(!b)return;var x=PCB[+b.dataset.pci];if(!x)return;
@@ -1034,7 +1034,7 @@ $("pay-x").onclick=closePay;
 $("dgo").onclick=function(){
  var a=+$("da").value;
  if(!sb)return toast("Database is not connected",1);
- if(!a||a<30)return toast("Minimum deposit is $30",1);if(a>PK[PK.length-1].max){show("support");return toast("Deposits above $"+PK[PK.length-1].max.toLocaleString()+" need a custom plan. Please contact the company.",1)}
+ if(!a||a<30)return toast("Minimum deposit is $30",1);if(a>PK[PK.length-1].max)return toast("Maximum deposit is $"+PK[PK.length-1].max.toLocaleString(),1);
  $("dgo").disabled=true;
  sb.rpc("create_deposit",{p_amount:a}).then(function(r){
   $("dgo").disabled=false;
