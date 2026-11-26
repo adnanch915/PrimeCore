@@ -6,7 +6,7 @@
 <title>Prime Core</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;500;700;800&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
-<script>try{if(localStorage.getItem("pc-theme")==="dark")document.documentElement.setAttribute("data-theme","dark")}catch(e){}</script>
+<script>try{var _v0=localStorage.getItem("pc-theme");if(_v0===null||_v0==="dark")document.documentElement.setAttribute("data-theme","dark")}catch(e){}</script>
 <style>
 :root{--bg:#f3f3f1;--card:#fff;--ink:#0a0a0a;--txt:#161616;--mute:#6f6f6b;--line:#e4e4df;--ac:#d4b46a;--acd:#8f7226;--inv:#0a0a0a;--invt:#fff;--r:22px}
 [data-theme=dark]{--bg:#050505;--card:#111;--ink:#f4f4f1;--txt:#ecece8;--mute:#8d8d88;--line:#232323;--ac:#d9b96a;--acd:#d9b96a;--inv:#f4f4f1;--invt:#0a0a0a}
@@ -564,6 +564,16 @@ input:focus,select:focus,textarea:focus{transform:translateY(-1px)}
 .sb .snd2:hover{background:rgba(120,150,220,.14)}.sb .snd2.off{opacity:.5}
 #stg .st{min-height:200px}
 #dpcd{white-space:nowrap;font-size:12px;letter-spacing:-.01em}
+.pprog{height:6px;border-radius:9px;background:var(--line);overflow:hidden;margin:0 0 8px}.pprog i{display:block;height:100%;background:var(--ink);border-radius:9px}
+.hmg{display:flex;gap:4px;overflow-x:auto;padding-bottom:4px}
+.hmc{display:flex;flex-direction:column;gap:4px;flex:none}
+.hmc i,.hml i{display:block;width:12px;height:12px;border-radius:3px}
+.hm0{background:var(--line)}.hm1{background:color-mix(in srgb,var(--ink) 25%,transparent)}.hm2{background:color-mix(in srgb,var(--ink) 45%,transparent)}.hm3{background:color-mix(in srgb,var(--ink) 70%,transparent)}.hm4{background:var(--ink)}
+.hml{display:flex;gap:4px;align-items:center;justify-content:flex-end;font-size:11px;color:var(--mute);margin-top:10px}.hml span{margin:0 2px}
+.wtk{display:flex;gap:6px;align-items:stretch}
+.wtks{flex:1;border:1px solid var(--line);border-radius:12px;padding:8px 10px;font-size:12px;color:var(--mute)}
+.wtks i{display:block;width:8px;height:8px;border-radius:50%;background:var(--line);margin-bottom:6px}
+.wtks.on{color:var(--txt);border-color:var(--ink)}.wtks.on i{background:var(--ink)}
 </style>
 <style>
 .atabs{display:flex;gap:8px;overflow-x:auto;margin:0 0 16px;padding:2px 0 6px;scrollbar-width:none}
@@ -673,6 +683,7 @@ input:focus,select:focus,textarea:focus{transform:translateY(-1px)}
 <div class="hd"><div><h1 id="gr">Welcome back</h1><p class="mu">Your wallet, profit and team at a glance.</p></div><div class="row" style="gap:8px"><button class="btn ln" data-go="wallet">Withdraw</button><button class="btn gd" data-go="wallet">Deposit</button></div></div>
 <div class="g g4 stg" id="stg"></div>
 <div class="g gm"><div class="c"><div class="row"><h3>Profit overview</h3><span class="tag">Profit and bonus</span></div><div id="chart"></div></div><div class="c row" id="nx"></div></div>
+<div class="c" style="margin-bottom:14px"><div class="row"><h3>Activity</h3><small class="mu">Last 12 weeks</small></div><div id="heat" style="margin-top:12px"></div></div>
 <div class="g g4 stg" id="mini"></div>
 </section>
 
@@ -690,7 +701,7 @@ input:focus,select:focus,textarea:focus{transform:translateY(-1px)}
 <label>Amount (USD)<input id="da" type="number" min="30" step="1" placeholder="Minimum $30"></label>
 <button class="btn gd" id="dgo" style="width:100%">Create deposit</button>
 <p class="wal-msg">Deposits are detected automatically on the blockchain. Send the exact amount shown after you create the deposit, and your plan starts as soon as it is confirmed. No manual approval needed.</p></div>
-<div class="c"><h3 style="margin-bottom:8px">Withdrawal</h3>
+<div class="c"><h3 style="margin-bottom:8px">Withdrawal</h3><div id="wtrack" style="margin:0 0 12px"></div>
 <label>Method<select id="wm"><option value="usdt">USDT (BEP20)</option></select></label>
 <div class="row" style="justify-content:space-between;align-items:center;margin:4px 0 0"><small class="mu">Available balance: <b id="wa-bal" style="color:var(--txt)">$0.00</b></small><button class="btn sm ln" id="wmax" type="button">Max</button></div><label>Amount (USD)<input id="wa" type="number" min="20" step="1" placeholder="Minimum $20"></label>
 <label>USDT wallet address<input id="wd" placeholder="Enter your wallet address"></label>
@@ -881,8 +892,9 @@ function pchart(PL){
  B.forEach(function(x,i){var v=x.p+x.b;if(v>0){if(hi<0||v>B[hi].p+B[hi].b)hi=i;if(lo<0||v<B[lo].p+B[lo].b)lo=i}});
  var mx=pnice(Math.max.apply(0,B.map(function(x){return x.p+x.b}))),u=bs>1?"week":"day";
  var tabs=[7,30,90].map(function(r){return'<button class="pcb'+(r===n?" on":"")+'" data-pcr="'+r+'">'+r+'D</button>'}).join("");
+ var ad=n;if(PL.length){var f0=Math.min.apply(0,PL.map(function(x){return x.start}));if(f0>0)ad=Math.max(1,Math.min(n,Math.floor((Date.now()-f0)/DAY)+1))}
  var kp=[["Total earned",pm(tot),ch===null?"No earlier period yet":(ch>=0?"+":"")+ch.toFixed(0)+"% vs previous "+n+" days",ch===null?"":(ch>=0?"up":"dn")],
-  ["Average per day",pm(tot/n),"Profit "+pm(tp)+" · Bonus "+pm(tb),""],
+  ["Average per day",pm(tot/ad),"Profit "+pm(tp)+" · Bonus "+pm(tb),""],
   ["Best "+u,hi>=0?pm(B[hi].p+B[hi].b):"-",hi>=0?plbl(B[hi]):"No earnings yet","up"],
   ["Lowest "+u,lo>=0&&lo!==hi?pm(B[lo].p+B[lo].b):"-",lo>=0&&lo!==hi?plbl(B[lo]):"Not enough data",""]]
   .map(function(k){return'<div class="pck"><small>'+k[0]+'</small><b>'+k[1]+'</b><span class="'+k[3]+'">'+k[2]+'</span></div>'}).join("");
@@ -902,6 +914,20 @@ document.addEventListener("click",function(e){
  var b=e.target.closest("[data-pci]");if(!b)return;var x=PCB[+b.dataset.pci];if(!x)return;
  document.querySelectorAll(".pbr.sel").forEach(function(o){o.classList.remove("sel")});b.classList.add("sel");
  var t=document.getElementById("pctip");if(t)t.innerHTML="<b>"+plbl(x)+"</b> &middot; Profit "+pm(x.p)+" &middot; Bonus "+pm(x.b)+" &middot; Total <b>"+pm(x.p+x.b)+"</b>"});
+function heat(PL){
+ var E=pseries(PL,84).slice(-84),mx=Math.max.apply(0,E.map(function(x){return x.p+x.b}))||0,cells=[];
+ E.forEach(function(x){var v=x.p+x.b,l=mx>0&&v>0?Math.min(4,Math.ceil(v/mx*4)):0;cells.push('<i class="hm'+l+'" title="'+pfmt(x.k)+': $'+v.toFixed(2)+'"></i>')});
+ var cols="";for(var c=0;c<12;c++)cols+='<div class="hmc">'+cells.slice(c*7,c*7+7).join("")+'</div>';
+ $("heat").innerHTML='<div class="hmg">'+cols+'</div><div class="hml"><span>Less</span><i class="hm0"></i><i class="hm1"></i><i class="hm2"></i><i class="hm3"></i><i class="hm4"></i><span>More</span></div>';
+}
+function wtrack(){
+ var el=$("wtrack");if(!el)return;
+ var L=W.wd.slice().sort(function(a,b){return a.d<b.d?1:a.d>b.d?-1:0});
+ if(!L.length){el.innerHTML='<p class="mu" style="font-size:13px">No withdrawal requests yet. Your latest request status will appear here.</p>';return}
+ var r=L[0],paid=r.st==="PAID",pend=r.st==="PENDING";
+ var st=[["Requested",true],["Under review",pend||paid],["Sent to wallet",paid]];
+ el.innerHTML='<div class="wtk">'+st.map(function(x){return'<div class="wtks'+(x[1]?" on":"")+'"><i></i><span>'+x[0]+'</span></div>'}).join("")+'</div><p class="mu" style="font-size:12.5px;margin-top:8px">Latest request: $'+r.a.toFixed(2)+' on '+esc(r.d)+' &middot; <b>'+esc(r.st)+'</b></p>';
+}
 function stats(){
  $("gr").innerHTML=T("Welcome back")+", <b>"+esc(D.name)+"</b>";
  var m=function(n){return"$"+Number(n).toFixed(2)},sm=function(a,k){return a.filter(function(r){return r.st===k}).reduce(function(t,r){return t+r.a},0)};
@@ -909,8 +935,8 @@ function stats(){
  var dep=sm(W.dep,"CREDITED"),wdp=sm(W.wd,"PAID"),wpe=sm(W.wd,"PENDING"),pk=PK[D.pkg],refs=Math.max(D.refs,TREE.children.length);
  var card=function(s){return'<div class="c st hv '+(s[3]||"")+'"><small>'+s[0]+'</small><div class="v">'+s[1]+'</div><div class="sub">'+s[2]+'</div></div>'};
  $("stg").innerHTML=[["Wallet Balance",m(W.bal),"Available to withdraw","f"],["Daily Profit",m(dly),'Added every 24 hours<br><b id="dpcd"></b>'],["Total Deposit",m(dep),"Confirmed deposits"],["Pending Withdrawals",m(wpe),"Processed in 24 to 48 hours"]].map(card).join("");
- $("mini").innerHTML=[["Plan Progress",nxt?nxt.days+" / "+PLAN_DAYS+" days":(PL.length?"Completed":"No active plan"),nxt?nxt.left+" days left &middot; ends "+new Date(nxt.ends).toISOString().slice(0,10):"Each deposit runs a "+PLAN_DAYS+"-day plan"],["Direct Referrals",refs,"Your 1st line"],["Total Profit Earned",m(ern),"From your "+PLAN_DAYS+"-day plans"],["Total Withdraw",m(wdp),"Total paid out"]].map(card).join("");
- pchart(PL);
+ $("mini").innerHTML=[["Plan Progress",nxt?nxt.days+" / "+PLAN_DAYS+" days":(PL.length?"Completed":"No active plan"),nxt?'<div class="pprog"><i style="width:'+Math.min(100,nxt.days/PLAN_DAYS*100).toFixed(1)+'%"></i></div>'+nxt.left+" days left &middot; ends "+new Date(nxt.ends).toISOString().slice(0,10):"Each deposit runs a "+PLAN_DAYS+"-day plan"],["Direct Referrals",refs,"Your 1st line"],["Total Profit Earned",m(ern),"From your "+PLAN_DAYS+"-day plans"],["Total Withdraw",m(wdp),"Total paid out"]].map(card).join("");
+ pchart(PL);heat(PL);
  var nx=MS.filter(function(m){return D.qual<m.q})[0];
  $("nx").innerHTML=nx?ring(D.qual/nx.q*100,D.qual+"/"+nx.q)+'<div><h3>Next reward</h3><p class="mu">$'+nx.a+' at '+nx.q+' qualified referrals today.</p><button class="btn sm" style="margin-top:10px" data-go="challenge">Open daily bonus</button></div>':'<div><h3>All milestones reached</h3><p class="mu">Claim your rewards in Daily Bonus.</p></div>';
 }
@@ -1000,7 +1026,7 @@ function loadWallet(quiet){
   W.dep.forEach(function(x){if(old.indexOf(x.id)>-1&&x.st==="CREDITED"){burst(innerWidth/2,innerHeight/3);sfx.ok();toast("Deposit confirmed: $"+x.a.toFixed(2));primeNotify("Deposit confirmed","$"+x.a.toFixed(2)+" USDT credited. Your 100-day plan has started.")}});
   if(d.is_admin!==IS_ADMIN){IS_ADMIN=!!d.is_admin;adminNav()}
   sb.rpc("my_status").then(function(s){if(s&&s.data&&s.data.blocked){sb.auth.signOut().then(function(){alert("Your account has been suspended. Please contact support.");location.reload()})}},function(){});
-  if($("wa-bal"))$("wa-bal").textContent="$"+W.bal.toFixed(2);
+  if($("wa-bal"))$("wa-bal").textContent="$"+W.bal.toFixed(2);wtrack();
   render();if(PAYID)payView();if(!quiet)loadReq();
  })
 }
@@ -1411,7 +1437,7 @@ var _un=unlock;unlock=function(u){setUser(u);_un(u)};
 $("s-pw").oninput=function(){var p=this.value,sc=(p.length>=8)+(/[A-Z]/.test(p))+(/[0-9]/.test(p))+(/[^A-Za-z0-9]/.test(p));var b=$("pwm");b.style.width=sc*25+"%";b.style.background=sc>=3?"var(--ac)":"var(--ink)"};
 var SUN='<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>',MOON='<svg viewBox="0 0 24 24"><path d="M21 12.8A9 9 0 1111.2 3a7 7 0 009.8 9.8z"/></svg>';
 function theme(t){document.documentElement.setAttribute("data-theme",t);["tg1","tg2"].forEach(function(i){$(i).innerHTML=t==="dark"?SUN:MOON});try{localStorage.setItem("pc-theme",t)}catch(e){}}
-var th="light";try{th=localStorage.getItem("pc-theme")==="dark"?"dark":"light"}catch(e){}
+var th="dark";try{var _tv=localStorage.getItem("pc-theme");if(_tv!==null)th=_tv==="dark"?"dark":"light"}catch(e){}
 theme(th);
 ["tg1","tg2"].forEach(function(i){$(i).onclick=function(){theme(document.documentElement.getAttribute("data-theme")==="dark"?"light":"dark")}});
 $("snd").classList.toggle("off",!snd);
