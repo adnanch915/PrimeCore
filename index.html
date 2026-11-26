@@ -1070,7 +1070,9 @@ $("pf-rc").onclick=function(){
 function loadTeam(){
  if(!sb)return;
  sb.rpc("my_team").then(function(r){
-  if(r.error||!r.data)return;
+  var ct0=$("tcomm");
+  if(r.error){if(ct0)ct0.textContent="Team data error: "+(r.error.message||JSON.stringify(r.error));return}
+  if(!r.data){if(ct0)ct0.textContent="Team data: no response from server";return}
   var j=r.data,mem=j.members||[],L=j.levels||{};
   TREE.children=mem.map(function(m){return{name:m.name,biz:"Level "+m.lvl+" · Joined "+m.joined+" · "+m.package,rank:-1,pb:Number(m.deposit)||0,tb:0,children:[]}});
   tree();
@@ -1219,7 +1221,7 @@ function loadWallet(quiet){
  })
 }
 var WT=null;
-function startWallet(){loadWallet();pinStatus();clearInterval(WT);WT=setInterval(function(){if(!document.hidden){loadWallet(true);if(IS_ADMIN&&$("admin").classList.contains("on"))admLoad()}},20000)}
+function startWallet(){loadWallet();pinStatus();loadTeam();loadDailyReferrals();dayBreak();clearInterval(WT);WT=setInterval(function(){if(!document.hidden){loadWallet(true);loadTeam();loadDailyReferrals();if(IS_ADMIN&&$("admin").classList.contains("on"))admLoad()}},20000)}
 document.addEventListener("visibilitychange",function(){if(!document.hidden&&WT)loadWallet(true)});
 function wRow(r,k){var x=k==="dep"&&r.st==="PENDING"?' <button class="btn sm" data-pay="'+r.id+'" style="padding:3px 12px">Pay</button>':"";return'<div class="wal-row"><span>'+r.d+' &middot; USDT</span><span>$'+r.a.toFixed(2)+' <span class="tag '+(r.st==="CREDITED"||r.st==="PAID"?"ok":"pd")+'">'+r.st+'</span>'+x+'</span></div>'}
 function wallet(){
