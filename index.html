@@ -784,6 +784,23 @@ input:focus,select:focus,textarea:focus{transform:translateY(-1px)}
 <button class="btn gd" id="cr-go" style="width:100%">Submit claim</button></div>
 <div class="c" style="margin-top:14px"><h3 style="margin-bottom:6px">My submissions</h3><div id="cr-l"></div></div>
 </section>
+<section class="view" id="profile"><div class="hd"><div><h1>My <b>profile</b></h1><p class="mu">Your account details, security and referral link.</p></div></div>
+<div class="c" style="margin-bottom:14px"><h3 style="margin-bottom:10px">Account details</h3><div id="pf-info"></div>
+<p class="mu" style="font-size:12.5px;margin:10px 0 12px">Email, username, phone and country are locked. Contact support if you need them changed.</p>
+<h3 style="margin:8px 0 6px;font-size:16px">Display name</h3><p class="mu" style="font-size:13px;margin-bottom:8px">This is the name shown on your dashboard.</p>
+<div class="row" style="gap:8px;flex-wrap:nowrap"><input id="pf-dn" maxlength="40" placeholder="Your display name" style="margin:0"><button class="btn sm" id="pf-dnb">Save name</button></div></div>
+<div class="c" style="margin-bottom:14px"><h3 style="margin-bottom:10px">Change login password</h3>
+<label>New password<input id="pf-np" type="password" autocomplete="new-password"></label>
+<label>Confirm new password<input id="pf-cp" type="password" autocomplete="new-password"></label>
+<p class="mu" style="font-size:12.5px;margin-bottom:10px">8+ characters with letters and numbers.</p>
+<button class="btn" id="pf-pw" style="width:100%">Update password</button></div>
+<div class="c" style="margin-bottom:14px"><h3 style="margin-bottom:6px">Withdrawal PIN</h3><p class="mu" id="pf-pst" style="font-size:13px;margin-bottom:10px"></p>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px"><label>Current PIN<input id="pf-cur" type="password" inputmode="numeric" maxlength="6" placeholder="If set"></label><label>New PIN<input id="pf-pin" type="password" inputmode="numeric" maxlength="6" placeholder="4 to 6 digits"></label></div>
+<button class="btn" id="pf-pn" style="width:100%">Save PIN</button></div>
+<div class="c" style="margin-bottom:14px"><h3 style="margin-bottom:6px">Referral link</h3><p class="mu" style="font-size:13px;margin-bottom:10px">Share this link. People who sign up with it join your team.</p>
+<div class="row" style="gap:8px;flex-wrap:nowrap"><input id="pf-rl" readonly style="margin:0;font-size:12px"><button class="btn sm" id="pf-rc">Copy</button></div></div>
+<div class="c"><h3 style="margin-bottom:10px">Membership</h3><div id="pf-mem"></div></div>
+</section>
 <section class="view" id="support"><div class="hd"><div><h1>Customer <b>support</b></h1><p class="mu">Send your message here. Our support team replies in this chat.</p></div></div>
 <div class="c"><div id="chat" style="display:grid;gap:10px;max-height:55vh;overflow:auto;padding:4px"></div></div>
 <div class="c" style="margin-top:14px"><label>Your message<textarea id="sp-m" rows="3" placeholder="Type your message"></textarea></label><button class="btn gd" id="sp-go" style="width:100%;margin-top:10px">Send message</button></div>
@@ -846,14 +863,14 @@ pf();
 var LV=[{l:"Level 1",r:10,t:2},{l:"Level 2",r:7,t:5},{l:"Level 3",r:3,t:10}];
 var MS=[{q:5,a:10},{q:10,a:25},{q:20,a:50}];
 var D={name:"Member",pkg:-1,purchases:0,comm:0,courses:0,refs:0,qual:0,budget:0,claims:[],inq:[],audit:[]};
-var NV=[["home","Overview","M3 11l9-8 9 8v10H3z"],["packages","Packages","M3 7l9-4 9 4v10l-9 4-9-4zM3 7l9 4 9-4M12 11v10"],["wallet","Wallet","M3 7h18v12H3zM3 7l3-3h12l3 3M16 13h2"],["team","Team","M17 21v-2a4 4 0 00-4-4H7a4 4 0 00-4 4v2M10 11a4 4 0 100-8 4 4 0 000 8zM21 21v-2a4 4 0 00-3-3.9M17 3.1a4 4 0 010 7.8"],["salary","Salary","M2 6h20v12H2zM12 15a3 3 0 100-6 3 3 0 000 6zM6 12h.01M18 12h.01"],["challenge","Daily Bonus","M20 12v10H4V12M2 7h20v5H2zM12 22V7M12 7H7.5a2.5 2.5 0 010-5C11 2 12 7 12 7zM12 7h4.5a2.5 2.5 0 000-5C13 2 12 7 12 7z"],["claims","Claims","M6 3h12v18l-3-2-3 2-3-2-3 2zM9 8h6M9 12h6"],["creator","Creator Reward","M12 2l3 6.2 6.8.9-5 4.7 1.3 6.7L12 17.1 5.9 20.5l1.3-6.7-5-4.7 6.8-.9z"],["support","Support","M4 12a8 8 0 0116 0v5a2 2 0 01-2 2h-2v-6h4M4 12v5a2 2 0 002 2h2v-6H4"]];
+var NV=[["home","Overview","M3 11l9-8 9 8v10H3z"],["packages","Packages","M3 7l9-4 9 4v10l-9 4-9-4zM3 7l9 4 9-4M12 11v10"],["wallet","Wallet","M3 7h18v12H3zM3 7l3-3h12l3 3M16 13h2"],["team","Team","M17 21v-2a4 4 0 00-4-4H7a4 4 0 00-4 4v2M10 11a4 4 0 100-8 4 4 0 000 8zM21 21v-2a4 4 0 00-3-3.9M17 3.1a4 4 0 010 7.8"],["salary","Salary","M2 6h20v12H2zM12 15a3 3 0 100-6 3 3 0 000 6zM6 12h.01M18 12h.01"],["challenge","Daily Bonus","M20 12v10H4V12M2 7h20v5H2zM12 22V7M12 7H7.5a2.5 2.5 0 010-5C11 2 12 7 12 7zM12 7h4.5a2.5 2.5 0 000-5C13 2 12 7 12 7z"],["claims","Claims","M6 3h12v18l-3-2-3 2-3-2-3 2zM9 8h6M9 12h6"],["creator","Creator Reward","M12 2l3 6.2 6.8.9-5 4.7 1.3 6.7L12 17.1 5.9 20.5l1.3-6.7-5-4.7 6.8-.9z"],["profile","Profile","M12 12a4 4 0 100-8 4 4 0 000 8zM4 21a8 8 0 0116 0"],["support","Support","M4 12a8 8 0 0116 0v5a2 2 0 01-2 2h-2v-6h4M4 12v5a2 2 0 002 2h2v-6H4"]];
 $("nv").innerHTML=NV.map(function(n,i){return'<button class="nv'+(i?'':' on')+'" data-v="'+n[0]+'"><svg viewBox="0 0 24 24"><path d="'+n[2]+'"/></svg><span>'+n[1]+'</span></button>'}).join("");
 
 document.getElementById("mnu").onclick=function(){if(innerWidth>900)document.body.classList.toggle("nav-closed");else document.body.classList.toggle("nav-open")};
 document.getElementById("navveil").onclick=function(){document.body.classList.remove("nav-open")};
 function show(v){
  document.body.classList.remove("nav-open");
- if(v==="support")loadChat();
+ if(v==="support")loadChat();if(v==="profile")profShow();
  document.querySelectorAll(".view").forEach(function(e){e.classList.remove("on")});
  var e=$(v);e.classList.add("on");
  [].forEach.call(e.children,function(c,i){c.style.setProperty("--i",i);[].forEach.call(c.classList.contains("stg")?c.children:[],function(k,j){k.style.setProperty("--i",j+1)})});
@@ -963,6 +980,53 @@ function exportCsv(){
  setTimeout(function(){URL.revokeObjectURL(u);a.remove()},1000);
 }
 $("stmt").onclick=exportCsv;
+function profRow(k,v){return'<div class="wal-row"><span class="mu">'+k+'</span><b style="text-align:right;word-break:break-all">'+esc(String(v))+'</b></div>'}
+function profShow(){
+ var u=CU||{},m=u.user_metadata||{},pk=PK[D.pkg];
+ $("pf-info").innerHTML=profRow("Username",m.username||"-")+profRow("Email",u.email||"-")+profRow("Phone",m.phone||"-")+profRow("Country",m.country||"-");
+ $("pf-dn").value=m.full_name||"";
+ $("pf-rl").value=$("rl")?$("rl").value:"";
+ $("pf-pst").textContent=PINSET?"Withdrawal PIN is on. Enter your current PIN to change it.":"No withdrawal PIN set yet. Set one to enable withdrawals.";
+ var conf=W.dep.filter(function(x){return x.st==="CREDITED"}).reduce(function(t,x){return t+x.a},0);
+ $("pf-mem").innerHTML=profRow("Member since",String(u.created_at||"-").slice(0,10))+profRow("Last sign-in",String(u.last_sign_in_at||"-").slice(0,16).replace("T"," "))+profRow("Package",pk?pk.n:"-")+profRow("Confirmed deposits","$"+conf.toFixed(2))+profRow("Member ID",String(u.id||"-").slice(0,8));
+}
+function profPw(){
+ var np=$("pf-np").value,cp=$("pf-cp").value;
+ if(!okPw(np))return toast("Password needs 8+ characters with letters and numbers",1);
+ if(np!==cp)return toast("Passwords do not match",1);
+ if(!sb)return toast("Not connected",1);
+ sb.auth.updateUser({password:np}).then(function(r){
+  if(r.error)return toast(sbErr(r.error),1);
+  $("pf-np").value="";$("pf-cp").value="";sfx.ok();toast("Password updated");
+ });
+}
+function profPin(){
+ var np=$("pf-pin").value.trim(),cur=$("pf-cur").value.trim();
+ if(!/^\d{4,6}$/.test(np))return toast("PIN must be 4 to 6 digits",1);
+ if(!sb)return toast("Not connected",1);
+ sb.rpc("set_withdraw_pin",{p_new:np,p_current:cur||null}).then(function(r){
+  if(r.error)return toast(sbErr(r.error),1);
+  PINSET=true;renderPin();$("pf-pin").value="";$("pf-cur").value="";profShow();sfx.ok();toast("Withdrawal PIN saved");
+ });
+}
+function profSaveName(){
+ var n=$("pf-dn").value.replace(/\s+/g," ").trim();
+ if(n.length<2||n.length>40)return toast("Name must be 2 to 40 characters",1);
+ if(!sb)return toast("Not connected",1);
+ sb.auth.updateUser({data:{full_name:n}}).then(function(r){
+  if(r.error)return toast(sbErr(r.error),1);
+  if(r.data&&r.data.user){CU=r.data.user;setUser(CU)}
+  render();profShow();sfx.ok();toast("Display name updated");
+ });
+}
+$("pf-dnb").onclick=profSaveName;
+$("pf-pw").onclick=profPw;
+$("pf-pn").onclick=profPin;
+$("pf-rc").onclick=function(){
+ var v=$("pf-rl").value;
+ if(navigator.clipboard){navigator.clipboard.writeText(v).then(function(){toast("Link copied")})}
+ else{$("pf-rl").select();document.execCommand("copy");toast("Link copied")}
+};
 function heat(PL){
  var E=pseries(PL,84).slice(-84),mx=Math.max.apply(0,E.map(function(x){return x.p+x.b}))||0,cells=[];
  E.forEach(function(x){var v=x.p+x.b,l=mx>0&&v>0?Math.min(4,Math.ceil(v/mx*4)):0;cells.push('<i class="hm'+l+'" title="'+pfmt(x.k)+': $'+v.toFixed(2)+'"></i>')});
