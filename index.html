@@ -868,15 +868,31 @@ $("nv").innerHTML=NV.map(function(n,i){return'<button class="nv'+(i?'':' on')+'"
 
 document.getElementById("mnu").onclick=function(){if(innerWidth>900)document.body.classList.toggle("nav-closed");else document.body.classList.toggle("nav-open")};
 document.getElementById("navveil").onclick=function(){document.body.classList.remove("nav-open")};
+var NAVBACK=false,CURV="";
 function show(v){
  document.body.classList.remove("nav-open");
- if(v==="support")loadChat();if(v==="profile")profShow();
- document.querySelectorAll(".view").forEach(function(e){e.classList.remove("on")});
- var e=$(v);e.classList.add("on");
+ var e=$(v);if(!e)return;
+ document.querySelectorAll(".view").forEach(function(x){x.classList.remove("on")});
+ e.classList.add("on");
  [].forEach.call(e.children,function(c,i){c.style.setProperty("--i",i);[].forEach.call(c.classList.contains("stg")?c.children:[],function(k,j){k.style.setProperty("--i",j+1)})});
  document.querySelectorAll(".nv").forEach(function(b){b.classList.toggle("on",b.dataset.v===v)});
- window.scrollTo({top:0,behavior:"smooth"});render();
+ if(v==="support")loadChat();
+ if(v==="profile"){try{profShow()}catch(err){}}
+ window.scrollTo({top:0,behavior:"smooth"});
+ render();
+ if(!NAVBACK&&v!==CURV){try{history.pushState({v:v},"")}catch(x){}}
+ CURV=v;
+ try{localStorage.setItem("pc-view",v)}catch(x){}
 }
+function restoreView(){
+ var v="home";try{v=localStorage.getItem("pc-view")||"home"}catch(x){}
+ var el=document.getElementById(v);if(!el||!el.classList.contains("view"))v="home";
+ NAVBACK=true;try{show(v)}finally{NAVBACK=false}
+ try{history.replaceState({v:v},"")}catch(x){}
+}
+window.addEventListener("popstate",function(ev){
+ if(ev.state&&ev.state.v){NAVBACK=true;try{show(ev.state.v)}finally{NAVBACK=false}}
+});
 document.querySelectorAll(".nv").forEach(function(b){b.onclick=function(){show(b.dataset.v)}});
 document.addEventListener("click",function(e){var g=e.target.closest("[data-go]");if(g)show(g.dataset.go)});
 
@@ -987,7 +1003,7 @@ function profShow(){
  $("pf-dn").value=m.full_name||"";
  $("pf-rl").value=$("rl")?$("rl").value:"";
  $("pf-pst").textContent=PINSET?"Withdrawal PIN is on. Enter your current PIN to change it.":"No withdrawal PIN set yet. Set one to enable withdrawals.";
- var conf=W.dep.filter(function(x){return x.st==="CREDITED"}).reduce(function(t,x){return t+x.a},0);
+ var conf=((W&&W.dep)||[]).filter(function(x){return x.st==="CREDITED"}).reduce(function(t,x){return t+x.a},0);
  $("pf-mem").innerHTML=profRow("Member since",String(u.created_at||"-").slice(0,10))+profRow("Last sign-in",String(u.last_sign_in_at||"-").slice(0,16).replace("T"," "))+profRow("Package",pk?pk.n:"-")+profRow("Confirmed deposits","$"+conf.toFixed(2))+profRow("Member ID",String(u.id||"-").slice(0,8));
 }
 function profPw(){
@@ -1480,7 +1496,7 @@ function er(id,t){$$(id).textContent=t}
 function needSb(id){if(!sb){er(id,"Supabase keys are not set in the CONFIG section of this file.");return true}return false}
 function okEm(e){return /^\S+@\S+\.\S+$/.test(e)}
 function okPw(p){return p.length>=8&&/[A-Za-z]/.test(p)&&/[0-9]/.test(p)}
-function unlock(u){loadMe(u);document.body.classList.remove("locked");$$("auth").style.display="none";toast("Welcome "+((u.user_metadata&&u.user_metadata.full_name)||u.email));render()}
+function unlock(u){loadMe(u);document.body.classList.remove("locked");$$("auth").style.display="none";toast("Welcome "+((u.user_metadata&&u.user_metadata.full_name)||u.email));render();restoreView()}
 function busy(b,f){b.disabled=true;return f().then(function(r){b.disabled=false;return r},function(x){b.disabled=false;throw x})}
 
 $$("l-go").onclick=function(){
