@@ -1098,7 +1098,7 @@ function setupTeamTabs(){
  bar.innerHTML='<button class="btn sm" id="tabP">Progress</button><button class="btn sm ln" id="tabT">Team tree</button>';
  tc.parentNode.insertBefore(bar,tc);
  var dc=document.createElement("div");dc.className="c";dc.id="dailyclaims";dc.style.marginBottom="14px";
- dc.innerHTML='<div class="row"><h3>Daily referral bonus</h3><small class="mu">Last 24 hours</small></div><div id="dailyrows" style="margin-top:12px;display:grid;gap:12px"></div>';
+ dc.innerHTML='<div class="row"><h3>Daily referral bonus</h3><small class="mu" id="dbhdr">Last 24 hours</small></div><div id="dailyrows" style="margin-top:12px;display:grid;gap:12px"></div>';
  lvl.parentNode.insertBefore(dc,lvl);
  var rt=document.createElement("div");rt.className="c";rt.id="ratescard";rt.style.marginBottom="14px";
  rt.innerHTML='<div class="row"><h3>Commission rates</h3><small class="mu">Proposed, on verified sales</small></div><table style="margin-top:12px"><thead><tr><th>Level</th><th>Rate</th><th>Needs direct</th><th>On a $100 sale</th></tr></thead><tbody><tr><td>Level 1</td><td>10%</td><td>2</td><td>$10</td></tr><tr><td>Level 2</td><td>7%</td><td>5</td><td>$7</td></tr><tr><td>Level 3</td><td>3%</td><td>10</td><td>$3</td></tr></tbody></table><p class="mu" style="font-size:12.5px;margin-top:10px">Active referral means a minimum $30 verified deposit.</p><p id="ratesearn" style="margin-top:12px;font-size:15px"></p>';
@@ -1190,11 +1190,13 @@ function renderDaily(d){
  else if(d.window_end===null){tmH='<p class="mu" style="font-size:13px;margin:0 0 12px">Your 24-hour timer starts with your first referral.</p>'}
  var html=tiers.map(function(x){
   var pc=(x.p!==undefined&&x.p!==null)?Number(x.p)||0:cnt;
-  var can=pc>=x.t&&!x.claimed;
-  var pct=Math.min(100,pc/x.t*100);
-  return'<div class="c hv" style="margin:0"><div class="row" style="flex-wrap:nowrap">'+ring(pct,Math.min(pc,x.t)+"/"+x.t)+'<div><span class="tag">'+x.t+' referrals in 24 hours</span><div class="v" style="font-size:30px;margin-top:6px">$'+x.r+'</div></div></div><p class="mu" style="font-size:13px;margin:12px 0">'+(x.claimed?"Already claimed in the last 24 hours.":"Credited to your Available to withdraw balance.")+'</p><button class="btn" style="width:100%" data-t="'+x.t+'" '+(can?"":"disabled")+'>'+(x.claimed?"Claimed":can?"Claim $"+x.r:"Not reached yet ("+pc+"/"+x.t+")")+'</button></div>';
+  var nd=(x.need!==undefined&&x.need!==null)?Number(x.need)||x.t:x.t,more=nd<x.t;
+  var can=pc>=nd&&!x.claimed;
+  var pct=Math.min(100,pc/nd*100);
+  return'<div class="c hv" style="margin:0"><div class="row" style="flex-wrap:nowrap">'+ring(pct,Math.min(pc,nd)+"/"+nd)+'<div><span class="tag">'+(more?nd+' more referrals':x.t+' referrals in 24 hours')+'</span><div class="v" style="font-size:30px;margin-top:6px">$'+x.r+'</div></div></div><p class="mu" style="font-size:13px;margin:12px 0">'+(x.claimed?"Already claimed in the last 24 hours.":"Credited to your Available to withdraw balance.")+'</p><button class="btn" style="width:100%" data-t="'+x.t+'" '+(can?"":"disabled")+'>'+(x.claimed?"Claimed":can?"Claim $"+x.r:"Not reached yet ("+pc+"/"+nd+")")+'</button></div>';
  }).join("");
-var a=$("dailyrows");if(a)a.innerHTML=noteH+tmH+html;
+var a=$("dailyrows");if(a)a.innerHTML=noteH+html;
+ var hd=$("dbhdr");if(hd){hd.innerHTML=d.window_end?'Time left <b class="dtm" data-end="'+esc(String(d.window_end))+'">--:--:--</b>':(d.window_end===null?"Starts at 1st referral":"Last 24 hours")}
  var m=$("miles");if(m)m.innerHTML=noteH+tmH+html;
  tickDaily();
  var qt=$("qt");if(qt)qt.textContent=cnt;
