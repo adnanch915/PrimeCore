@@ -1082,12 +1082,12 @@ function loadTeam(){
   if(r.error){if(ct)ct.textContent="Team data error: "+(r.error.message||"");return}
   var j=r.data||{},mem=j.members||[];
   var L={1:0,2:0,3:0};mem.forEach(function(m){if(L[m.lvl]!==undefined)L[m.lvl]++});
-  window.__direct=L[1];
+  window.__direct=L[1];window.__teamN=mem.length;
   TREE.children=mem.map(function(m){return{name:m.name,lvl:m.lvl,parent:m.parent,joined:m.joined,pkg:m.pkg,paid:m.paid,rank:-1,pb:Number(m.deposit)||0,tb:0,children:[]}});
   tree();
   if(ct)ct.textContent="";
   var re=$("ratesearn");if(re)re.innerHTML="Your referral commission earned: <b>$"+Number(j.commission_total||0).toFixed(2)+"</b>";
-  if(typeof lv==="function")lv();
+  if(typeof lv==="function")lv();if(typeof salary==="function")salary();
   var rc=$("refs");if(rc&&rc.closest(".c"))rc.closest(".c").style.display="none";
  });
 }
@@ -1252,7 +1252,7 @@ function salary(){
  el.innerHTML=SAL.map(function(x,i){
   var have=SALD.line1[x.rk]||0,selfOk=self===x.rk,ok=selfOk&&have>=x.n;
   if(ok)tot+=x.s;else all=false;
-  return'<div class="c hv"><div class="row" style="flex-wrap:nowrap">'+ring(Math.min(have/x.n,1)*100,Math.min(have,x.n)+"/"+x.n)+'<div><span class="tag">Level '+(i+1)+' · Team '+x.t+'</span><div class="v" style="font-size:34px;margin-top:6px">$'+x.s+'<small class="mu" style="font-size:14px"> / month</small></div></div></div>'
+  return'<div class="c hv"><div class="row" style="flex-wrap:nowrap">'+ring(Math.min((window.__teamN||0)/x.t,1)*100,Math.min(window.__teamN||0,x.t)+"/"+x.t)+'<div><span class="tag">Level '+(i+1)+' · Team '+x.t+'</span><div class="v" style="font-size:34px;margin-top:6px">$'+x.s+'<small class="mu" style="font-size:14px"> / month</small></div></div></div>'
    +'<p class="mu" style="font-size:13px;margin-top:12px">Condition: self rank '+RN[x.rk]+' with '+x.n+' '+RN[x.rk]+' in 1st line.</p>'
    +'<p style="font-size:13px;margin-top:8px"><b>'+(ok?'Achieved':(selfOk?'Not yet: '+have+' of '+x.n+' in 1st line':'Not yet: your own package must be '+RN[x.rk]+''))+'</b></p></div>';
  }).join("");
