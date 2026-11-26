@@ -1123,26 +1123,30 @@ function dayBreak(){
    var ar=d===null?"":(d>0?'<span style="color:#22c55e;white-space:nowrap">&#9650; $'+d.toFixed(2)+'</span>':d<0?'<span style="color:#ef4444;white-space:nowrap">&#9660; $'+Math.abs(d).toFixed(2)+'</span>':'<span class="mu">&mdash;</span>');
    return'<tr><td>'+esc(x.k)+'</td><td>$'+pb.toFixed(2)+'</td><td>$'+rf.toFixed(2)+'</td><td><b>$'+tot.toFixed(2)+'</b></td><td>'+ar+'</td></tr>';
   }).reverse().join("");
-  $("daybreak").innerHTML='<table style="font-size:13px"><thead><tr><th>Date</th><th>Profit + bonus</th><th>Referral commission</th><th>Total</th><th>Change</th></tr></thead><tbody>'+rows+'</tbody></table>';
+  $("daybreak").innerHTML='<table style="font-size:13px"><thead><tr><th>Date</th><th>Profit + bonus</th><th>Referral commission</th><th>Total</th><th>vs previous day</th></tr></thead><tbody>'+rows+'</tbody></table><p class="mu" style="font-size:12.5px;margin-top:12px;line-height:1.6"><b>Profit + bonus</b>: your plan\'s daily profit and any bonus credited that day.<br><b>Referral commission</b>: 5% of confirmed deposits from people you referred, credited that day.<br><b>Total</b>: both added together.<br><b>vs previous day</b>: today\'s total minus the previous day\'s total.</p>';
  });
 }
 function loadDailyReferrals(){
  if(!sb)return;
  sb.rpc("my_referral_daily").then(function(r){
-  if(r.error){var msg='<p class="mu">Error: '+esc(r.error.message||"")+'</p>';var a0=$("dailyrows");if(a0)a0.innerHTML=msg;var m0=$("miles");if(m0)m0.innerHTML=msg;return}
-  if(r.data)renderDaily(r.data);
+  if(r.error||!r.data){
+   renderDaily({count:0,note:"Your 24-hour count is not available yet. Please refresh in a moment.",tiers:[{t:5,r:10,claimed:false},{t:10,r:25,claimed:false},{t:20,r:50,claimed:false}]});
+   return;
+  }
+  renderDaily(r.data);
  });
 }
 function renderDaily(d){
  window.__daily=d;
  var cnt=Number(d.count)||0,tiers=d.tiers||[];
+ var noteH=d.note?'<p class="mu" style="font-size:13px">'+esc(d.note)+'</p>':"";
  var html=tiers.map(function(x){
   var can=cnt>=x.t&&!x.claimed;
   var pct=Math.min(100,cnt/x.t*100);
   return'<div class="c hv" style="margin:0"><div class="row" style="flex-wrap:nowrap">'+ring(pct,Math.min(cnt,x.t)+"/"+x.t)+'<div><span class="tag">'+x.t+' referrals in 24 hours</span><div class="v" style="font-size:30px;margin-top:6px">$'+x.r+'</div></div></div><p class="mu" style="font-size:13px;margin:12px 0">'+(x.claimed?"Already claimed in the last 24 hours.":"Credited to your Available to withdraw balance.")+'</p><button class="btn" style="width:100%" data-t="'+x.t+'" '+(can?"":"disabled")+'>'+(x.claimed?"Claimed":can?"Claim $"+x.r:"Not reached yet ("+cnt+"/"+x.t+")")+'</button></div>';
  }).join("");
- var a=$("dailyrows");if(a)a.innerHTML=html;
- var m=$("miles");if(m)m.innerHTML=html;
+ var a=$("dailyrows");if(a)a.innerHTML=noteH+html;
+ var m=$("miles");if(m)m.innerHTML=noteH+html;
  var qt=$("qt");if(qt)qt.textContent=cnt;
 }
 document.addEventListener("click",function(e){
