@@ -1186,7 +1186,7 @@ function renderDaily(d){
  var cnt=Number(d.count)||0,tiers=d.tiers||[];
  var noteH=d.note?'<p class="mu" style="font-size:13px">'+esc(d.note)+'</p>':"";
  var tmH='';
- if(d.window_end){tmH='<p class="mu" style="font-size:13px;margin:0 0 12px">Time left: <b class="dtm" data-end="'+esc(String(d.window_end))+'">--:--:--</b> &middot; Resets '+ukTime(d.window_end)+' UK time</p>'}
+ if(d.window_end){tmH='<p class="mu" style="font-size:13px;margin:0 0 12px">Time left: <b class="dtm" data-end="'+esc(String(d.window_end))+'">--:--:--</b></p>'}
  else if(d.window_end===null){tmH='<p class="mu" style="font-size:13px;margin:0 0 12px">Your 24-hour timer starts with your first referral.</p>'}
  var html=tiers.map(function(x){
   var pc=(x.p!==undefined&&x.p!==null)?Number(x.p)||0:cnt;
@@ -1297,14 +1297,35 @@ document.addEventListener("dragover",function(e){var c=e.target.closest&&e.targe
 document.addEventListener("drop",function(e){var c=e.target.closest&&e.target.closest(".col[data-st=SUCCESS]");document.querySelectorAll(".col").forEach(function(x){x.classList.remove("ov")});if(c){e.preventDefault();approve(e.dataTransfer.getData("text/plain"))}});
 var RN=["JUNIOR","SENIOR","SPECIAL"];
 var SAL=[{t:200,s:250,rk:1,n:5},{t:500,s:500,rk:2,n:10},{t:1000,s:1000,rk:2,n:20}];
-var SALD={line1:{}};
+var SALD={line1:{},team:0};
 function salary(){
+ salaryDraw();
+ if(!sb)return;
+ sb.rpc("my_team_full").then(function(r){
+  var j=(r&&r.data)||{},m=j.members||[];
+  SALD.team=m.length;salaryDraw();
+ },function(){});
+ sb.auth.getUser().then(function(u){
+  var id=u&&u.data&&u.data.user&&u.data.user.id;if(!id)return;
+  return sb.from("v_first_line_counts").select("package_rank,members").eq("user_id",id).then(function(r){
+   if(!r||!r.data)return;
+   var L={};
+   r.data.forEach(function(x){
+    var k=typeof x.package_rank==="number"?x.package_rank:(RN.indexOf(String(x.package_rank).toUpperCase())>=0?RN.indexOf(String(x.package_rank).toUpperCase()):Number(x.package_rank));
+    if(!isNaN(k))L[k]=(L[k]||0)+(Number(x.members)||0);
+   });
+   SALD.line1=L;salaryDraw();
+  });
+ }).catch(function(){});
+}
+function salaryDraw(){
  var el=$("sal");if(!el)return;
  var self=D.pkg,tot=0,all=true;
  el.innerHTML=SAL.map(function(x,i){
   var have=SALD.line1[x.rk]||0,selfOk=self===x.rk,ok=selfOk&&have>=x.n;
   if(ok)tot+=x.s;else all=false;
   return'<div class="c hv"><div class="row" style="flex-wrap:nowrap">'+ring(Math.min(have/x.n,1)*100,Math.min(have,x.n)+"/"+x.n)+'<div><span class="tag">Level '+(i+1)+' · Team '+x.t+'</span><div class="v" style="font-size:34px;margin-top:6px">$'+x.s+'<small class="mu" style="font-size:14px"> / month</small></div></div></div>'
+   +'<div style="margin-top:14px;font-size:13px">Team: <b>'+Math.min(SALD.team,x.t)+'</b> / '+x.t+'<div style="height:6px;border-radius:6px;background:rgba(127,127,127,.25);margin-top:6px;overflow:hidden"><div style="height:100%;width:'+Math.min(100,SALD.team/x.t*100)+'%;border-radius:6px;background:#4f8cff"></div></div></div>'
    +'<p class="mu" style="font-size:13px;margin-top:12px">Condition: self rank '+RN[x.rk]+' with '+x.n+' '+RN[x.rk]+' in 1st line.</p>'
    +'<p style="font-size:13px;margin-top:8px"><b>'+(ok?'Achieved':(selfOk?'Not yet: '+have+' of '+x.n+' in 1st line':'Not yet: your own package must be '+RN[x.rk]+''))+'</b></p></div>';
  }).join("");
