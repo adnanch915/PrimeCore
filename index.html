@@ -693,7 +693,7 @@ input:focus,select:focus,textarea:focus{transform:translateY(-1px)}
 
 </section>
 
-<section class="view" id="wallet"><div class="hd"><div><h1>My <b>wallet</b></h1><p class="mu">Deposit and withdraw in USDT (BEP20).</p></div></div>
+<section class="view" id="wallet"><div class="hd"><div><h1>My <b>wallet</b></h1><p class="mu">Deposit and withdraw in USDT (BEP20).</p><button class="btn sm ln" id="stmt" style="margin-top:8px">Download statement (CSV)</button></div></div>
 <div class="g g3"><div class="c"><small class="mu">Available balance</small><div class="v" style="font-size:30px;margin-top:6px" id="wbal">$0.00</div></div><div class="c"><small class="mu">Pending deposits</small><div class="v" style="font-size:30px;margin-top:6px" id="wdp">$0.00</div></div><div class="c"><small class="mu">Pending withdrawals</small><div class="v" style="font-size:30px;margin-top:6px" id="wwp">$0.00</div></div></div>
 <div class="g gm" style="margin-top:14px">
 <div class="c"><h3 style="margin-bottom:8px">Deposit</h3>
@@ -706,7 +706,7 @@ input:focus,select:focus,textarea:focus{transform:translateY(-1px)}
 <div class="row" style="justify-content:space-between;align-items:center;margin:4px 0 0"><small class="mu">Available balance: <b id="wa-bal" style="color:var(--txt)">$0.00</b></small><button class="btn sm ln" id="wmax" type="button">Max</button></div><label>Amount (USD)<input id="wa" type="number" min="20" step="1" placeholder="Minimum $20"></label>
 <label>USDT wallet address<input id="wd" placeholder="Enter your wallet address"></label>
 <p class="mu" id="wd-fee" style="font-size:13px;margin:-2px 0 10px"></p>
-<button class="btn" id="wgo" style="width:100%">Request withdrawal</button>
+<div id="pinbox" style="margin:4px 0 12px"></div><button class="btn" id="wgo" style="width:100%">Request withdrawal</button>
 <p class="wal-msg"><b>Processing time: 24 to 48 hours.</b> A 5% withdrawal fee applies to each request. Each request is checked by our team and then sent to your BEP20 address. The amount is held from your balance until then.</p></div></div>
 <div class="c" style="margin-top:14px"><h3 style="margin-bottom:6px">Deposit not credited?</h3>
 <p class="mu" style="font-size:13px;margin-bottom:10px">If you sent USDT and it was not added to your balance after 30 minutes, send us the details. Our team will check it and credit it manually.</p>
@@ -914,6 +914,55 @@ document.addEventListener("click",function(e){
  var b=e.target.closest("[data-pci]");if(!b)return;var x=PCB[+b.dataset.pci];if(!x)return;
  document.querySelectorAll(".pbr.sel").forEach(function(o){o.classList.remove("sel")});b.classList.add("sel");
  var t=document.getElementById("pctip");if(t)t.innerHTML="<b>"+plbl(x)+"</b> &middot; Profit "+pm(x.p)+" &middot; Bonus "+pm(x.b)+" &middot; Total <b>"+pm(x.p+x.b)+"</b>"});
+function dbNotifs(){
+ if(!sb)return;
+ sb.rpc("get_my_notifications",{p_limit:30}).then(function(r){
+  if(r.error||!Array.isArray(r.data))return;
+  NT=r.data.map(function(x){return{id:x.id,t:x.title,b:x.body,time:String(x.created_at).slice(0,16).replace("T"," "),read:!!x.read_at}});
+  renderBell();
+ });
+}
+var PINSET=false;
+function renderPin(){
+ var el=$("pinbox");if(!el)return;
+ if(!PINSET){el.innerHTML='<p class="mu" style="font-size:13px;margin-bottom:8px">Set a 4 to 6 digit withdrawal PIN. You will enter it for every withdrawal request.</p><div class="row" style="gap:8px;flex-wrap:nowrap"><input id="pnew" type="password" inputmode="numeric" maxlength="6" placeholder="New PIN" style="margin:0"><button class="btn sm" id="psave">Save PIN</button></div>';return}
+ el.innerHTML='<div class="row" style="gap:8px;flex-wrap:nowrap"><input id="wpin" type="password" inputmode="numeric" maxlength="6" placeholder="Withdrawal PIN" style="margin:0"><button class="btn sm ln" id="pchg">Change PIN</button></div><small class="mu" style="display:block;margin-top:6px">Withdrawal PIN is on.</small>';
+}
+function pinChange(){
+ $("pinbox").innerHTML='<p class="mu" style="font-size:13px;margin-bottom:8px">Enter your current PIN and a new one.</p><div class="g" style="gap:8px;margin-bottom:8px"><input id="pcur" type="password" inputmode="numeric" maxlength="6" placeholder="Current PIN" style="margin:0"><input id="pnew" type="password" inputmode="numeric" maxlength="6" placeholder="New PIN" style="margin:0"></div><div class="row" style="gap:8px;flex-wrap:nowrap"><button class="btn sm" id="psave">Save new PIN</button><button class="btn sm ln" id="pcan">Cancel</button></div>';
+}
+function savePin(){
+ var np=$("pnew")?$("pnew").value.trim():"",cur=$("pcur")?$("pcur").value.trim():"";
+ if(!/^\d{4,6}$/.test(np))return toast("PIN must be 4 to 6 digits",1);
+ if(!sb)return toast("Not connected",1);
+ sb.rpc("set_withdraw_pin",{p_new:np,p_current:cur||null}).then(function(r){
+  if(r.error)return toast(sbErr(r.error),1);
+  PINSET=true;renderPin();toast("Withdrawal PIN saved");sfx.ok();
+ });
+}
+function pinStatus(){
+ if(!sb)return;
+ sb.rpc("my_withdraw_pin_status").then(function(r){if(!r.error){PINSET=!!r.data;renderPin()}});
+}
+document.addEventListener("click",function(e){
+ var t=e.target.id;
+ if(t==="psave")savePin();else if(t==="pchg")pinChange();else if(t==="pcan")renderPin();
+});
+function exportCsv(){
+ var rows=[["Date","Type","Amount (USD)","Status","Details"]];
+ W.dep.forEach(function(x){rows.push([x.d,"Deposit",x.a.toFixed(2),x.st,"USDT (BEP20)"])});
+ W.wd.forEach(function(x){rows.push([x.d,"Withdrawal",x.a.toFixed(2),x.st,x.addr||""])});
+ pseries(plans(),PLAN_DAYS).forEach(function(x){
+  if(x.p>0)rows.push([x.k,"Profit",x.p.toFixed(2),"Credited",""]);
+  if(x.b>0)rows.push([x.k,"Bonus",x.b.toFixed(2),"Credited",""]);
+ });
+ rows.sort(function(a,b){return a[0]<b[0]?1:a[0]>b[0]?-1:0});
+ var csv=rows.map(function(r){return r.map(function(c){return'"'+String(c).replace(/"/g,'""')+'"'}).join(",")}).join("\r\n");
+ var blob=new Blob(["\uFEFF"+csv],{type:"text/csv;charset=utf-8"}),u=URL.createObjectURL(blob),a=document.createElement("a");
+ a.href=u;a.download="primecore-statement.csv";document.body.appendChild(a);a.click();
+ setTimeout(function(){URL.revokeObjectURL(u);a.remove()},1000);
+}
+$("stmt").onclick=exportCsv;
 function heat(PL){
  var E=pseries(PL,84).slice(-84),mx=Math.max.apply(0,E.map(function(x){return x.p+x.b}))||0,cells=[];
  E.forEach(function(x){var v=x.p+x.b,l=mx>0&&v>0?Math.min(4,Math.ceil(v/mx*4)):0;cells.push('<i class="hm'+l+'" title="'+pfmt(x.k)+': $'+v.toFixed(2)+'"></i>')});
@@ -1026,12 +1075,12 @@ function loadWallet(quiet){
   W.dep.forEach(function(x){if(old.indexOf(x.id)>-1&&x.st==="CREDITED"){burst(innerWidth/2,innerHeight/3);sfx.ok();toast("Deposit confirmed: $"+x.a.toFixed(2));primeNotify("Deposit confirmed","$"+x.a.toFixed(2)+" USDT credited. Your 100-day plan has started.")}});
   if(d.is_admin!==IS_ADMIN){IS_ADMIN=!!d.is_admin;adminNav()}
   sb.rpc("my_status").then(function(s){if(s&&s.data&&s.data.blocked){sb.auth.signOut().then(function(){alert("Your account has been suspended. Please contact support.");location.reload()})}},function(){});
-  if($("wa-bal"))$("wa-bal").textContent="$"+W.bal.toFixed(2);wtrack();
+  if($("wa-bal"))$("wa-bal").textContent="$"+W.bal.toFixed(2);wtrack();dbNotifs();
   render();if(PAYID)payView();if(!quiet)loadReq();
  })
 }
 var WT=null;
-function startWallet(){loadWallet();clearInterval(WT);WT=setInterval(function(){if(!document.hidden){loadWallet(true);if(IS_ADMIN&&$("admin").classList.contains("on"))admLoad()}},20000)}
+function startWallet(){loadWallet();pinStatus();clearInterval(WT);WT=setInterval(function(){if(!document.hidden){loadWallet(true);if(IS_ADMIN&&$("admin").classList.contains("on"))admLoad()}},20000)}
 document.addEventListener("visibilitychange",function(){if(!document.hidden&&WT)loadWallet(true)});
 function wRow(r,k){var x=k==="dep"&&r.st==="PENDING"?' <button class="btn sm" data-pay="'+r.id+'" style="padding:3px 12px">Pay</button>':"";return'<div class="wal-row"><span>'+r.d+' &middot; USDT</span><span>$'+r.a.toFixed(2)+' <span class="tag '+(r.st==="CREDITED"||r.st==="PAID"?"ok":"pd")+'">'+r.st+'</span>'+x+'</span></div>'}
 function wallet(){
@@ -1076,15 +1125,17 @@ $("wmax").onclick=function(){var v=Math.floor(W.bal*100)/100;$("wa").value=v>0?v
 $("wgo").onclick=function(){
  var a=+$("wa").value,addr=$("wd").value.trim();
  if(!sb)return toast("Database is not connected",1);
+ if(!PINSET)return toast("Set your withdrawal PIN first",1);var PIN=$("wpin")?$("wpin").value.trim():"";if(!/^\d{4,6}$/.test(PIN))return toast("Enter your withdrawal PIN",1);
  if(!a||a<20)return toast("Minimum withdrawal is $20",1);
  if(a>W.bal)return toast("Amount exceeds available balance",1);
  if(!BEP.test(addr))return toast("Enter a valid BEP20 address (0x...)",1);
   if(!confirm("Withdraw $"+a.toFixed(2)+"? A "+WDF+"% fee ($"+(a*WDF/100).toFixed(2)+") applies. You will receive $"+(a*(100-WDF)/100).toFixed(2)+" USDT."))return;
  $("wgo").disabled=true;
- sb.rpc("request_withdrawal",{p_amount:a,p_address:addr}).then(function(r){
+ sb.rpc("request_withdrawal_secure",{p_amount:a,p_address:addr,p_pin:PIN}).then(function(r){
   $("wgo").disabled=false;
   if(r.error)return toast(sbErr(r.error),1);
-  $("wa").value="";$("wd").value="";sfx.ok();toast("Withdrawal requested. Waiting for admin approval");primeNotify("Withdrawal requested","$"+a+" USDT request received. It is checked and sent within 24 to 48 hours.");loadWallet(true);
+  if(r.data!=="ok")return toast(r.data,1);
+  $("wa").value="";$("wd").value="";if($("wpin"))$("wpin").value="";sfx.ok();toast("Withdrawal requested. Waiting for admin approval");primeNotify("Withdrawal requested","$"+a+" USDT request received. It is checked and sent within 24 to 48 hours.");loadWallet(true);
  },function(){$("wgo").disabled=false;toast("Network error. Try again.",1)});
 };
 
@@ -1306,8 +1357,8 @@ function renderBell(){
  b.textContent=un>9?"9+":un;b.classList.toggle("on",un>0);
  $("npanel").innerHTML='<b style="display:block;margin-bottom:6px">Notifications</b>'+(NT.length?NT.map(function(n){return'<div class="nit"><b>'+esc(n.t)+'</b><div>'+esc(n.b)+'</div><small>'+n.time+'</small></div>'}).join(""):'<p class="mu" style="font-size:14px">No notifications yet.</p>');
 }
-function primeNotify(t,b){NT.unshift({t:t,b:b,time:nowStr(),read:false});renderBell()}
-$("bell").onclick=function(e){e.stopPropagation();var p=$("npanel");p.hidden=!p.hidden;if(!p.hidden){NT.forEach(function(n){n.read=true});renderBell()}};
+function primeNotify(t,b){if(sb){setTimeout(dbNotifs,1500);return}NT.unshift({t:t,b:b,time:nowStr(),read:false});renderBell()}
+$("bell").onclick=function(e){e.stopPropagation();var p=$("npanel");p.hidden=!p.hidden;if(!p.hidden){NT.forEach(function(n){n.read=true});renderBell();if(sb)sb.rpc("mark_my_notifications_read")}};
 document.addEventListener("click",function(e){if(!e.target.closest("#npanel")&&!e.target.closest("#bell"))$("npanel").hidden=true});
 
 var TREE={name:"You",biz:"",rank:-1,pb:0,tb:0,children:[]};
