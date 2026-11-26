@@ -790,6 +790,7 @@ input:focus,select:focus,textarea:focus{transform:translateY(-1px)}
 <h3 style="margin:8px 0 6px;font-size:16px">Display name</h3><p class="mu" style="font-size:13px;margin-bottom:8px">This is the name shown on your dashboard.</p>
 <div class="row" style="gap:8px;flex-wrap:nowrap"><input id="pf-dn" maxlength="40" placeholder="Your display name" style="margin:0"><button class="btn sm" id="pf-dnb">Save name</button></div></div>
 <div class="c" style="margin-bottom:14px"><h3 style="margin-bottom:10px">Change login password</h3>
+<label>Current password<input id="pf-cpw" type="password" autocomplete="current-password"></label>
 <label>New password<input id="pf-np" type="password" autocomplete="new-password"></label>
 <label>Confirm new password<input id="pf-cp" type="password" autocomplete="new-password"></label>
 <p class="mu" style="font-size:12.5px;margin-bottom:10px">8+ characters with letters and numbers.</p>
@@ -882,10 +883,10 @@ function show(v){
  render();
  if(!NAVBACK&&v!==CURV){try{history.pushState({v:v},"")}catch(x){}}
  CURV=v;
- try{localStorage.setItem("pc-view",v)}catch(x){}
+ try{localStorage.setItem("pc-view:"+(window.__uid||"anon"),v)}catch(x){}
 }
 function restoreView(){
- var v="home";try{v=localStorage.getItem("pc-view")||"home"}catch(x){}
+ var v="home";try{v=localStorage.getItem("pc-view:"+(window.__uid||"anon"))||"home"}catch(x){}
  var el=document.getElementById(v);if(!el||!el.classList.contains("view"))v="home";
  NAVBACK=true;try{show(v)}finally{NAVBACK=false}
  try{history.replaceState({v:v},"")}catch(x){}
@@ -1017,18 +1018,26 @@ function profShow(){
  });
 }
 window.lastView=function(){
- var v="home";try{v=localStorage.getItem("pc-view")||"home"}catch(x){}
+ var v="home";try{v=localStorage.getItem("pc-view:"+(window.__uid||"anon"))||"home"}catch(x){}
  var el=document.getElementById(v);if(!el||!el.classList.contains("view"))v="home";
  return v;
 };
 function profPw(){
- var np=$("pf-np").value,cp=$("pf-cp").value;
+ var cur=$("pf-cpw").value,np=$("pf-np").value,cp=$("pf-cp").value;
+ if(!cur)return toast("Enter your current password",1);
  if(!okPw(np))return toast("Password needs 8+ characters with letters and numbers",1);
  if(np!==cp)return toast("Passwords do not match",1);
  if(!sb)return toast("Not connected",1);
- sb.auth.updateUser({password:np}).then(function(r){
-  if(r.error)return toast(sbErr(r.error),1);
-  $("pf-np").value="";$("pf-cp").value="";sfx.ok();toast("Password updated");
+ sb.auth.getUser().then(function(r){
+  var email=r.data&&r.data.user&&r.data.user.email;
+  if(!email)return toast("Could not read your account",1);
+  return sb.auth.signInWithPassword({email:email,password:cur}).then(function(v){
+   if(v.error)return toast("Current password is incorrect",1);
+   return sb.auth.updateUser({password:np}).then(function(u){
+    if(u.error)return toast(sbErr(u.error),1);
+    $("pf-cpw").value="";$("pf-np").value="";$("pf-cp").value="";sfx.ok();toast("Password updated");
+   });
+  });
  });
 }
 function profPin(){
@@ -1511,7 +1520,7 @@ function er(id,t){$$(id).textContent=t}
 function needSb(id){if(!sb){er(id,"Supabase keys are not set in the CONFIG section of this file.");return true}return false}
 function okEm(e){return /^\S+@\S+\.\S+$/.test(e)}
 function okPw(p){return p.length>=8&&/[A-Za-z]/.test(p)&&/[0-9]/.test(p)}
-function unlock(u){loadMe(u);document.body.classList.remove("locked");$$("auth").style.display="none";toast("Welcome "+((u.user_metadata&&u.user_metadata.full_name)||u.email));render();restoreView()}
+function unlock(u){window.__uid=u&&u.id;loadMe(u);document.body.classList.remove("locked");$$("auth").style.display="none";toast("Welcome "+((u.user_metadata&&u.user_metadata.full_name)||u.email));render();restoreView()}
 function busy(b,f){b.disabled=true;return f().then(function(r){b.disabled=false;return r},function(x){b.disabled=false;throw x})}
 
 $$("l-go").onclick=function(){
