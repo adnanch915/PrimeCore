@@ -1082,12 +1082,12 @@ function loadTeam(){
   if(r.error){if(ct)ct.textContent="Team data error: "+(r.error.message||"");return}
   var j=r.data||{},mem=j.members||[];
   var L={1:0,2:0,3:0};mem.forEach(function(m){if(L[m.lvl]!==undefined)L[m.lvl]++});
-  window.__direct=L[1];window.__teamN=mem.length;
+  window.__direct=L[1];
   TREE.children=mem.map(function(m){return{name:m.name,lvl:m.lvl,parent:m.parent,joined:m.joined,pkg:m.pkg,paid:m.paid,rank:-1,pb:Number(m.deposit)||0,tb:0,children:[]}});
   tree();
   if(ct)ct.textContent="";
   var re=$("ratesearn");if(re)re.innerHTML="Your referral commission earned: <b>$"+Number(j.commission_total||0).toFixed(2)+"</b>";
-  if(typeof lv==="function")lv();if(typeof salary==="function")salary();
+  if(typeof lv==="function")lv();
   var rc=$("refs");if(rc&&rc.closest(".c"))rc.closest(".c").style.display="none";
  });
 }
@@ -1115,6 +1115,33 @@ function setTeamTab(t){
 }
 function dayBreak(){
  if(!sb)return;
+ sb.rpc("my_income_log",{p_days:30}).then(function(r){
+  if(r.error||!Array.isArray(r.data)){dayBreakOld();return}
+  var L=r.data,E=pseries(plans(),7).slice(-7),map={},det=[];
+  L.forEach(function(x){
+   var d=new Date(x.at);if(isNaN(d))return;
+   var k=d.toISOString().slice(0,10),a=Number(x.amount)||0;
+   if(x.type==="PROFIT")return;
+   if(!map[k])map[k]={dir:0,team:0};
+   if(x.type==="DIRECT")map[k].dir+=a;else map[k].team+=a;
+   det.push({x:x,d:d,a:a});
+  });
+  var prev=null,rows=E.map(function(x){
+   var m=map[x.k]||{dir:0,team:0},pl=x.p+x.b,tot=pl+m.dir+m.team,dl=prev===null?null:tot-prev;prev=tot;
+   var ar=dl===null?"":(dl>0?'<span style="color:#22c55e;white-space:nowrap">&#9650; $'+dl.toFixed(2)+'</span>':dl<0?'<span style="color:#ef4444;white-space:nowrap">&#9660; $'+Math.abs(dl).toFixed(2)+'</span>':'<span class="mu">&mdash;</span>');
+   return'<tr><td>'+esc(x.k)+'</td><td>$'+pl.toFixed(2)+'</td><td>$'+m.dir.toFixed(2)+'</td><td>$'+m.team.toFixed(2)+'</td><td><b>$'+tot.toFixed(2)+'</b></td><td>'+ar+'</td></tr>';
+  }).reverse().join("");
+  function p2(n){return(n<10?"0":"")+n}
+  var dl=det.slice(0,30).map(function(o){
+   var d=o.d,h=d.getHours(),tm=d.getFullYear()+"-"+p2(d.getMonth()+1)+"-"+p2(d.getDate())+" "+((h%12)||12)+":"+p2(d.getMinutes())+" "+(h<12?"AM":"PM");
+   var lab=o.x.type==="DIRECT"?"Direct bonus 5%":"Team commission, Level "+o.x.level;
+   return'<div class="row" style="flex-wrap:nowrap;align-items:flex-start;padding:10px 0;border-top:1px solid var(--line)"><div style="min-width:0"><b style="font-size:14px">'+esc(o.x.name||"Member")+'</b><div class="mu" style="font-size:12px;margin-top:2px">'+(o.x.uid?"ID "+esc(o.x.uid)+" &middot; ":"")+tm+'</div><span class="tag" style="margin-top:6px;display:inline-block">'+lab+'</span></div><b style="color:#22c55e;white-space:nowrap">+$'+o.a.toFixed(2)+'</b></div>';
+  }).join("");
+  $("daybreak").innerHTML='<div class="scroll"><table style="font-size:13px"><thead><tr><th>Date</th><th>Plan profit</th><th>Direct bonus 5%</th><th>Team commission</th><th>Total</th><th>Change</th></tr></thead><tbody>'+rows+'</tbody></table></div><p class="mu" style="font-size:12.5px;margin-top:12px;line-height:1.6"><b>Plan profit</b>: daily profit from your own plan.<br><b>Direct bonus 5%</b>: 5% of the deposit made by people you referred directly.<br><b>Team commission</b>: commission from your Level 1, 2 and 3 team.<br><b>Total</b>: all three added together.<br><b>Change</b>: today\'s total minus the previous day\'s total.</p>'+(det.length?'<h3 style="margin:18px 0 4px;font-size:16px">Who paid you</h3><small class="mu">Latest entries with member ID, date and time</small><div style="margin-top:8px">'+dl+'</div>':'');
+ },function(){dayBreakOld()});
+}
+function dayBreakOld(){
+ if(!sb)return;
  var E=pseries(plans(),7).slice(-7);
  sb.rpc("my_referral_income_daily",{p_days:7}).then(function(r){
   var map={};(r.data||[]).forEach(function(x){map[x.day]=Number(x.amount)||0});
@@ -1123,7 +1150,7 @@ function dayBreak(){
    var ar=d===null?"":(d>0?'<span style="color:#22c55e;white-space:nowrap">&#9650; $'+d.toFixed(2)+'</span>':d<0?'<span style="color:#ef4444;white-space:nowrap">&#9660; $'+Math.abs(d).toFixed(2)+'</span>':'<span class="mu">&mdash;</span>');
    return'<tr><td>'+esc(x.k)+'</td><td>$'+pb.toFixed(2)+'</td><td>$'+rf.toFixed(2)+'</td><td><b>$'+tot.toFixed(2)+'</b></td><td>'+ar+'</td></tr>';
   }).reverse().join("");
-  $("daybreak").innerHTML='<table style="font-size:13px"><thead><tr><th>Date</th><th>Profit + bonus</th><th>Referral commission</th><th>Total</th><th>vs previous day</th></tr></thead><tbody>'+rows+'</tbody></table><p class="mu" style="font-size:12.5px;margin-top:12px;line-height:1.6"><b>Profit + bonus</b>: your plan\'s daily profit and any bonus credited that day.<br><b>Referral commission</b>: 5% of confirmed deposits from people you referred, credited that day.<br><b>Total</b>: both added together.<br><b>vs previous day</b>: today\'s total minus the previous day\'s total.</p>';
+  $("daybreak").innerHTML='<table style="font-size:13px"><thead><tr><th>Date</th><th>Plan profit</th><th>Referral commission</th><th>Total</th><th>Change</th></tr></thead><tbody>'+rows+'</tbody></table><p class="mu" style="font-size:12.5px;margin-top:12px;line-height:1.6"><b>Plan profit</b>: daily profit from your own plan.<br><b>Referral commission</b>: 5% of confirmed deposits from people you referred, credited that day.<br><b>Total</b>: both added together.<br><b>Change</b>: today\'s total minus the previous day\'s total.</p>';
  });
 }
 function loadDailyReferrals(){
@@ -1252,7 +1279,7 @@ function salary(){
  el.innerHTML=SAL.map(function(x,i){
   var have=SALD.line1[x.rk]||0,selfOk=self===x.rk,ok=selfOk&&have>=x.n;
   if(ok)tot+=x.s;else all=false;
-  return'<div class="c hv"><div class="row" style="flex-wrap:nowrap">'+ring(Math.min((window.__teamN||0)/x.t,1)*100,Math.min(window.__teamN||0,x.t)+"/"+x.t)+'<div><span class="tag">Level '+(i+1)+' · Team '+x.t+'</span><div class="v" style="font-size:34px;margin-top:6px">$'+x.s+'<small class="mu" style="font-size:14px"> / month</small></div></div></div>'
+  return'<div class="c hv"><div class="row" style="flex-wrap:nowrap">'+ring(Math.min(have/x.n,1)*100,Math.min(have,x.n)+"/"+x.n)+'<div><span class="tag">Level '+(i+1)+' · Team '+x.t+'</span><div class="v" style="font-size:34px;margin-top:6px">$'+x.s+'<small class="mu" style="font-size:14px"> / month</small></div></div></div>'
    +'<p class="mu" style="font-size:13px;margin-top:12px">Condition: self rank '+RN[x.rk]+' with '+x.n+' '+RN[x.rk]+' in 1st line.</p>'
    +'<p style="font-size:13px;margin-top:8px"><b>'+(ok?'Achieved':(selfOk?'Not yet: '+have+' of '+x.n+' in 1st line':'Not yet: your own package must be '+RN[x.rk]+''))+'</b></p></div>';
  }).join("");
