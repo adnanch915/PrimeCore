@@ -590,6 +590,32 @@ input:focus,select:focus,textarea:focus{transform:translateY(-1px)}
 #adm-crc .crw{padding:14px 0;border-bottom:1px solid var(--line);display:grid;gap:8px}
 #adm-crc .crw a{color:inherit;word-break:break-all;text-decoration:underline}
 </style>
+<style>
+.pct{display:flex;gap:6px;align-items:center;margin:10px 0 12px;flex-wrap:wrap}
+.pcb{border:1px solid var(--line);background:transparent;color:var(--txt);border-radius:99px;padding:6px 14px;font:inherit;font-size:12px;font-weight:700;cursor:pointer}
+.pcb.on{background:var(--ac);color:#0a0a0a;border-color:transparent}
+.pcl{margin-left:auto;font-size:12px;color:var(--mute);display:flex;gap:6px;align-items:center}
+.pcl i{width:9px;height:9px;border-radius:3px;display:inline-block}.d1{background:var(--ac)}.d2{background:#4f7cff;margin-left:8px}
+.pcg{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.pck{display:grid;gap:2px;padding:10px 12px;border:1px solid var(--line);border-radius:14px}
+.pck small{color:var(--mute);font-size:12px}.pck b{font-size:20px}.pck span{font-size:11px;color:var(--mute)}
+.pck span.up{color:#18a56a}.pck span.dn{color:#e5484d}
+.pca{display:flex;gap:8px;height:190px}
+.pcy{position:relative;width:34px;flex:0 0 34px;font-size:10px;color:var(--mute)}
+.pcy span{position:absolute;right:0;transform:translateY(50%)}
+.pcgr{position:relative;flex:1;min-width:0}
+.pcgr u{position:absolute;left:0;right:0;border-top:1px dashed var(--line)}
+.pcbars{position:absolute;inset:0;display:flex;align-items:flex-end;gap:2px}
+.pbr{flex:1;height:100%;display:flex;flex-direction:column;justify-content:flex-end;cursor:pointer;border-radius:4px 4px 0 0}
+.pbr i{display:block;width:100%}
+.pbp{background:linear-gradient(180deg,var(--ac),#b8902f);border-radius:3px 3px 0 0}
+.pbb{background:#4f7cff;border-radius:3px 3px 0 0}
+.pbr:hover,.pbr.sel{background:#ffffff14;outline:1px solid var(--line)}
+.pbr.hi .pbp{box-shadow:0 0 0 1.5px var(--ink)}
+.pcx{display:flex;justify-content:space-between;margin:6px 0 0 42px;font-size:11px;color:var(--mute)}
+.pctip{margin-top:10px;font-size:13px;color:var(--mute);min-height:20px}
+.pce{padding:24px 6px;text-align:center}
+</style>
 </head>
 <body class="locked">
 <div id="splash" aria-hidden="true"><div class="sp-glow g1"></div><div class="sp-glow g2"></div><div class="sp-orbs"><i><u></u></i><i><u></u></i><i><u></u></i></div><div class="sp-center"><div class="sp-mk"></div><div class="sp-word"><span class="b" style="--d:0">P</span><span class="b" style="--d:1">R</span><span class="b" style="--d:2">I</span><span class="b" style="--d:3">M</span><span class="b" style="--d:4">E</span><span class="l" style="--d:5">C</span><span class="l" style="--d:6">O</span><span class="l" style="--d:7">R</span><span class="l" style="--d:8">E</span></div><div class="sp-sub">Learn. Build. Grow.</div><div class="sp-bar"><i></i></div></div></div>
@@ -648,13 +674,13 @@ input:focus,select:focus,textarea:focus{transform:translateY(-1px)}
 <section class="view on" id="home">
 <div class="hd"><div><h1 id="gr">Welcome back</h1><p class="mu">Your wallet, profit and team at a glance.</p></div><div class="row" style="gap:8px"><button class="btn ln" data-go="wallet">Withdraw</button><button class="btn gd" data-go="wallet">Deposit</button></div></div>
 <div class="g g4 stg" id="stg"></div>
-<div class="g gm"><div class="c"><div class="row"><h3>Profit overview</h3><span class="tag">Last 12 days &middot; $ per day</span></div><div id="chart"></div></div><div class="c row" id="nx"></div></div>
+<div class="g gm"><div class="c"><div class="row"><h3>Profit overview</h3><span class="tag">Profit and bonus</span></div><div id="chart"></div></div><div class="c row" id="nx"></div></div>
 <div class="g g4 stg" id="mini"></div>
 </section>
 
 <section class="view" id="packages"><div class="hd"><div><h1>Choose your <b>package</b></h1><p class="mu">Tap a package to see what is included. Rates are proposed, not guaranteed.</p></div></div>
 <div class="g g3" id="pkgs"></div>
-<div class="c" style="margin-bottom:14px"><p style="margin:0 0 12px">Planning to deposit more than $5,000? Please contact the company for a separate plan.</p><button class="btn gd sm" id="bigdep">Contact the company</button></div>
+<div class="c" style="margin-bottom:14px"><p style="margin:0 0 12px">Larger deposits earn the same daily rate as the top package. Additional rewards at plan completion are agreed directly with the company.</p><button class="btn gd sm" id="bigdep">Contact the company</button></div>
 
 </section>
 
@@ -670,8 +696,9 @@ input:focus,select:focus,textarea:focus{transform:translateY(-1px)}
 <label>Method<select id="wm"><option value="usdt">USDT (BEP20)</option></select></label>
 <label>Amount (USD)<input id="wa" type="number" min="10" step="1" placeholder="Minimum $10"></label>
 <label>USDT wallet address<input id="wd" placeholder="Enter your wallet address"></label>
+<p class="mu" id="wd-fee" style="font-size:13px;margin:-2px 0 10px"></p>
 <button class="btn" id="wgo" style="width:100%">Request withdrawal</button>
-<p class="wal-msg"><b>Processing time: 24 to 48 hours.</b> Each request is checked by our team and then sent to your BEP20 address. The amount is held from your balance until then.</p></div></div>
+<p class="wal-msg"><b>Processing time: 24 to 48 hours.</b> A 5% withdrawal fee applies to each request. Each request is checked by our team and then sent to your BEP20 address. The amount is held from your balance until then.</p></div></div>
 <div class="c" style="margin-top:14px"><h3 style="margin-bottom:6px">Deposit not credited?</h3>
 <p class="mu" style="font-size:13px;margin-bottom:10px">If you sent USDT and it was not added to your balance after 30 minutes, send us the details. Our team will check it and credit it manually.</p>
 <div class="g g3" style="gap:10px"><label>Amount you sent (USD)<input id="pr-a" type="number" min="1" step="any" placeholder="e.g. 100"></label><label>Transaction hash (TXID)<input id="pr-t" placeholder="0x..." style="font-size:12px"></label><label>Note (optional)<input id="pr-n" maxlength="200" placeholder="Exchange or wallet used"></label></div>
@@ -804,7 +831,7 @@ setInterval(function(){var e=document.getElementById("dpcd");if(!e)return;
  var best=Infinity;L.forEach(function(x){var n=x.start+(x.days+1)*DAY;if(n<best)best=n});
  var d=best-Date.now();e.textContent=d>0?"Next profit in "+hms(d):"Crediting now\u2026"},1000);
 var SUM=null;
-function pf(){PK.forEach(function(x){x.p="$"+x.min.toLocaleString()+" - $"+x.max.toLocaleString()})}
+function pf(){PK.forEach(function(x){x.p=x.max>=100000?"$"+x.min.toLocaleString()+" and above":"$"+x.min.toLocaleString()+" - $"+x.max.toLocaleString()})}
 try{var sv=JSON.parse(localStorage.getItem("pc-plans"));if(sv&&sv.length===PK.length)sv.forEach(function(z,i){if(z&&z.n&&z.min>=0&&z.max>z.min&&z.rate>=0){PK[i].n=String(z.n).slice(0,24);PK[i].min=+z.min;PK[i].max=+z.max;PK[i].rate=+z.rate}})}catch(e){}
 pf();
 var LV=[{l:"Level 1",r:10,t:2},{l:"Level 2",r:7,t:5},{l:"Level 3",r:3,t:10}];
@@ -832,6 +859,47 @@ function path(v,w,h){var mx=Math.max.apply(0,v),mn=Math.min.apply(0,v);return v.
 function spark(v){return'<svg viewBox="0 0 120 40" preserveAspectRatio="none"><path class="sp" pathLength="1" d="'+path(v,120,40)+'"/></svg>'}
 function ring(p,txt){return'<div class="rw"><svg viewBox="0 0 40 40"><circle class="rg b" cx="20" cy="20" r="16" pathLength="100"/><circle class="rg p" cx="20" cy="20" r="16" pathLength="100" style="--o:'+(100-Math.min(100,p))+'"/></svg><b>'+txt+'</b></div>'}
 function done(){return D.claims.filter(function(c){return c.st==="SUCCESS"}).reduce(function(a,c){return a+c.amt},0)}
+
+var WDF=5;
+var PCR=30,PCL=[],PCB=[];
+function pm(v){return"$"+Number(v).toFixed(2)}
+function dk(t){var d=new Date(t);return d.getFullYear()+"-"+("0"+(d.getMonth()+1)).slice(-2)+"-"+("0"+d.getDate()).slice(-2)}
+function pfmt(k){var q=k.split("-");return new Date(+q[0],+q[1]-1,+q[2]).toLocaleDateString("en",{month:"short",day:"numeric"})}
+function pnice(mx){if(!(mx>0))return 1;var e=Math.pow(10,Math.floor(Math.log(mx)/Math.LN10)),f=mx/e,n=f<=1?1:f<=2?2:f<=2.5?2.5:f<=5?5:10;return n*e}
+function plbl(x){return x.a===x.z?pfmt(x.a):pfmt(x.a)+" - "+pfmt(x.z)}
+function pseries(PL,n){
+ var now=Date.now(),pro={},bon={},days=[];
+ PL.forEach(function(x){for(var k=1;k<=x.days;k++){var t=x.start+k*DAY;if(t<=now){var a=dk(t);pro[a]=(pro[a]||0)+x.daily}}});
+ D.claims.forEach(function(c){if(c.st==="SUCCESS")bon[c.d]=(bon[c.d]||0)+c.amt});
+ for(var i=2*n-1;i>=0;i--){var a=dk(now-i*DAY);days.push({k:a,p:pro[a]||0,b:bon[a]||0})}
+ return days}
+function pchart(PL){
+ PCL=PL;var n=PCR,bs=n>=90?7:1,S=pseries(PL,n),cur=S.slice(n),prev=S.slice(0,n),B=[];
+ for(var e=cur.length;e>0;e-=bs){var s0=Math.max(0,e-bs),g=cur.slice(s0,e);
+  B.unshift({a:g[0].k,z:g[g.length-1].k,p:g.reduce(function(t,y){return t+y.p},0),b:g.reduce(function(t,y){return t+y.b},0)})}
+ PCB=B;
+ var tot=0,tp=0,tb=0;B.forEach(function(x){tot+=x.p+x.b;tp+=x.p;tb+=x.b});
+ var pv=prev.reduce(function(t,y){return t+y.p+y.b},0),ch=pv>0?(tot-pv)/pv*100:null,hi=-1,lo=-1;
+ B.forEach(function(x,i){var v=x.p+x.b;if(v>0){if(hi<0||v>B[hi].p+B[hi].b)hi=i;if(lo<0||v<B[lo].p+B[lo].b)lo=i}});
+ var mx=pnice(Math.max.apply(0,B.map(function(x){return x.p+x.b}))),u=bs>1?"week":"day";
+ var tabs=[7,30,90].map(function(r){return'<button class="pcb'+(r===n?" on":"")+'" data-pcr="'+r+'">'+r+'D</button>'}).join("");
+ var kp=[["Total earned",pm(tot),ch===null?"No earlier period yet":(ch>=0?"+":"")+ch.toFixed(0)+"% vs previous "+n+" days",ch===null?"":(ch>=0?"up":"dn")],
+  ["Average per day",pm(tot/n),"Profit "+pm(tp)+" · Bonus "+pm(tb),""],
+  ["Best "+u,hi>=0?pm(B[hi].p+B[hi].b):"-",hi>=0?plbl(B[hi]):"No earnings yet","up"],
+  ["Lowest "+u,lo>=0&&lo!==hi?pm(B[lo].p+B[lo].b):"-",lo>=0&&lo!==hi?plbl(B[lo]):"Not enough data",""]]
+  .map(function(k){return'<div class="pck"><small>'+k[0]+'</small><b>'+k[1]+'</b><span class="'+k[3]+'">'+k[2]+'</span></div>'}).join("");
+ if(!tot&&!PL.length){$("chart").innerHTML='<div class="pce"><b>No profit yet</b><p class="mu">Your first profit is added 24 hours after your deposit is confirmed. Daily profit and bonuses will appear here as a chart.</p></div>';return}
+ var bars=B.map(function(x,i){return'<div class="pbr'+(i===hi?" hi":"")+'" data-pci="'+i+'"><i class="pbb" style="height:'+(x.b/mx*100)+'%"></i><i class="pbp" style="height:'+(x.p/mx*100)+'%"></i></div>'}).join("");
+ var yl=[1,.5,0].map(function(f){return'<span style="bottom:'+(f*100)+'%">$'+(mx*f>=10?Math.round(mx*f):(mx*f).toFixed(mx<4?1:0))+'</span>'}).join("");
+ var mid=B[Math.floor(B.length/2)];
+ $("chart").innerHTML='<div class="pct">'+tabs+'<span class="pcl"><i class="d1"></i>Profit<i class="d2"></i>Bonus</span></div><div class="pcg">'+kp+'</div>'
+  +'<div class="pca"><div class="pcy">'+yl+'</div><div class="pcgr"><u style="bottom:0"></u><u style="bottom:50%"></u><u style="bottom:100%"></u><div class="pcbars">'+bars+'</div></div></div>'
+  +'<div class="pcx"><span>'+pfmt(B[0].a)+'</span><span>'+pfmt(mid.a)+'</span><span>Today</span></div><div class="pctip" id="pctip">Tap a bar to see the details for that '+u+'.</div>'}
+document.addEventListener("click",function(e){
+ var r=e.target.closest("[data-pcr]");if(r){PCR=+r.dataset.pcr;pchart(PCL);return}
+ var b=e.target.closest("[data-pci]");if(!b)return;var x=PCB[+b.dataset.pci];if(!x)return;
+ document.querySelectorAll(".pbr.sel").forEach(function(o){o.classList.remove("sel")});b.classList.add("sel");
+ var t=document.getElementById("pctip");if(t)t.innerHTML="<b>"+plbl(x)+"</b> &middot; Profit "+pm(x.p)+" &middot; Bonus "+pm(x.b)+" &middot; Total <b>"+pm(x.p+x.b)+"</b>"});
 function stats(){
  $("gr").innerHTML=T("Welcome back")+", <b>"+esc(D.name)+"</b>";
  var m=function(n){return"$"+Number(n).toFixed(2)},sm=function(a,k){return a.filter(function(r){return r.st===k}).reduce(function(t,r){return t+r.a},0)};
@@ -840,9 +908,7 @@ function stats(){
  var card=function(s){return'<div class="c st hv '+(s[3]||"")+'"><small>'+s[0]+'</small><div class="v">'+s[1]+'</div><div class="sub">'+s[2]+'</div></div>'};
  $("stg").innerHTML=[["Wallet Balance",m(W.bal),"Available to withdraw","f"],["Daily Profit",m(dly),'Added every 24 hours<br><b id="dpcd"></b>'],["Total Deposit",m(dep),"Confirmed deposits"],["Total Withdraw",m(wdp),"Pending: "+m(wpe)]].map(card).join("");
  $("mini").innerHTML=[["Plan Progress",nxt?nxt.days+" / "+PLAN_DAYS+" days":(PL.length?"Completed":"No active plan"),nxt?nxt.left+" days left &middot; ends "+new Date(nxt.ends).toISOString().slice(0,10):"Each deposit runs a "+PLAN_DAYS+"-day plan"],["Direct Referrals",refs,"Your 1st line"],["Total Profit Earned",m(ern),"From your "+PLAN_DAYS+"-day plans"],["Pending Withdrawals",m(wpe),"Processed in 24 to 48 hours"]].map(card).join("");
- var v=[];for(var q=11;q>=0;q--){var tt=Date.now()-q*DAY;v.push(PL.reduce(function(t,x){var e=tt-x.start;return t+(e>=DAY&&e<=PLAN_DAYS*DAY?x.daily:0)},0))}
- var P=path(v,600,200);
- $("chart").innerHTML='<svg viewBox="0 0 600 210" preserveAspectRatio="none" style="width:100%;height:210px;margin-top:10px"><defs><linearGradient id="ag" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#d4b46a" stop-opacity=".45"/><stop offset="1" stop-color="#d4b46a" stop-opacity="0"/></linearGradient></defs>'+[50,100,150].map(function(y){return'<line x1="0" x2="600" y1="'+y+'" y2="'+y+'" stroke="var(--line)"/>'}).join("")+'<g class="ar"><path d="'+P+'L600 210L0 210Z" fill="url(#ag)"/><path d="'+P+'" fill="none" stroke="var(--ink)" stroke-width="2.5" vector-effect="non-scaling-stroke"/></g></svg>';
+ pchart(PL);
  var nx=MS.filter(function(m){return D.qual<m.q})[0];
  $("nx").innerHTML=nx?ring(D.qual/nx.q*100,D.qual+"/"+nx.q)+'<div><h3>Next reward</h3><p class="mu">$'+nx.a+' at '+nx.q+' qualified referrals today.</p><button class="btn sm" style="margin-top:10px" data-go="challenge">Open daily bonus</button></div>':'<div><h3>All milestones reached</h3><p class="mu">Claim your rewards in Daily Bonus.</p></div>';
 }
@@ -983,6 +1049,7 @@ $("wgo").onclick=function(){
  if(!a||a<10)return toast("Minimum withdrawal is $10",1);
  if(a>W.bal)return toast("Amount exceeds available balance",1);
  if(!BEP.test(addr))return toast("Enter a valid BEP20 address (0x...)",1);
+  if(!confirm("Withdraw $"+a.toFixed(2)+"? A "+WDF+"% fee ($"+(a*WDF/100).toFixed(2)+") applies. You will receive $"+(a*(100-WDF)/100).toFixed(2)+" USDT."))return;
  $("wgo").disabled=true;
  sb.rpc("request_withdrawal",{p_amount:a,p_address:addr}).then(function(r){
   $("wgo").disabled=false;
@@ -992,6 +1059,8 @@ $("wgo").onclick=function(){
 };
 
 
+function wfee(){var a=+$("wa").value,e=$("wd-fee");if(!e)return;e.textContent=a>0?"Withdrawal fee "+WDF+"%: $"+(a*WDF/100).toFixed(2)+". You receive $"+(a*(100-WDF)/100).toFixed(2)+" USDT.":"Withdrawal fee: "+WDF+"% of the amount you request."}
+$("wa").addEventListener("input",wfee);wfee();
 var PRQ=[];
 function loadReq(){
  if(!sb)return;
@@ -1056,7 +1125,7 @@ function admRender(){
  $("adm-att").innerHTML=att.length?att.join(""):admEmpty("Everything is clear. Nothing needs action right now.");
  $("adm-rq").innerHTML=ADM.rq.length?ADM.rq.map(function(x){var op=x.status==="OPEN",f=ADM.u.some(function(u){return String(u.tx_hash||"").toLowerCase()===String(x.tx_hash||"").toLowerCase()});return'<div class="wal-row" style="flex-wrap:wrap"><span style="min-width:0"><b>'+admMoney(x.amount)+'</b> &middot; '+esc(x.email||"")+' <span class="tag '+(x.status==="RESOLVED"?"ok":(x.status==="REJECTED"?"bad":"pd"))+'">'+x.status+'</span>'+(op&&f?' <span class="tag ok">FOUND IN PAYMENTS</span>':'')+'<br><small class="mu" style="word-break:break-all">'+esc(x.tx_hash)+'</small>'+(x.note?'<div style="font-size:13px;margin-top:2px">'+esc(x.note)+'</div>':'')+'<small class="mu">'+admTime(x.created_at)+'</small></span>'+(op?'<span style="display:flex;gap:6px;flex-wrap:wrap"><button class="btn sm" data-cph="'+esc(x.tx_hash)+'">Copy hash</button><button class="btn gd sm" data-rqok="'+x.id+'">Resolved</button><button class="btn sm" data-rqno="'+x.id+'">Reject</button></span>':'')+'</div>'}).join(""):admEmpty("No deposit requests.");
  admMem();
- $("adm-w").innerHTML=pw?ADM.w.map(function(x){return'<div class="wal-row" style="flex-wrap:wrap"><span><b>'+admMoney(x.amount)+'</b> &middot; '+esc(x.email||"")+'<br><small class="mu" style="word-break:break-all">'+esc(x.address)+'</small></span><span style="display:flex;gap:6px;align-items:center"><button class="btn sm" data-wcopy="'+esc(x.address)+'">Copy</button><button class="btn gd sm" data-wpaid="'+x.id+'">Mark paid</button><button class="btn sm" data-wrej="'+x.id+'">Reject</button></span></div>'}).join(""):admEmpty("No pending withdrawals.");
+ $("adm-w").innerHTML=pw?ADM.w.map(function(x){return'<div class="wal-row" style="flex-wrap:wrap"><span><b>Send '+admMoney(x.amount*(100-WDF)/100)+'</b> <small class="mu">(requested '+admMoney(x.amount)+', fee '+WDF+'%)</small> &middot; '+esc(x.email||"")+'<br><small class="mu" style="word-break:break-all">'+esc(x.address)+'</small></span><span style="display:flex;gap:6px;align-items:center"><button class="btn sm" data-wcopy="'+esc(x.address)+'">Copy</button><button class="btn gd sm" data-wpaid="'+x.id+'">Mark paid</button><button class="btn sm" data-wrej="'+x.id+'">Reject</button></span></div>'}).join(""):admEmpty("No pending withdrawals.");
  var wd=ADM.d.filter(function(x){return x.status==="PENDING"});
  $("adm-u").innerHTML=pu?ADM.u.map(function(x){return'<div class="wal-row" style="flex-wrap:wrap"><span><b>'+Number(x.amount).toFixed(6)+' USDT</b><br><small class="mu" style="word-break:break-all">'+esc(x.tx_hash)+'</small></span><span style="display:flex;gap:6px;align-items:center;flex-wrap:wrap"><select data-um="'+x.id+'" style="max-width:170px;margin:0"><option value="">Match to...</option>'+wd.map(function(d){return'<option value="'+d.id+'">'+esc(d.email||"")+' &middot; '+Number(d.pay_amount).toFixed(4)+'</option>'}).join("")+'</select><button class="btn sm" data-udis="'+x.id+'">Dismiss</button></span></div>'}).join(""):admEmpty("No unmatched payments.");
  $("adm-d").innerHTML=ADM.d.length?ADM.d.slice(0,50).map(function(x){return'<div class="wal-row" style="flex-wrap:wrap"><span>'+admTime(x.created_at)+' &middot; '+esc(x.email||"")+'</span><span style="display:flex;gap:8px;align-items:center">'+admMoney(x.amount)+' <span class="tag '+(x.status==="CREDITED"?'ok':(x.status==="PENDING"?'pd':''))+'">'+x.status+'</span>'+(x.status==="PENDING"?'<button class="btn sm" data-dcan="'+x.id+'" style="padding:3px 12px">Cancel</button>':'')+'</span></div>'}).join(""):admEmpty("No deposits yet.");
