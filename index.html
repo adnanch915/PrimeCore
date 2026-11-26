@@ -756,7 +756,7 @@ input:focus,select:focus,textarea:focus{transform:translateY(-1px)}
 <div class="c" style="margin-bottom:14px"><h3 style="margin-bottom:8px">How to qualify, step by step</h3><div class="steps"><div><b>1. Check your rank</b>Your self rank is your current package: Junior, Senior or Special. Each level tells you the rank you need.</div><div><b>2. Build your 1st line</b>Only your direct referrals in the 1st line count toward a level, and only if they hold the rank the level asks for.</div><div><b>3. Reach the count</b>Each level needs a set number of team members of that rank. Track your progress on each card above.</div><div><b>4. Verification</b>Only verified, approved and funded packages count. Nothing is counted automatically.</div><div><b>5. Payout</b>Every level you achieve is added together and paid in one monthly payout.</div></div></div>
 <div class="note" id="salnote"></div></section>
 
-<section class="view" id="challenge"><div class="hd"><div><h1>Daily referral <b>bonus</b></h1><p class="mu">Qualified referrals today: <b id="qt">0</b>. Only verified customers who bought a package count.</p></div></div>
+<section class="view" id="challenge"><div class="hd"><div><h1>Daily referral <b>bonus</b></h1><p class="mu">Qualified referrals in the last 24 hours: <b id="qt">0</b>. Only verified customers who bought a package count.</p></div></div>
 <div class="g g3" id="miles"></div>
 <div class="c" style="margin-top:14px"><h3 style="margin-bottom:8px">Bonus schedule</h3><div class="scroll"><table><thead><tr><th>Qualified referrals in one day</th><th>Extra bonus</th></tr></thead><tbody><tr><td>5 qualified referrals</td><td>$10</td></tr><tr><td>10 qualified referrals</td><td>$25</td></tr><tr><td>20 qualified referrals with verified deposits</td><td>$50</td></tr></tbody></table></div><p class="mu" style="font-size:13px;margin-top:10px">These bonuses are paid in addition to the daily team commission.</p></div>
 <div class="note" style="margin-top:14px"><b>Important note:</b> Daily referral bonuses are available only after all referred users meet the required eligibility criteria and their deposits have been successfully verified. Each referral must be genuine and unique. Self-referrals, duplicate accounts and fraudulent activity are not eligible. Rewards are subject to verification and the available approved reward budget.</div></section>
@@ -1073,19 +1073,41 @@ $("pf-rc").onclick=function(){
 };
 function loadTeam(){
  if(!sb)return;
- sb.rpc("my_team").then(function(r){
-  var ct0=$("tcomm");
-  if(r.error){if(ct0)ct0.textContent="Team data error: "+(r.error.message||JSON.stringify(r.error));return}
-  if(!r.data){if(ct0)ct0.textContent="Team data: no response from server";return}
-  var j=r.data,mem=j.members||[],L=j.levels||{};
-  TREE.children=mem.map(function(m){return{name:m.name,lvl:m.lvl,joined:m.joined,pkg:m.package,biz:"",rank:-1,pb:Number(m.deposit)||0,tb:0,children:[]}});
-  window.__direct=Number(L["1"])||0;
+ setupTeamTabs();
+ sb.rpc("my_team_full").then(function(r){
+  var ct=$("tcomm");
+  if(r.error){if(ct)ct.textContent="Team data error: "+(r.error.message||"");return}
+  var j=r.data||{},mem=j.members||[];
+  var L={1:0,2:0,3:0};mem.forEach(function(m){if(L[m.lvl]!==undefined)L[m.lvl]++});
+  window.__direct=L[1];
+  TREE.children=mem.map(function(m){return{name:m.name,lvl:m.lvl,parent:m.parent,joined:m.joined,pkg:m.pkg,paid:m.paid,rank:-1,pb:Number(m.deposit)||0,tb:0,children:[]}});
   tree();
-  $("refs").innerHTML=mem.filter(function(m){return m.lvl===1}).map(function(m){
-   return'<tr><td>'+esc(m.name)+'</td><td>'+esc(m.joined)+'</td><td><span class="tag '+(m.status==="Paid"?"ok":"")+'">'+esc(m.status)+'</span></td><td>'+esc(m.package)+'</td></tr>';
-  }).join("")||'<tr><td colspan="4" class="mu">No direct referrals yet</td></tr>';
-  var ct=$("tcomm");if(ct)ct.innerHTML="Direct referrals: <b>"+(L["1"]||0)+"</b> · Level 2: <b>"+(L["2"]||0)+"</b> · Level 3: <b>"+(L["3"]||0)+"</b> · Referral commission earned: <b>$"+Number(j.commission_total||0).toFixed(2)+"</b>";
+  if(ct)ct.innerHTML="Direct: <b>"+L[1]+"</b> · Level 2: <b>"+L[2]+"</b> · Level 3: <b>"+L[3]+"</b> · Referral commission earned: <b>$"+Number(j.commission_total||0).toFixed(2)+"</b>";
+  if(typeof lv==="function")lv();
+  var rc=$("refs");if(rc&&rc.closest(".c"))rc.closest(".c").style.display="none";
  });
+}
+function setupTeamTabs(){
+ if($("teamtabs"))return;
+ var tc=$("tree").closest(".c"),lvl=$("levels");
+ var bar=document.createElement("div");bar.id="teamtabs";bar.className="row";bar.style.cssText="gap:8px;margin:6px 0 14px;justify-content:flex-start";
+ bar.innerHTML='<button class="btn sm" id="tabP">Progress</button><button class="btn sm ln" id="tabT">Team tree</button>';
+ tc.parentNode.insertBefore(bar,tc);
+ var dc=document.createElement("div");dc.className="c";dc.id="dailyclaims";dc.style.marginBottom="14px";
+ dc.innerHTML='<div class="row"><h3>Daily referral bonus</h3><small class="mu">Last 24 hours</small></div><div id="dailyrows" style="margin-top:12px;display:grid;gap:12px"></div>';
+ lvl.parentNode.insertBefore(dc,lvl);
+ var rt=document.createElement("div");rt.className="c";rt.id="ratescard";rt.style.marginBottom="14px";
+ rt.innerHTML='<div class="row"><h3>Commission rates</h3><small class="mu">Proposed, on verified sales</small></div><table style="margin-top:12px"><thead><tr><th>Level</th><th>Rate</th><th>Direct referrals needed</th></tr></thead><tbody><tr><td>Level 1</td><td>10%</td><td>2</td></tr><tr><td>Level 2</td><td>7%</td><td>5</td></tr><tr><td>Level 3</td><td>3%</td><td>10</td></tr></tbody></table><p class="mu" style="font-size:12.5px;margin-top:10px">Active referral means a minimum $30 verified deposit.</p>';
+ lvl.parentNode.insertBefore(rt,lvl);
+ $("tabP").onclick=function(){setTeamTab("P")};
+ $("tabT").onclick=function(){setTeamTab("T")};
+ setTeamTab("P");
+}
+function setTeamTab(t){
+ var tc=$("tree").closest(".c"),lvl=$("levels"),dc=$("dailyclaims");
+ var P=t==="P";
+ lvl.style.display=P?"":"none";dc.style.display=P?"":"none";tc.style.display=P?"none":"";var rc=$("ratescard");if(rc)rc.style.display=P?"":"none";
+ $("tabP").className="btn sm"+(P?"":" ln");$("tabT").className="btn sm"+(P?" ln":"");
 }
 function dayBreak(){
  if(!sb)return;
@@ -1102,11 +1124,34 @@ function dayBreak(){
 }
 function loadDailyReferrals(){
  if(!sb)return;
- sb.rpc("my_daily_referrals_today").then(function(r){
-  if(r.error||r.data==null)return;
-  window.__qual=Number(r.data)||0;
-  var qt=$("qt");if(qt)qt.textContent=window.__qual;
-  if(typeof miles==="function")miles();
+ sb.rpc("my_referral_daily").then(function(r){
+  if(r.error){var a0=$("dailyrows");if(a0)a0.innerHTML='<p class="mu">Error: '+esc(r.error.message||"")+'</p>';return}
+  if(r.data)renderDaily(r.data);
+ });
+}
+function renderDaily(d){
+ var cnt=Number(d.count)||0,tiers=d.tiers||[];
+ var html=tiers.map(function(x){
+  var can=cnt>=x.t&&!x.claimed;
+  var pct=Math.min(100,cnt/x.t*100);
+  return'<div class="c hv" style="margin:0"><div class="row" style="flex-wrap:nowrap">'+ring(pct,Math.min(cnt,x.t)+"/"+x.t)+'<div><span class="tag">'+x.t+' referrals in 24 hours</span><div class="v" style="font-size:30px;margin-top:6px">$'+x.r+'</div></div></div><p class="mu" style="font-size:13px;margin:12px 0">'+(x.claimed?"Already claimed in the last 24 hours.":"Credited to your Available to withdraw balance.")+'</p><button class="btn" style="width:100%" data-t="'+x.t+'" '+(can?"":"disabled")+'>'+(x.claimed?"Claimed":can?"Claim $"+x.r:"Not reached yet ("+cnt+"/"+x.t+")")+'</button></div>';
+ }).join("");
+ var a=$("dailyrows");if(a)a.innerHTML=html;
+ var m=$("miles");if(m)m.innerHTML=html;
+ var qt=$("qt");if(qt)qt.textContent=cnt;
+}
+document.addEventListener("click",function(e){
+ var b=e.target.closest&&e.target.closest("button[data-t]");
+ if(!b||b.disabled)return;
+ if(!b.closest("#dailyrows")&&!b.closest("#miles"))return;
+ claimDaily(+b.dataset.t);
+});
+function claimDaily(t){
+ if(!sb)return;
+ sb.rpc("claim_referral_daily",{p_tier:t}).then(function(r){
+  if(r.error)return toast(sbErr(r.error),1);
+  toast("Bonus credited to your balance");sfx.ok();
+  loadDailyReferrals();loadWallet(true);
  });
 }
 function heat(PL){
@@ -1151,7 +1196,7 @@ if($("pe-save"))$("pe-save").onclick=function(){var N=PK.map(function(p){return{
  try{localStorage.setItem("pc-plans",JSON.stringify(N))}catch(e){}
  D.audit.unshift("Plan settings updated by admin");sfx.ok();toast("Plan settings saved");pkgs();stats();render()};
 function lv(){
- $("levels").innerHTML=LV.map(function(x){var p=Math.round(Math.min(100,(window.__direct!=null?window.__direct:D.qual)/x.t*100)),ok=(window.__direct!=null?window.__direct:D.qual)>=x.t;return'<div class="c hv row" style="flex-wrap:nowrap">'+ring(p,p+"%")+'<div><div class="row" style="gap:8px"><h3>'+x.l+'</h3><span class="tag '+(ok?'ok':'')+'">'+(ok?'Eligible':'In progress')+'</span></div><p class="mu" style="font-size:14px">Proposed '+x.r+'% on verified sales. Needs '+x.t+' direct referrals.</p></div></div>'}).join("");
+ $("levels").innerHTML=LV.map(function(x){var p=Math.round(Math.min(100,(window.__direct!=null?window.__direct:D.qual)/x.t*100)),ok=(window.__direct!=null?window.__direct:D.qual)>=x.t;return'<div class="c hv row" style="flex-wrap:nowrap">'+ring(p,(window.__direct!=null?Math.min(window.__direct,x.t):0)+"/"+x.t)+'<div><div class="row" style="gap:8px"><h3>'+x.l+'</h3><span class="tag '+(ok?'ok':'')+'">'+(ok?'Eligible':'In progress')+'</span></div><p class="mu" style="font-size:14px">Needs '+x.t+' direct referrals. Progress is counted from your verified direct referrals.</p></div></div>'}).join("");
  var r="";for(var i=1;i<=0;i++)r+='<tr style="animation:ci .5s '+i*70+'ms both"><td>REF-'+(1000+i)+'</td><td>2026-11-'+(10+i)+'</td><td><span class="tag ok">Verified</span></td><td>'+PK[i%3].n+'</td></tr>';
  $("refs").innerHTML=r;
 }
@@ -1513,12 +1558,13 @@ function treeHTML(n,depth){
 }
 function sumBiz(n){return n.children.reduce(function(a,c){return a+c.pb+sumBiz(c)},0)}
 function tree(){
- var total=sumBiz(TREE);
- $("tt").textContent="$"+total.toFixed(2);
  var mem=TREE.children||[];
- var h='<div class="tlist"><div class="trow trow-me"><div><b>You</b><div class="mu" style="font-size:12.5px">Your account</div></div></div>';
+ var total=mem.reduce(function(a,c){return a+c.pb},0);
+ $("tt").textContent="$"+total.toFixed(2);
+ var h='<div class="tlist"><div class="trow trow-me"><div><b>You</b><div class="mu" style="font-size:12.5px">Top of your team</div></div></div>';
  mem.forEach(function(c){
-  h+='<div class="trow"><div><b>'+esc(c.name)+'</b> <span class="tag">Level '+c.lvl+'</span><div class="mu" style="font-size:12.5px;margin-top:3px">Joined '+esc(c.joined||"-")+' · '+esc(c.pkg||"-")+'</div></div><div class="tr-r"><div class="mu" style="font-size:12px">Business</div><b>$'+c.pb.toFixed(2)+'</b></div></div>';
+  var ind=Math.min(c.lvl-1,6)*16;
+  h+='<div class="trow" style="margin-left:'+ind+'px"><div><b>'+esc(c.name)+'</b> <span class="tag">Level '+c.lvl+'</span> <span class="tag '+(c.paid?'ok':'')+'">'+(c.paid?'Paid':'Unpaid')+'</span><div class="mu" style="font-size:12.5px;margin-top:3px">Under: '+esc(c.parent)+' · Joined '+esc(c.joined)+' · '+esc(c.pkg)+'</div></div><div class="tr-r"><div class="mu" style="font-size:12px">Deposited</div><b>$'+c.pb.toFixed(2)+'</b></div></div>';
  });
  h+='</div>';
  if(!mem.length)h+='<p class="mu" style="font-size:14px;margin-top:8px">No team members yet. Your referrals will appear here.</p>';
