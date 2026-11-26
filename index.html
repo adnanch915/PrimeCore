@@ -690,7 +690,7 @@ input:focus,select:focus,textarea:focus{transform:translateY(-1px)}
 <p class="wal-msg">Deposits are detected automatically on the blockchain. Send the exact amount shown after you create the deposit, and your plan starts as soon as it is confirmed. No manual approval needed.</p></div>
 <div class="c"><h3 style="margin-bottom:8px">Withdrawal</h3>
 <label>Method<select id="wm"><option value="usdt">USDT (BEP20)</option></select></label>
-<label>Amount (USD)<input id="wa" type="number" min="10" step="1" placeholder="Minimum $10"></label>
+<div class="row" style="justify-content:space-between;align-items:center;margin:4px 0 0"><small class="mu">Available balance: <b id="wa-bal" style="color:var(--txt)">$0.00</b></small><button class="btn sm ln" id="wmax" type="button">Max</button></div><label>Amount (USD)<input id="wa" type="number" min="20" step="1" placeholder="Minimum $20"></label>
 <label>USDT wallet address<input id="wd" placeholder="Enter your wallet address"></label>
 <p class="mu" id="wd-fee" style="font-size:13px;margin:-2px 0 10px"></p>
 <button class="btn" id="wgo" style="width:100%">Request withdrawal</button>
@@ -825,7 +825,7 @@ function hms(ms){var t=Math.max(0,Math.floor(ms/1000)),h=Math.floor(t/3600),m=Ma
 setInterval(function(){var e=document.getElementById("dpcd");if(!e)return;
  var L=plans().filter(function(x){return x.active&&x.left>0});if(!L.length){e.textContent="";return}
  var best=Infinity;L.forEach(function(x){var n=x.start+(x.days+1)*DAY;if(n<best)best=n});
- var d=best-Date.now();e.textContent=d>0?"Next profit in "+hms(d):"Crediting now\u2026"},1000);
+ var d=best-Date.now();e.textContent=d>0?"Next profit: "+hms(d):"Crediting now\u2026"},1000);
 var SUM=null;
 function pf(){PK.forEach(function(x){x.p=x.max>=100000?"$"+x.min.toLocaleString()+" and above":"$"+x.min.toLocaleString()+" - $"+x.max.toLocaleString()})}
 try{var sv=JSON.parse(localStorage.getItem("pc-plans"));if(sv&&sv.length===PK.length)sv.forEach(function(z,i){if(z&&z.n&&z.min>=0&&z.max>z.min&&z.rate>=0){PK[i].n=String(z.n).slice(0,24);PK[i].min=+z.min;PK[i].max=+z.max;PK[i].rate=+z.rate}})}catch(e){}
@@ -906,7 +906,7 @@ function stats(){
  var PL=plans(),dly=PL.filter(function(x){return x.active}).reduce(function(t,x){return t+x.daily},0),ern=PL.reduce(function(t,x){return t+x.earned},0),nxt=PL.filter(function(x){return x.active}).sort(function(a,b){return a.ends-b.ends})[0];
  var dep=sm(W.dep,"CREDITED"),wdp=sm(W.wd,"PAID"),wpe=sm(W.wd,"PENDING"),pk=PK[D.pkg],refs=Math.max(D.refs,TREE.children.length);
  var card=function(s){return'<div class="c st hv '+(s[3]||"")+'"><small>'+s[0]+'</small><div class="v">'+s[1]+'</div><div class="sub">'+s[2]+'</div></div>'};
- $("stg").innerHTML=[["Wallet Balance",m(W.bal),"Available to withdraw","f"],["Daily Profit",m(dly),'Added every 24 hours<br><b id="dpcd"></b>'],["Total Deposit",m(dep),"Confirmed deposits"],["Total Withdraw",m(wdp),"Pending: "+m(wpe)]].map(card).join("");
+ $("stg").innerHTML=[["Wallet Balance",m(W.bal),"Available to withdraw","f"],["Daily Profit",m(dly),'Added every 24 hours'],["Total Deposit",m(dep),"Confirmed deposits"],["Total Withdraw",m(wdp),"Pending: "+m(wpe)]].map(card).join("");
  $("mini").innerHTML=[["Plan Progress",nxt?nxt.days+" / "+PLAN_DAYS+" days":(PL.length?"Completed":"No active plan"),nxt?nxt.left+" days left &middot; ends "+new Date(nxt.ends).toISOString().slice(0,10):"Each deposit runs a "+PLAN_DAYS+"-day plan"],["Direct Referrals",refs,"Your 1st line"],["Total Profit Earned",m(ern),"From your "+PLAN_DAYS+"-day plans"],["Pending Withdrawals",m(wpe),"Processed in 24 to 48 hours"]].map(card).join("");
  pchart(PL);
  var nx=MS.filter(function(m){return D.qual<m.q})[0];
@@ -998,6 +998,7 @@ function loadWallet(quiet){
   W.dep.forEach(function(x){if(old.indexOf(x.id)>-1&&x.st==="CREDITED"){burst(innerWidth/2,innerHeight/3);sfx.ok();toast("Deposit confirmed: $"+x.a.toFixed(2));primeNotify("Deposit confirmed","$"+x.a.toFixed(2)+" USDT credited. Your 100-day plan has started.")}});
   if(d.is_admin!==IS_ADMIN){IS_ADMIN=!!d.is_admin;adminNav()}
   sb.rpc("my_status").then(function(s){if(s&&s.data&&s.data.blocked){sb.auth.signOut().then(function(){alert("Your account has been suspended. Please contact support.");location.reload()})}},function(){});
+  if($("wa-bal"))$("wa-bal").textContent="$"+W.bal.toFixed(2);
   render();if(PAYID)payView();if(!quiet)loadReq();
  })
 }
@@ -1043,10 +1044,11 @@ $("dgo").onclick=function(){
   loadWallet(true).then(function(){openPay(r.data.id)});
  },function(){$("dgo").disabled=false;toast("Network error. Try again.",1)});
 };
+$("wmax").onclick=function(){var v=Math.floor(W.bal*100)/100;$("wa").value=v>0?v.toFixed(2):"";wfee()};
 $("wgo").onclick=function(){
  var a=+$("wa").value,addr=$("wd").value.trim();
  if(!sb)return toast("Database is not connected",1);
- if(!a||a<10)return toast("Minimum withdrawal is $10",1);
+ if(!a||a<20)return toast("Minimum withdrawal is $20",1);
  if(a>W.bal)return toast("Amount exceeds available balance",1);
  if(!BEP.test(addr))return toast("Enter a valid BEP20 address (0x...)",1);
   if(!confirm("Withdraw $"+a.toFixed(2)+"? A "+WDF+"% fee ($"+(a*WDF/100).toFixed(2)+") applies. You will receive $"+(a*(100-WDF)/100).toFixed(2)+" USDT."))return;
