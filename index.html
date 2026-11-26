@@ -1164,17 +1164,39 @@ function loadDailyReferrals(){
   renderDaily(r.data);
  });
 }
+function ukTime(v){try{return new Date(v).toLocaleString("en-GB",{timeZone:"Europe/London",day:"numeric",month:"short",hour:"numeric",minute:"2-digit",hour12:true})}catch(e){return""}}
+var DTI=null;
+function tickDaily(){
+ clearInterval(DTI);
+ var els=document.querySelectorAll(".dtm");if(!els.length)return;
+ function go(){
+  var done=false;
+  document.querySelectorAll(".dtm").forEach(function(e){
+   var ms=new Date(e.getAttribute("data-end")).getTime()-Date.now();
+   if(ms<=0){done=true;e.textContent="00:00:00";return}
+   var t=Math.floor(ms/1000),h=Math.floor(t/3600),m=Math.floor(t%3600/60),sc=t%60;
+   e.textContent=(h<10?"0":"")+h+":"+(m<10?"0":"")+m+":"+(sc<10?"0":"")+sc;
+  });
+  if(done){clearInterval(DTI);setTimeout(loadDailyReferrals,1500)}
+ }
+ go();DTI=setInterval(go,1000);
+}
 function renderDaily(d){
  window.__daily=d;
  var cnt=Number(d.count)||0,tiers=d.tiers||[];
  var noteH=d.note?'<p class="mu" style="font-size:13px">'+esc(d.note)+'</p>':"";
+ var tmH='';
+ if(d.window_end){tmH='<p class="mu" style="font-size:13px;margin:0 0 12px">Time left: <b class="dtm" data-end="'+esc(String(d.window_end))+'">--:--:--</b> &middot; Resets '+ukTime(d.window_end)+' UK time</p>'}
+ else if(d.window_end===null){tmH='<p class="mu" style="font-size:13px;margin:0 0 12px">Your 24-hour timer starts with your first referral.</p>'}
  var html=tiers.map(function(x){
-  var can=cnt>=x.t&&!x.claimed;
-  var pct=Math.min(100,cnt/x.t*100);
-  return'<div class="c hv" style="margin:0"><div class="row" style="flex-wrap:nowrap">'+ring(pct,Math.min(cnt,x.t)+"/"+x.t)+'<div><span class="tag">'+x.t+' referrals in 24 hours</span><div class="v" style="font-size:30px;margin-top:6px">$'+x.r+'</div></div></div><p class="mu" style="font-size:13px;margin:12px 0">'+(x.claimed?"Already claimed in the last 24 hours.":"Credited to your Available to withdraw balance.")+'</p><button class="btn" style="width:100%" data-t="'+x.t+'" '+(can?"":"disabled")+'>'+(x.claimed?"Claimed":can?"Claim $"+x.r:"Not reached yet ("+cnt+"/"+x.t+")")+'</button></div>';
+  var pc=(x.p!==undefined&&x.p!==null)?Number(x.p)||0:cnt;
+  var can=pc>=x.t&&!x.claimed;
+  var pct=Math.min(100,pc/x.t*100);
+  return'<div class="c hv" style="margin:0"><div class="row" style="flex-wrap:nowrap">'+ring(pct,Math.min(pc,x.t)+"/"+x.t)+'<div><span class="tag">'+x.t+' referrals in 24 hours</span><div class="v" style="font-size:30px;margin-top:6px">$'+x.r+'</div></div></div><p class="mu" style="font-size:13px;margin:12px 0">'+(x.claimed?"Already claimed in the last 24 hours.":"Credited to your Available to withdraw balance.")+'</p><button class="btn" style="width:100%" data-t="'+x.t+'" '+(can?"":"disabled")+'>'+(x.claimed?"Claimed":can?"Claim $"+x.r:"Not reached yet ("+pc+"/"+x.t+")")+'</button></div>';
  }).join("");
- var a=$("dailyrows");if(a)a.innerHTML=noteH+html;
- var m=$("miles");if(m)m.innerHTML=noteH+html;
+var a=$("dailyrows");if(a)a.innerHTML=noteH+tmH+html;
+ var m=$("miles");if(m)m.innerHTML=noteH+tmH+html;
+ tickDaily();
  var qt=$("qt");if(qt)qt.textContent=cnt;
 }
 document.addEventListener("click",function(e){
