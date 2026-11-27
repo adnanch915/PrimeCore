@@ -735,6 +735,7 @@ input:focus,select:focus,textarea:focus{transform:translateY(-1px)}
 <button data-at="req">Requests <i id="bd-req" hidden></i></button>
 <button data-at="sup">Support</button>
 <button data-at="crc">Creator rewards <i id="bd-crc" hidden></i></button>
+<button data-at="sec">Security <i id="bd-sec" hidden></i></button>
 <button data-at="log">Activity log</button>
 </div>
 <div class="apane on" id="ap-ov"><div class="g g3" id="adm-o"></div><div class="c" style="margin-top:14px"><h3 style="margin-bottom:6px">Needs attention</h3><div id="adm-att"></div></div></div>
@@ -745,6 +746,7 @@ input:focus,select:focus,textarea:focus{transform:translateY(-1px)}
 <div class="apane" id="ap-req"><div class="c"><h3 style="margin-bottom:6px">Deposit requests</h3><p class="mu" style="font-size:13px;margin-bottom:8px">Members who sent USDT but were not credited. If the hash shows FOUND IN PAYMENTS, match it in the Payments tab, then press Resolved.</p><div id="adm-rq"></div></div></div>
 <div class="apane" id="ap-sup"><div class="c"><h3 style="margin-bottom:6px">Support inbox</h3><div id="adm-s"></div></div></div>
 <div class="apane" id="ap-crc"><div class="c"><h3 style="margin-bottom:6px">Creator reward claims</h3><p class="mu" style="font-size:13px;margin-bottom:8px">Check the video and proof. Verified referrals are counted live from the database. Approve credits the reward to the member balance.</p><div id="adm-crc"></div></div></div>
+<div class="apane" id="ap-sec"><div class="c"><h3 style="margin-bottom:6px">Security alerts</h3><p class="mu" style="font-size:13px;margin-bottom:8px">Members are never told about these alerts. Check the accounts, then block if needed.</p><div id="adm-sec"></div></div></div>
 <div class="apane" id="ap-log"><div class="c"><h3 style="margin-bottom:6px">Admin activity</h3><div id="adm-l"></div></div></div>
 </section>
 
@@ -1353,7 +1355,9 @@ function loadWallet(quiet){
  })
 }
 var WT=null;
-function startWallet(){loadWallet();pinStatus();loadTeam();loadDailyReferrals();dayBreak();clearInterval(WT);WT=setInterval(function(){if(!document.hidden){loadWallet(true);loadTeam();loadDailyReferrals();if(IS_ADMIN&&$("admin").classList.contains("on"))admLoad()}},20000)}
+var IPLOG=false;
+function logIp(){if(IPLOG||!sb)return;IPLOG=true;try{var d=localStorage.getItem("pc_dev");if(!d){d=(window.crypto&&crypto.randomUUID)?crypto.randomUUID():String(Math.random()).slice(2)+Date.now();localStorage.setItem("pc_dev",d)}sb.rpc("log_my_ip",{p_device:d}).then(function(){},function(){})}catch(e){}}
+function startWallet(){logIp();loadWallet();pinStatus();loadTeam();loadDailyReferrals();dayBreak();clearInterval(WT);WT=setInterval(function(){if(!document.hidden){loadWallet(true);loadTeam();loadDailyReferrals();if(IS_ADMIN&&$("admin").classList.contains("on"))admLoad()}},20000)}
 document.addEventListener("visibilitychange",function(){if(!document.hidden&&WT)loadWallet(true)});
 function wRow(r,k){var x=k==="dep"&&r.st==="PENDING"?' <button class="btn sm" data-pay="'+r.id+'" style="padding:3px 12px">Pay</button>':"";return'<div class="wal-row"><span>'+r.d+' &middot; USDT</span><span>$'+r.a.toFixed(2)+' <span class="tag '+(r.st==="CREDITED"||r.st==="PAID"?"ok":"pd")+'">'+r.st+'</span>'+x+'</span></div>'}
 function wallet(){
@@ -1490,10 +1494,10 @@ function admMfaAsk(fid,qr,secret){
 function arp(n,a){return sb.rpc(n,a||{}).then(function(r){return r},function(){return{error:{message:"network"}}})}
 function admLoad(){
  if(!sb||!IS_ADMIN)return;
- Promise.all([arp("admin_overview"),arp("admin_withdrawals",{p_status:"PENDING"}),arp("admin_unmatched"),arp("admin_deposits"),arp("admin_members"),arp("admin_support"),arp("admin_log"),arp("admin_payment_requests")]).then(function(R){
+ Promise.all([arp("admin_overview"),arp("admin_withdrawals",{p_status:"PENDING"}),arp("admin_unmatched"),arp("admin_deposits"),arp("admin_members"),arp("admin_support"),arp("admin_log"),arp("admin_payment_requests"),arp("admin_security_alerts")]).then(function(R){
   if(R[0].error&&R[1].error)return toast("Admin data failed to load",1);
   ADM.o=R[0].data;ADM.w=R[1].data||[];ADM.u=R[2].data||[];ADM.d=R[3].data||[];
-  ADM.setup=!R[4].error;ADM.err=R[4].error?String(R[4].error.message||R[4].error.code||"unknown"):"";ADM.m=R[4].data||[];ADM.supOk=!R[5].error;ADM.s=R[5].data||[];ADM.l=R[6].data||[];ADM.rq=R[7].data||[];
+  ADM.setup=!R[4].error;ADM.err=R[4].error?String(R[4].error.message||R[4].error.code||"unknown"):"";ADM.m=R[4].data||[];ADM.supOk=!R[5].error;ADM.s=R[5].data||[];ADM.l=R[6].data||[];ADM.rq=R[7].data||[];ADM.sec=(R[8]&&!R[8].error)?(R[8].data||[]):null;
   admRender();
  })
 }
@@ -1506,7 +1510,22 @@ function admDay(t){return String(t||"").slice(0,10)}
 function admTime(t){return String(t||"").slice(0,16).replace("T"," ")}
 function admMoney(n){return"$"+Number(n||0).toFixed(2)}
 function admEmpty(t){return'<p class="mu" style="font-size:14px;padding:6px 0">'+t+'</p>'}
+function admSecRender(){
+ var el=$("adm-sec");if(!el)return;
+ if(ADM.sec===null||ADM.sec===undefined){el.innerHTML='<p class="mu" style="font-size:13px">Security alerts are not set up yet.</p>';return}
+ var N={MANY_ACCOUNTS_SAME_IP:"Many accounts, same IP",SAME_DEVICE_MULTI_ACCOUNT:"Same phone, many accounts",BIG_BALANCE_CHANGE:"Big balance change",ADMIN_LIST_CHANGED:"Admin list changed",LARGE_WITHDRAWAL_REQUEST:"Large withdrawal request",WITHDRAW_ADDRESS_CHANGED:"Withdrawal address changed",REFERRER_CHANGED:"Referrer changed"};
+ var C={critical:"#ef4444",high:"#f97316",medium:"#eab308"};
+ var recent=ADM.sec.filter(function(a){return(a.severity==="high"||a.severity==="critical")&&Date.now()-new Date(a.at).getTime()<3*864e5}).length;
+ var bd=$("bd-sec");if(bd){bd.hidden=!recent;bd.textContent=recent}
+ if(!ADM.sec.length){el.innerHTML='<p class="mu" style="font-size:13px">No alerts yet.</p>';return}
+ el.innerHTML=ADM.sec.map(function(a){
+  var d=a.detail||{},extra=d.ip?"IP "+esc(d.ip):(d.device?"Device "+esc(String(d.device).slice(0,8)):"");
+  var us=(a.users||[]).map(function(u){return'<div class="wal-row" style="padding:8px 0"><span style="min-width:0"><b>'+esc(u.name||"Member")+'</b><br><small class="mu">'+esc(u.email||"")+'</small></span><button class="btn sm" data-sblk="'+esc(u.id)+'">Block</button></div>'}).join("");
+  return'<div style="border-top:1px solid var(--line);padding:12px 0"><div class="row" style="flex-wrap:nowrap;align-items:flex-start"><div><b>'+esc(N[a.kind]||a.kind)+'</b><div class="mu" style="font-size:12px;margin-top:2px">'+esc(admTime(a.at))+(extra?" &middot; "+extra:"")+(d.accounts?" &middot; "+esc(d.accounts)+" accounts":"")+(d.amount?" &middot; $"+esc(d.amount):"")+'</div></div><span class="tag" style="background:'+(C[a.severity]||"#64748b")+';color:#fff">'+esc(a.severity)+'</span></div>'+us+'</div>'
+ }).join("");
+}
 function admRender(){
+ admSecRender();
  var o=ADM.o||{},c=function(a,b,x){return'<div class="c"><small class="mu">'+a+'</small><div class="v" style="font-size:26px;margin-top:6px">'+b+'</div>'+(x?'<div class="mu" style="font-size:12px;margin-top:4px">'+x+'</div>':'')+'</div>'};
  var ok=o.scanner_last_ok&&(Date.now()-new Date(o.scanner_last_ok).getTime()<5*6e4);
  var blk=ADM.m.filter(function(x){return x.status==="BLOCKED"}).length;
@@ -1570,6 +1589,7 @@ function admSet(id,st,tx){sb.rpc("admin_set_withdrawal",{p_id:id,p_status:st,p_t
   t=e.target.closest("[data-go]");if(t)return admTab(t.dataset.go);
   t=e.target.closest("#adm-f [data-f]");if(t){ADM.f=t.dataset.f;document.querySelectorAll("#adm-f button").forEach(function(b){b.classList.toggle("on",b===t)});return admMem()}
   t=e.target.closest("[data-mid]");if(t)return admSheet(t.dataset.mid);
+  t=e.target.closest("[data-sblk]");if(t)return admMemberSet(t.dataset.sblk,true);
   t=e.target.closest("[data-wcopy]");if(t)return copyTxt(t.dataset.wcopy,"Address copied");
   t=e.target.closest("[data-wpaid]");if(t){var h=prompt("Paste the transaction hash of the USDT you sent:");if(h===null)return;h=h.trim();if(h.length<10)return toast("Enter the transaction hash",1);return admSet(t.dataset.wpaid,"PAID",h)}
   t=e.target.closest("[data-wrej]");if(t){if(confirm("Reject this withdrawal? The amount returns to the member's balance."))admSet(t.dataset.wrej,"REJECTED",null);return}
