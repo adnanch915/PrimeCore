@@ -878,6 +878,7 @@ document.getElementById("mnu").onclick=function(){if(innerWidth>900)document.bod
 document.getElementById("navveil").onclick=function(){document.body.classList.remove("nav-open")};
 var NAVBACK=false,CURV="";
 function show(v){
+ if(v==="admin"&&!window.ADM2){admEnter();return}
  document.body.classList.remove("nav-open");
  var e=$(v);if(!e)return;
  document.querySelectorAll(".view").forEach(function(x){x.classList.remove("on")});
@@ -1438,8 +1439,53 @@ $("pr-go").onclick=function(){
 var ADM={o:null,rq:[],w:[],u:[],d:[],m:[],s:[],l:[],setup:true,supOk:true,tab:"ov",f:"all",q:""};
 function adminNav(){
  var ex=document.querySelector('.nv[data-v="admin"]');
- if(IS_ADMIN&&!ex){var b=document.createElement("button");b.className="nv";b.dataset.v="admin";b.innerHTML='<svg viewBox="0 0 24 24"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6zM9 12l2 2 4-4"/></svg><span>Admin</span>';b.onclick=function(){show("admin");admLoad()};$("nv").appendChild(b)}
+ if(IS_ADMIN&&!ex){var b=document.createElement("button");b.className="nv";b.dataset.v="admin";b.innerHTML='<svg viewBox="0 0 24 24"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6zM9 12l2 2 4-4"/></svg><span>Admin</span>';b.onclick=function(){admEnter()};$("nv").appendChild(b)}
  if(!IS_ADMIN&&ex)ex.remove();
+}
+var ADM2=false;window.ADM2=false;
+function admOpen(){ADM2=true;window.ADM2=true;var m=$("mfa-m");if(m)m.remove();show("admin");admLoad()}
+function admEnter(){
+ if(!sb||!IS_ADMIN)return;
+ if(window.ADM2){show("admin");admLoad();return}
+ if(!sb.auth||!sb.auth.mfa){toast("2-step verification is not available",1);return}
+ sb.auth.mfa.getAuthenticatorAssuranceLevel().then(function(a){
+  if(a&&a.data&&a.data.currentLevel==="aal2"){admOpen();return}
+  return sb.auth.mfa.listFactors().then(function(f){
+   var all=(f.data&&f.data.all)||[];
+   var ver=all.filter(function(x){return x.factor_type==="totp"&&x.status==="verified"})[0];
+   if(ver)return admMfaAsk(ver.id);
+   return Promise.all(all.filter(function(x){return x.status!=="verified"}).map(function(x){return sb.auth.mfa.unenroll({factorId:x.id})})).then(function(){
+    return sb.auth.mfa.enroll({factorType:"totp",friendlyName:"PrimeCore Admin"}).then(function(e){
+     if(e.error||!e.data||!e.data.totp)return toast("Could not start 2-step setup. Turn on TOTP in Supabase Authentication settings.",1);
+     admMfaAsk(e.data.id,e.data.totp.qr_code,e.data.totp.secret);
+    });
+   });
+  });
+ }).catch(function(){toast("2-step verification failed to start",1)});
+}
+function admMfaAsk(fid,qr,secret){
+ var old=$("mfa-m");if(old)old.remove();
+ var m=document.createElement("div");m.id="mfa-m";
+ m.style.cssText="position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;padding:18px";
+ var box=document.createElement("div");
+ box.style.cssText="background:var(--bg);color:var(--txt);border:1px solid var(--line);border-radius:18px;padding:22px;max-width:360px;width:100%;text-align:center";
+ var html='<h3 style="margin:0 0 8px;color:var(--ink)">Admin 2-step verification</h3>';
+ if(qr){html+='<p class="mu" style="font-size:13px;margin:0 0 10px">Scan this with Google Authenticator, then enter the 6-digit code.</p><img id="mfa-qr" alt="QR" style="width:190px;height:190px;background:#fff;border-radius:10px;padding:6px"><p class="mu" style="font-size:11px;word-break:break-all;margin:8px 0">Or type this key: <b id="mfa-sec"></b></p>'}
+ else{html+='<p class="mu" style="font-size:13px;margin:0 0 12px">Enter the 6-digit code from your authenticator app.</p>'}
+ html+='<input id="mfa-code" inputmode="numeric" maxlength="6" placeholder="000000" autocomplete="one-time-code" style="width:100%;text-align:center;font-size:22px;letter-spacing:6px;padding:12px;border-radius:12px;border:1px solid var(--line);background:transparent;color:var(--ink)"><div style="display:flex;gap:10px;margin-top:14px"><button class="btn" id="mfa-ok" style="flex:1">Verify</button><button class="btn" id="mfa-x" style="flex:1;background:transparent;color:var(--txt);border:1px solid var(--line);box-shadow:none">Cancel</button></div>';
+ box.innerHTML=html;m.appendChild(box);document.body.appendChild(m);
+ if(qr){$("mfa-qr").src=qr;$("mfa-sec").textContent=secret}
+ $("mfa-x").onclick=function(){m.remove()};
+ $("mfa-ok").onclick=function(){
+  var c=($("mfa-code").value||"").replace(/\D/g,"");
+  if(c.length!==6)return toast("Enter the 6-digit code",1);
+  $("mfa-ok").disabled=true;
+  sb.auth.mfa.challengeAndVerify({factorId:fid,code:c}).then(function(r){
+   $("mfa-ok").disabled=false;
+   if(r.error)return toast("Wrong code. Try again.",1);
+   admOpen();
+  },function(){$("mfa-ok").disabled=false;toast("Network problem",1)});
+ };
 }
 function arp(n,a){return sb.rpc(n,a||{}).then(function(r){return r},function(){return{error:{message:"network"}}})}
 function admLoad(){
