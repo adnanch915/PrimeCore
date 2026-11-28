@@ -1325,7 +1325,8 @@ function salaryDraw(){
  var el=$("sal");if(!el)return;
  var self=D.pkg,tot=0,all=true;
  el.innerHTML=SAL.map(function(x,i){
-  var have=SALD.line1[x.rk]||0,selfOk=self===x.rk,ok=selfOk&&have>=x.n;
+  var have=0;for(var kk in SALD.line1){if(Number(kk)>=x.rk)have+=SALD.line1[kk]}
+  var selfOk=(typeof self==="number"&&self>=x.rk),ok=selfOk&&have>=x.n;
   if(ok)tot+=x.s;else all=false;
   return'<div class="c hv"><div class="row" style="flex-wrap:nowrap">'+ring(Math.min(have/x.n,1)*100,Math.min(have,x.n)+"/"+x.n)+'<div><span class="tag">Level '+(i+1)+' · Team '+x.t+'</span><div class="v" style="font-size:34px;margin-top:6px">$'+x.s+'<small class="mu" style="font-size:14px"> / month</small></div></div></div>'
    +'<div style="margin-top:14px;font-size:13px">Team: <b>'+Math.min(SALD.team,x.t)+'</b> / '+x.t+'<div style="height:6px;border-radius:6px;background:rgba(127,127,127,.25);margin-top:6px;overflow:hidden"><div style="height:100%;width:'+Math.min(100,SALD.team/x.t*100)+'%;border-radius:6px;background:#4f8cff"></div></div></div>'
